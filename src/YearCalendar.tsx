@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   dayPeriod: {
-    color: '#0B0014',
+    color: '#0D0012',
     fontWeight: '700',
   },
   dayToday: {
