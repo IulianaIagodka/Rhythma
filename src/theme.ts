@@ -1,0 +1,15 @@
+export const colors = {
+  background: '#FBF6F3',
+  card: '#FFFFFF',
+  ink: '#3D2C2E',
+  muted: '#8A7174',
+  line: '#EAD9D6',
+  primary: '#C45C6A',
+  primaryPressed: '#A84B58',
+  period: '#E07A86',
+  periodForecast: '#F3C4C9',
+  ovulation: '#6B8F71',
+  fertile: '#C5D9C7',
+  today: '#3D2C2E',
+  white: '#FFFFFF',
+};
