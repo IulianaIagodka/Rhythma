@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
-import { daysInMonth, MONTHS_UK } from './dates';
+import { daysInMonth, mondayIndex, MONTHS_UK } from './dates';
 import { colors } from './theme';
 
 type YearCalendarProps = {
@@ -19,79 +19,124 @@ const MARK_COLORS: Record<DayMark, string> = {
   luteal: colors.luteal,
 };
 
-const MONTH_SHORT = MONTHS_UK.map((name) => name.slice(0, 3));
-
 function monthISO(year: number, monthIndex: number, day: number): string {
   const m = String(monthIndex + 1).padStart(2, '0');
   const d = String(day).padStart(2, '0');
   return `${year}-${m}-${d}`;
 }
 
-export function YearCalendar({ year, today, marks, onToggleDay }: YearCalendarProps) {
+function MonthGrid({
+  year,
+  monthIndex,
+  today,
+  marks,
+  onToggleDay,
+}: YearCalendarProps & { monthIndex: number }) {
+  const leading = mondayIndex(year, monthIndex, 1);
+  const count = daysInMonth(year, monthIndex);
+  const cells: Array<number | null> = [
+    ...Array.from({ length: leading }, () => null),
+    ...Array.from({ length: count }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <View style={styles.month}>
+      <Text style={styles.monthTitle}>{MONTHS_UK[monthIndex]}</Text>
+      <View style={styles.days}>
+        {cells.map((day, index) => {
+          if (day == null) {
+            return <View key={`e-${index}`} style={styles.dayCell} />;
+          }
+          const iso = monthISO(year, monthIndex, day);
+          const mark = marks.get(iso);
+          const isToday = iso === today;
+          const isPeriod = mark === 'period';
+          return (
+            <Pressable
+              key={iso}
+              onPress={() => onToggleDay(iso)}
+              style={styles.dayCell}
+              accessibilityLabel={`${day} ${MONTHS_UK[monthIndex]}`}
+            >
+              <View
+                style={[
+                  styles.dayFill,
+                  mark ? { backgroundColor: MARK_COLORS[mark] } : null,
+                  isToday && styles.today,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    isPeriod && styles.dayPeriod,
+                    isToday && styles.dayToday,
+                  ]}
+                >
+                  {day}
+                </Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export function YearCalendar(props: YearCalendarProps) {
   return (
     <View style={styles.year}>
-      {Array.from({ length: 12 }, (_, monthIndex) => {
-        const count = daysInMonth(year, monthIndex);
-        return (
-          <View key={monthIndex} style={styles.row}>
-            <Text style={styles.label}>{MONTH_SHORT[monthIndex]}</Text>
-            <View style={styles.dots}>
-              {Array.from({ length: 31 }, (_, i) => {
-                const day = i + 1;
-                if (day > count) {
-                  return <View key={`e-${monthIndex}-${day}`} style={styles.dot} />;
-                }
-                const iso = monthISO(year, monthIndex, day);
-                const mark = marks.get(iso);
-                return (
-                  <Pressable
-                    key={iso}
-                    onPress={() => onToggleDay(iso)}
-                    hitSlop={2}
-                    style={[
-                      styles.dot,
-                      styles.cell,
-                      mark ? { backgroundColor: MARK_COLORS[mark] } : null,
-                      iso === today && styles.today,
-                    ]}
-                    accessibilityLabel={`${day} ${MONTHS_UK[monthIndex]}`}
-                  />
-                );
-              })}
-            </View>
-          </View>
-        );
-      })}
+      {Array.from({ length: 12 }, (_, monthIndex) => (
+        <MonthGrid key={monthIndex} monthIndex={monthIndex} {...props} />
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   year: {
-    gap: 5,
-  },
-  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 22,
   },
-  label: {
-    width: 28,
-    fontSize: 10,
+  month: {
+    width: '48%',
+  },
+  monthTitle: {
+    fontSize: 11,
+    color: colors.muted,
+    marginBottom: 8,
+    letterSpacing: 0.6,
+  },
+  days: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  dayCell: {
+    width: '14.28%',
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayFill: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayText: {
+    fontSize: 9,
     color: colors.muted,
   },
-  dots: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: 2,
+  dayPeriod: {
+    color: '#FFFFFF',
   },
-  dot: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: 2,
-  },
-  cell: {
-    backgroundColor: colors.faint,
+  dayToday: {
+    color: colors.ink,
+    fontWeight: '600',
   },
   today: {
     borderWidth: StyleSheet.hairlineWidth,

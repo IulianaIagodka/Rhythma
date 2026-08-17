@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -79,50 +79,50 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.screen} edges={['top', 'left', 'right', 'bottom']}>
+      <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
         <StatusBar style="dark" />
-        <View style={styles.content}>
-          <View style={styles.top}>
-            <Text style={styles.brand}>Rhythma</Text>
-            <View style={styles.yearNav}>
-              <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
-                <Text style={styles.yearNavBtn}>‹</Text>
-              </Pressable>
-              <Text style={styles.yearLabel}>{year}</Text>
-              <Pressable onPress={() => setYear((value) => value + 1)} hitSlop={12}>
-                <Text style={styles.yearNavBtn}>›</Text>
-              </Pressable>
-            </View>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <Text style={styles.brand}>Rhythma</Text>
+
+          <View style={styles.phase}>
+            {phase ? (
+              <>
+                <Text style={styles.season}>{phase.season}</Text>
+                <Text style={styles.title}>{phase.title}</Text>
+                <Text style={styles.note}>{phase.note}</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.season}>ритм</Text>
+                <Text style={styles.title}>жити за циклом</Text>
+                <Text style={styles.note}>позначте перший день — решта зʼявиться сама</Text>
+              </>
+            )}
           </View>
 
-          <View style={styles.hero}>
-            <View style={styles.phase}>
-              {phase ? (
-                <>
-                  <Text style={styles.season}>{phase.season}</Text>
-                  <Text style={styles.title}>{phase.title}</Text>
-                  <Text style={styles.note}>{phase.note}</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.season}>ритм</Text>
-                  <Text style={styles.title}>жити за циклом</Text>
-                  <Text style={styles.note}>позначте перший день</Text>
-                </>
-              )}
+          <Pressable
+            onPress={onFirstDay}
+            style={styles.mark}
+            accessibilityRole="button"
+            accessibilityLabel={
+              todayIsStart ? 'Скасувати перший день місячних' : 'Перший день місячних'
+            }
+          >
+            <View style={[styles.moon, todayIsStart && styles.moonFilled]}>
+              {!todayIsStart ? <View style={styles.moonDot} /> : null}
             </View>
-            <Pressable
-              onPress={onFirstDay}
-              style={styles.mark}
-              accessibilityRole="button"
-              accessibilityLabel={
-                todayIsStart ? 'Скасувати перший день місячних' : 'Перший день місячних'
-              }
-            >
-              <View style={[styles.moon, todayIsStart && styles.moonFilled]}>
-                {!todayIsStart ? <View style={styles.moonDot} /> : null}
-              </View>
-              <Text style={styles.markLabel}>{todayIsStart ? 'скасувати' : 'перший день'}</Text>
+            <Text style={styles.markLabel}>
+              {todayIsStart ? 'скасувати' : 'перший день'}
+            </Text>
+          </Pressable>
+
+          <View style={styles.yearNav}>
+            <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={16}>
+              <Text style={styles.yearNavBtn}>‹</Text>
+            </Pressable>
+            <Text style={styles.yearLabel}>{year}</Text>
+            <Pressable onPress={() => setYear((value) => value + 1)} hitSlop={16}>
+              <Text style={styles.yearNavBtn}>›</Text>
             </Pressable>
           </View>
 
@@ -139,12 +139,15 @@ export default function App() {
             style={styles.forecast}
           >
             <Text
-              style={[styles.forecastLabel, data.settings.showForecast && styles.forecastOn]}
+              style={[
+                styles.forecastLabel,
+                data.settings.showForecast && styles.forecastOn,
+              ]}
             >
               сезони
             </Text>
           </Pressable>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -154,61 +157,54 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
+    justifyContent: 'center',
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 20,
-  },
-  top: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: 28,
+    paddingTop: 12,
+    paddingBottom: 48,
   },
   brand: {
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: 3,
     textTransform: 'uppercase',
     color: colors.muted,
   },
-  hero: {
-    marginTop: 28,
-    marginBottom: 28,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
   phase: {
-    flex: 1,
+    marginTop: 48,
+    marginBottom: 40,
+    minHeight: 120,
   },
   season: {
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: 2,
     color: colors.muted,
+    textTransform: 'lowercase',
   },
   title: {
-    marginTop: 4,
-    fontSize: 32,
-    lineHeight: 36,
+    marginTop: 8,
+    fontSize: 36,
+    lineHeight: 42,
     fontWeight: '400',
     color: colors.ink,
   },
   note: {
-    marginTop: 8,
-    fontSize: 13,
-    lineHeight: 18,
+    marginTop: 12,
+    fontSize: 15,
+    lineHeight: 22,
     color: colors.muted,
+    maxWidth: 240,
   },
   mark: {
     alignItems: 'center',
-    gap: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 48,
+    gap: 10,
   },
   moon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.ink,
     alignItems: 'center',
@@ -219,36 +215,37 @@ const styles = StyleSheet.create({
     borderColor: colors.period,
   },
   moonDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.ink,
   },
   markLabel: {
-    fontSize: 10,
-    letterSpacing: 1,
+    fontSize: 12,
+    letterSpacing: 1.2,
     color: colors.muted,
   },
   yearNav: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 20,
+    marginBottom: 20,
   },
   yearNavBtn: {
-    fontSize: 18,
+    fontSize: 22,
     color: colors.faint,
   },
   yearLabel: {
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: 2,
     color: colors.muted,
   },
   forecast: {
-    marginTop: 16,
+    marginTop: 28,
     alignSelf: 'flex-start',
   },
   forecastLabel: {
-    fontSize: 11,
+    fontSize: 12,
     letterSpacing: 1.4,
     color: colors.faint,
   },
