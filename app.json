@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rhythma.cycle"
+      "bundleIdentifier": "app.rhythma.cycle",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "app.rhythma.cycle",
@@ -26,6 +29,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f1157231-8250-45b9-a28f-94f35c10b230"
+      }
+    },
+    "owner": "iuliana.iagodka"
   }
 }
