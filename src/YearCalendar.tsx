@@ -1,13 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
-import { daysInMonth, mondayIndex, MONTHS_UK, WEEKDAYS_UK } from './dates';
+import { daysInMonth, mondayIndex, MONTHS_UK } from './dates';
 import { colors } from './theme';
 
 type YearCalendarProps = {
   year: number;
   today: string;
-  periodStarts: string[];
   marks: Map<string, DayMark>;
   onToggleDay: (iso: string) => void;
 };
@@ -15,8 +14,9 @@ type YearCalendarProps = {
 const MARK_COLORS: Record<DayMark, string> = {
   period: colors.period,
   periodForecast: colors.periodForecast,
-  ovulation: colors.ovulation,
-  fertile: colors.fertile,
+  follicular: colors.follicular,
+  ovulatory: colors.ovulatory,
+  luteal: colors.luteal,
 };
 
 function monthISO(year: number, monthIndex: number, day: number): string {
@@ -29,7 +29,6 @@ function MonthGrid({
   year,
   monthIndex,
   today,
-  periodStarts,
   marks,
   onToggleDay,
 }: YearCalendarProps & { monthIndex: number }) {
@@ -44,13 +43,6 @@ function MonthGrid({
   return (
     <View style={styles.month}>
       <Text style={styles.monthTitle}>{MONTHS_UK[monthIndex]}</Text>
-      <View style={styles.weekRow}>
-        {WEEKDAYS_UK.map((label) => (
-          <Text key={label} style={styles.weekday}>
-            {label}
-          </Text>
-        ))}
-      </View>
       <View style={styles.days}>
         {cells.map((day, index) => {
           if (day == null) {
@@ -59,23 +51,31 @@ function MonthGrid({
           const iso = monthISO(year, monthIndex, day);
           const mark = marks.get(iso);
           const isToday = iso === today;
-          const isStart = periodStarts.includes(iso);
-          const backgroundColor = mark ? MARK_COLORS[mark] : 'transparent';
-          const color =
-            mark === 'period' || mark === 'ovulation' ? colors.white : colors.ink;
+          const isPeriod = mark === 'period';
           return (
             <Pressable
               key={iso}
               onPress={() => onToggleDay(iso)}
-              style={[
-                styles.dayCell,
-                { backgroundColor },
-                isToday && styles.today,
-                isStart && styles.start,
-              ]}
-              accessibilityLabel={`${day} ${MONTHS_UK[monthIndex]}${isStart ? ', перший день' : ''}`}
+              style={styles.dayCell}
+              accessibilityLabel={`${day} ${MONTHS_UK[monthIndex]}`}
             >
-              <Text style={[styles.dayText, { color }]}>{day}</Text>
+              <View
+                style={[
+                  styles.dayFill,
+                  mark ? { backgroundColor: MARK_COLORS[mark] } : null,
+                  isToday && styles.today,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    isPeriod && styles.dayPeriod,
+                    isToday && styles.dayToday,
+                  ]}
+                >
+                  {day}
+                </Text>
+              </View>
             </Pressable>
           );
         })}
@@ -99,27 +99,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: 16,
+    rowGap: 22,
   },
   month: {
     width: '48%',
   },
   monthTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.ink,
-    textTransform: 'capitalize',
-    marginBottom: 6,
-  },
-  weekRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  weekday: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 9,
+    fontSize: 11,
     color: colors.muted,
+    marginBottom: 8,
+    letterSpacing: 0.6,
   },
   days: {
     flexDirection: 'row',
@@ -130,18 +119,27 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 9,
+  },
+  dayFill: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dayText: {
-    fontSize: 10,
-    fontWeight: '500',
+    fontSize: 9,
+    color: colors.muted,
+  },
+  dayPeriod: {
+    color: '#FFFFFF',
+  },
+  dayToday: {
+    color: colors.ink,
+    fontWeight: '600',
   },
   today: {
-    borderWidth: 1.5,
-    borderColor: colors.today,
-  },
-  start: {
-    borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.ink,
   },
 });

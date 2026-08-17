@@ -9,6 +9,7 @@ import {
   forecastStarts,
   loggedPeriodDays,
   marksForYear,
+  phaseIdForCycleDay,
   togglePeriodStart,
 } from './cycle';
 import { addDays, mondayIndex } from './dates';
@@ -52,30 +53,45 @@ describe('marksForYear', () => {
     assert.equal(marks.has('2026-08-29'), false);
   });
 
-  it('adds forecast, fertile window and ovulation when enabled', () => {
+  it('paints inner seasons when forecast is on', () => {
     const marks = marksForYear(2026, ['2026-08-01'], {
       ...defaultSettings(),
       showForecast: true,
     });
     assert.equal(marks.get('2026-08-01'), 'period');
     assert.equal(marks.get('2026-08-29'), 'periodForecast');
-    assert.equal(marks.get('2026-08-15'), 'ovulation');
-    assert.equal(marks.get('2026-08-14'), 'fertile');
-    assert.equal(marks.get('2026-08-10'), 'fertile');
+    assert.equal(marks.get('2026-08-10'), 'follicular');
+    assert.equal(marks.get('2026-08-14'), 'ovulatory');
+    assert.equal(marks.get('2026-08-20'), 'luteal');
   });
 });
 
 describe('cycleStatus', () => {
-  it('reports cycle day and next period', () => {
+  it('reports cycle day, next period and inner season', () => {
     const status = cycleStatus('2026-08-10', ['2026-08-01'], defaultSettings());
     assert.equal(status.cycleDay, 10);
     assert.equal(status.inPeriod, false);
     assert.equal(status.nextPeriod, '2026-08-29');
+    assert.equal(status.phase?.id, 'follicular');
   });
 
-  it('flags the bleeding window', () => {
+  it('flags the bleeding window as winter', () => {
     const status = cycleStatus('2026-08-03', ['2026-08-01'], defaultSettings());
     assert.equal(status.inPeriod, true);
+    assert.equal(status.phase?.id, 'menstrual');
+  });
+});
+
+describe('phaseIdForCycleDay', () => {
+  it('maps a 28-day cycle to four inner seasons', () => {
+    const settings = defaultSettings();
+    assert.equal(phaseIdForCycleDay(1, 28, settings), 'menstrual');
+    assert.equal(phaseIdForCycleDay(5, 28, settings), 'menstrual');
+    assert.equal(phaseIdForCycleDay(6, 28, settings), 'follicular');
+    assert.equal(phaseIdForCycleDay(12, 28, settings), 'follicular');
+    assert.equal(phaseIdForCycleDay(14, 28, settings), 'ovulatory');
+    assert.equal(phaseIdForCycleDay(16, 28, settings), 'luteal');
+    assert.equal(phaseIdForCycleDay(32, 28, settings), 'luteal');
   });
 });
 

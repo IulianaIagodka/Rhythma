@@ -1,4 +1,5 @@
 import { addDays, diffDays } from './dates';
+import { PHASES, type PhaseCopy, type PhaseId } from './phases';
 
 export const DEFAULT_CYCLE_LENGTH = 28;
 export const DEFAULT_PERIOD_LENGTH = 5;
@@ -17,13 +18,19 @@ export type StoredData = {
   settings: Settings;
 };
 
-export type DayMark = 'period' | 'periodForecast' | 'ovulation' | 'fertile';
+export type DayMark =
+  | 'period'
+  | 'periodForecast'
+  | 'follicular'
+  | 'ovulatory'
+  | 'luteal';
 
 export type CycleStatus = {
   cycleDay: number | null;
   nextPeriod: string | null;
   cycleLength: number;
   inPeriod: boolean;
+  phase: PhaseCopy | null;
 };
 
 export function defaultSettings(): Settings {
@@ -78,7 +85,7 @@ export function cycleStatus(today: string, starts: string[], settings: Settings)
   const sorted = sortedUnique(starts);
   const cycleLength = averageCycleLength(sorted);
   if (!sorted.length) {
-    return { cycleDay: null, nextPeriod: null, cycleLength, inPeriod: false };
+    return { cycleDay: null, nextPeriod: null, cycleLength, inPeriod: false, phase: null };
   }
   const last = sorted[sorted.length - 1];
   const cycleDay = diffDays(last, today) + 1;
@@ -92,7 +99,35 @@ export function cycleStatus(today: string, starts: string[], settings: Settings)
     nextPeriod,
     cycleLength,
     inPeriod,
+    phase: cycleDay > 0 ? PHASES[phaseIdForCycleDay(cycleDay, cycleLength, settings)] : null,
   };
+}
+
+export function phaseIdForCycleDay(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): PhaseId {
+  const ovulationDay = Math.max(settings.periodLength + 2, cycleLength - settings.lutealLength);
+  if (cycleDay <= settings.periodLength) return 'menstrual';
+  if (cycleDay < ovulationDay - 1) return 'follicular';
+  if (cycleDay <= ovulationDay + 1) return 'ovulatory';
+  return 'luteal';
+}
+
+export function phaseOnDate(iso: string, starts: string[], settings: Settings): PhaseId | null {
+  const sorted = sortedUnique(starts);
+  if (!sorted.length || iso < sorted[0]) return null;
+  const startIndex = sorted.reduce((found, value, index) => (value <= iso ? index : found), -1);
+  if (startIndex < 0) return null;
+  const start = sorted[startIndex];
+  const nextLogged = sorted[startIndex + 1];
+  const cycleLength = averageCycleLength(sorted);
+  let cycleDay = diffDays(start, iso) + 1;
+  if (settings.showForecast && nextLogged == null && cycleDay > cycleLength) {
+    cycleDay = ((cycleDay - 1) % cycleLength) + 1;
+  }
+  return phaseIdForCycleDay(cycleDay, cycleLength, settings);
 }
 
 export function marksForYear(
@@ -101,28 +136,28 @@ export function marksForYear(
   settings: Settings,
 ): Map<string, DayMark> {
   const marks = new Map<string, DayMark>();
-  const cycleLength = averageCycleLength(starts);
   const yearPrefix = `${year}-`;
   const inYear = (iso: string) => iso.startsWith(yearPrefix);
+  const cycleLength = averageCycleLength(starts);
 
   if (settings.showForecast && starts.length > 0) {
-    const forecasts = forecastStarts(starts, cycleLength, `${year}-12-31`);
-    for (const start of forecasts) {
-      for (let i = 0; i < settings.periodLength; i += 1) {
-        const day = addDays(start, i);
-        if (inYear(day)) marks.set(day, 'periodForecast');
-      }
+    const cursor = `${year}-01-01`;
+    const last = `${year}-12-31`;
+    let day = cursor;
+    while (day <= last) {
+      const phase = phaseOnDate(day, starts, settings);
+      if (phase === 'menstrual') marks.set(day, 'periodForecast');
+      else if (phase === 'follicular') marks.set(day, 'follicular');
+      else if (phase === 'ovulatory') marks.set(day, 'ovulatory');
+      else if (phase === 'luteal') marks.set(day, 'luteal');
+      day = addDays(day, 1);
     }
 
-    const anchors = [...sortedUnique(starts), ...forecasts];
-    for (const start of anchors) {
-      const ovulation = addDays(start, cycleLength - settings.lutealLength);
-      if (ovulation <= start) continue;
-      for (let offset = 5; offset >= 1; offset -= 1) {
-        const fertile = addDays(ovulation, -offset);
-        if (inYear(fertile) && !marks.has(fertile)) marks.set(fertile, 'fertile');
+    for (const start of forecastStarts(starts, cycleLength, last)) {
+      for (let i = 0; i < settings.periodLength; i += 1) {
+        const iso = addDays(start, i);
+        if (inYear(iso)) marks.set(iso, 'periodForecast');
       }
-      if (inYear(ovulation)) marks.set(ovulation, 'ovulation');
     }
   }
 
