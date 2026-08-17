@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   monthTitle: {
     fontSize: 11,
-    color: colors.muted,
+    color: colors.neonSoft,
     marginBottom: 8,
     letterSpacing: 0.6,
   },
@@ -132,14 +132,19 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   dayPeriod: {
-    color: '#FFFFFF',
+    color: '#0B0014',
+    fontWeight: '700',
   },
   dayToday: {
-    color: colors.ink,
-    fontWeight: '600',
+    color: colors.neon,
+    fontWeight: '700',
   },
   today: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.neon,
+    shadowColor: colors.neon,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 6,
   },
 });

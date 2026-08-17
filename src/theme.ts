@@ -1,12 +1,22 @@
 export const colors = {
-  background: '#F6F3EF',
-  ink: '#2A2726',
-  muted: '#9A918B',
-  faint: '#D9D2CB',
-  period: '#B98984',
-  periodForecast: '#E2D0CC',
-  follicular: '#E8E3DC',
-  ovulatory: '#DDD0C2',
-  luteal: '#E4DDD7',
-  today: '#2A2726',
+  background: '#0B0014',
+  ink: '#FFE6F5',
+  muted: '#C86B9A',
+  faint: '#3A1530',
+  neon: '#FF2EA6',
+  neonSoft: '#FF73C6',
+  period: '#FF2EA6',
+  periodForecast: '#5A183C',
+  follicular: '#2A0A22',
+  ovulatory: '#FF4DB8',
+  luteal: '#7A2458',
+  today: '#FF2EA6',
+};
+
+export const glow = {
+  shadowColor: '#FF2EA6',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.9,
+  shadowRadius: 16,
+  elevation: 12,
 };

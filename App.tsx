@@ -13,7 +13,7 @@ import {
 } from './src/cycle';
 import { todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
-import { colors } from './src/theme';
+import { colors, glow } from './src/theme';
 import { YearCalendar } from './src/YearCalendar';
 
 export default function App() {
@@ -68,7 +68,7 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.screen}>
-          <ActivityIndicator color={colors.ink} />
+          <ActivityIndicator color={colors.neon} />
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -80,7 +80,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-        <StatusBar style="dark" />
+        <StatusBar style="light" />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={styles.brand}>Rhythma</Text>
 
@@ -108,7 +108,7 @@ export default function App() {
               todayIsStart ? 'Скасувати перший день місячних' : 'Перший день місячних'
             }
           >
-            <View style={[styles.moon, todayIsStart && styles.moonFilled]}>
+            <View style={[styles.moon, todayIsStart && styles.moonFilled, todayIsStart && glow]}>
               {!todayIsStart ? <View style={styles.moonDot} /> : null}
             </View>
             <Text style={styles.markLabel}>
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 3,
     textTransform: 'uppercase',
-    color: colors.muted,
+    color: colors.neon,
   },
   phase: {
     marginTop: 48,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   season: {
     fontSize: 13,
     letterSpacing: 2,
-    color: colors.muted,
+    color: colors.neonSoft,
     textTransform: 'lowercase',
   },
   title: {
@@ -205,25 +205,26 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.ink,
+    borderWidth: 1.5,
+    borderColor: colors.neon,
     alignItems: 'center',
     justifyContent: 'center',
+    ...glow,
   },
   moonFilled: {
-    backgroundColor: colors.period,
-    borderColor: colors.period,
+    backgroundColor: colors.neon,
+    borderColor: colors.neon,
   },
   moonDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.neon,
   },
   markLabel: {
     fontSize: 12,
     letterSpacing: 1.2,
-    color: colors.muted,
+    color: colors.neonSoft,
   },
   yearNav: {
     flexDirection: 'row',
@@ -233,12 +234,12 @@ const styles = StyleSheet.create({
   },
   yearNavBtn: {
     fontSize: 22,
-    color: colors.faint,
+    color: colors.neon,
   },
   yearLabel: {
     fontSize: 13,
     letterSpacing: 2,
-    color: colors.muted,
+    color: colors.neonSoft,
   },
   forecast: {
     marginTop: 28,
@@ -247,9 +248,9 @@ const styles = StyleSheet.create({
   forecastLabel: {
     fontSize: 12,
     letterSpacing: 1.4,
-    color: colors.faint,
+    color: colors.muted,
   },
   forecastOn: {
-    color: colors.ink,
+    color: colors.neon,
   },
 });
