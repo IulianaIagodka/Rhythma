@@ -139,13 +139,13 @@ export default function App() {
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
   const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
-  const showEventsAndAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
+  const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
   const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
-  const visibleAdvice = showEventsAndAdvice
+  const visibleAdvice = showAdvice
     ? adviseLoad(status.phase, calendarItems, language)
     : null;
   const phaseCapacity = capacityForPhase(status.phase, language);
@@ -226,12 +226,12 @@ export default function App() {
                   language={language}
                   items={calendarItems}
                   selectedDay={selectedDay}
-                  showCalendarLoad={calendarEnabled && showEventsAndAdvice}
+                  showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
               </View>
 
-              {showEventsAndAdvice && calendarEnabled ? (
+              {calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
