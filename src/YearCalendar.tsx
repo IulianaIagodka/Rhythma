@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, MONTHS_UK } from './dates';
@@ -11,6 +12,11 @@ type YearCalendarProps = {
   theme: Theme;
   onToggleDay: (iso: string) => void;
 };
+
+const MONTH_HEIGHT = 106;
+const ROW_GAP = 20;
+const VISIBLE_ROWS = 3;
+const VIEWPORT_HEIGHT = MONTH_HEIGHT * VISIBLE_ROWS + ROW_GAP * (VISIBLE_ROWS - 1);
 
 function monthISO(year: number, monthIndex: number, day: number): string {
   const m = String(monthIndex + 1).padStart(2, '0');
@@ -82,24 +88,47 @@ function MonthGrid({
 }
 
 export function YearCalendar(props: YearCalendarProps) {
+  const scrollRef = useRef<ScrollView>(null);
+  const currentMonthIndex = useMemo(() => {
+    const date = new Date();
+    return date.getFullYear() === props.year ? date.getMonth() : 0;
+  }, [props.year]);
+
+  useEffect(() => {
+    const rowIndex = Math.floor(currentMonthIndex / 2);
+    const centeredRow = Math.max(0, rowIndex - 1);
+    const y = centeredRow * (MONTH_HEIGHT + ROW_GAP);
+    const timer = setTimeout(() => {
+      scrollRef.current?.scrollTo({ y, animated: false });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [currentMonthIndex, props.year]);
+
   return (
-    <View style={styles.year}>
-      {Array.from({ length: 12 }, (_, monthIndex) => (
-        <MonthGrid key={monthIndex} monthIndex={monthIndex} {...props} />
-      ))}
+    <View style={styles.viewport}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.year}>
+        {Array.from({ length: 12 }, (_, monthIndex) => (
+          <MonthGrid key={monthIndex} monthIndex={monthIndex} {...props} />
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  viewport: {
+    height: VIEWPORT_HEIGHT,
+  },
   year: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: 20,
+    rowGap: ROW_GAP,
+    paddingBottom: 8,
   },
   month: {
     width: '48%',
+    minHeight: MONTH_HEIGHT,
   },
   monthTitle: {
     fontSize: 12,
