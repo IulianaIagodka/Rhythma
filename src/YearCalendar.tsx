@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
-import { daysInMonth, mondayIndex, MONTHS_UK } from './dates';
+import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
 import type { Theme } from './theme';
 
 type YearCalendarProps = {
@@ -10,6 +10,7 @@ type YearCalendarProps = {
   today: string;
   marks: Map<string, DayMark>;
   theme: Theme;
+  language: Language;
   onToggleDay: (iso: string) => void;
 };
 
@@ -35,6 +36,7 @@ function MonthGrid({
   today,
   marks,
   theme,
+  language,
   onToggleDay,
 }: YearCalendarProps & { monthIndex: number }) {
   const leading = mondayIndex(year, monthIndex, 1);
@@ -48,7 +50,7 @@ function MonthGrid({
 
   return (
     <View style={styles.month}>
-      <Text style={[styles.monthTitle, { color: theme.muted }]}>{MONTHS_UK[monthIndex]}</Text>
+      <Text style={[styles.monthTitle, { color: theme.muted }]}>{monthName(monthIndex, language)}</Text>
       <View style={styles.days}>
         {cells.map((day, index) => {
           if (day == null) {

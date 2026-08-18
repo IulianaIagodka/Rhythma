@@ -7,7 +7,7 @@ import {
   type PermissionResponse,
 } from 'expo-calendar';
 
-import { toISODate } from './dates';
+import { toISODate, type Language } from './dates';
 
 export type CalendarItem = {
   id: string;
@@ -42,6 +42,7 @@ async function ensurePermission(): Promise<PermissionResponse> {
 export async function loadWeekItems(
   weekStart: string,
   weekEnd: string,
+  lang: Language,
 ): Promise<CalendarLoadResult> {
   try {
     const permission = await ensurePermission();
@@ -49,7 +50,7 @@ export async function loadWeekItems(
       return {
         items: [],
         error:
-          'Немає дозволу — відкрийте Налаштування → Rhythma → Календар → Повний доступ.',
+          lang === 'uk' ? 'Немає дозволу — відкрийте Налаштування → Rhythma → Календар → Повний доступ.' : 'No permission — open Settings → Rhythma → Calendars → Full Access.',
         permissionDenied: true,
       };
     }
@@ -58,7 +59,7 @@ export async function loadWeekItems(
     if (!calendars.length) {
       return {
         items: [],
-        error: 'Не знайдено жодного календаря на телефоні.',
+        error: lang === 'uk' ? 'Не знайдено жодного календаря на телефоні.' : 'No calendars were found on this phone.',
         permissionDenied: false,
       };
     }
@@ -69,7 +70,7 @@ export async function loadWeekItems(
 
     const items: CalendarItem[] = events
       .map((event) => {
-        const title = event.title?.trim() || 'Подія';
+        const title = event.title?.trim() || (lang === 'uk' ? 'Подія' : 'Event');
         return {
           id: event.id,
           title,
@@ -81,14 +82,14 @@ export async function loadWeekItems(
 
     return {
       items,
-      error: items.length ? null : 'Подій на цьому тижні немає.',
+      error: items.length ? null : (lang === 'uk' ? 'Подій на цьому тижні немає.' : 'No events found this week.'),
       permissionDenied: false,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return {
       items: [],
-      error: `Помилка: ${message}`,
+      error: lang === 'uk' ? `Помилка: ${message}` : `Error: ${message}`,
       permissionDenied: false,
     };
   }

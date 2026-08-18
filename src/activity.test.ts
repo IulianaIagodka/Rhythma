@@ -20,8 +20,8 @@ describe('classifyTitle', () => {
 
 describe('capacityForPhase', () => {
   it('keeps period as recovery and ovulation as peak', () => {
-    assert.equal(capacityForPhase('menstrual').load, 'low');
-    assert.equal(capacityForPhase('ovulatory').load, 'high');
+    assert.equal(capacityForPhase('menstrual', 'uk').load, 'low');
+    assert.equal(capacityForPhase('ovulatory', 'uk').load, 'high');
   });
 });
 
@@ -31,13 +31,13 @@ describe('adviseLoad', () => {
       { id: '1', title: 'Gym', day: '2026-08-18', kind: 'workout' },
       { id: '2', title: 'Run', day: '2026-08-19', kind: 'workout' },
       { id: '3', title: 'HIIT', day: '2026-08-20', kind: 'workout' },
-    ]);
+    ], 'uk');
     assert.equal(advice.fit, 'high');
     assert.equal(advice.workouts, 3);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
-    const advice = adviseLoad('ovulatory', []);
+    const advice = adviseLoad('ovulatory', [], 'uk');
     assert.match(advice.note, /календар/);
   });
 });

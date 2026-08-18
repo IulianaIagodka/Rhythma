@@ -13,7 +13,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { adviseLoad } from './src/activity';
-import { loadWeekItems, type CalendarItem, type CalendarLoadResult } from './src/calendar';
+import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
   daysUntilNextPeriod,
@@ -22,9 +22,10 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, todayISO, weekDaysFromMonday } from './src/dates';
+import { addDays, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
+import { detectLanguage, t } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -32,6 +33,7 @@ type Tab = 'today' | 'year' | 'settings';
 
 export default function App() {
   const today = todayISO();
+  const language = detectLanguage();
   const [tab, setTab] = useState<Tab>('today');
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [data, setData] = useState<StoredData | null>(null);
@@ -61,8 +63,8 @@ export default function App() {
       setCalendarPermissionDenied(false);
       return;
     }
-    const week = weekDaysFromMonday(todayISO());
-    const result = await loadWeekItems(week[0], addDays(week[0], 6));
+    const monday = addDays(todayISO(), -((new Date(todayISO()).getDay() + 6) % 7));
+    const result = await loadWeekItems(monday, addDays(monday, 6), language);
     setItems(result.items);
     setCalendarError(result.error);
     setCalendarPermissionDenied(result.permissionDenied);
@@ -107,7 +109,7 @@ export default function App() {
     return marksForYear(year, data.periodStarts, data.settings);
   }, [data, year]);
 
-  const advice = useMemo(() => adviseLoad(status?.phase ?? null, items), [status?.phase, items]);
+  const advice = useMemo(() => adviseLoad(status?.phase ?? null, items, language), [status?.phase, items, language]);
 
   if (!data || !status) {
     return (
@@ -137,27 +139,27 @@ export default function App() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {tab === 'today' ? (
             <>
-              <Text style={[styles.hero, { color: theme.ink }]}>Ваш ритм сьогодні</Text>
+              <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'todayHeader')}</Text>
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 {status.cycleDay == null ? (
                   <>
-                    <Text style={[styles.cardTitle, { color: theme.ink }]}>Запишіть цикл</Text>
+                    <Text style={[styles.cardTitle, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
-                      Перший день місячних — і Rhythma звірить навантаження з календарем
+                      {t(language, 'logCycleSub')}
                     </Text>
                   </>
                 ) : (
                   <>
                     <Text style={[styles.cardTitle, { color: theme.ink }]}>
-                      День циклу {status.cycleDay}
+                      {t(language, 'cycleDay')} {status.cycleDay}
                     </Text>
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
                       {daysLeft == null
-                        ? 'Наступні місячні зʼявляться після кількох записів'
+                        ? t(language, 'nextAfterRecords')
                         : daysLeft === 0
-                          ? 'Місячні очікуються сьогодні'
-                          : `Наступні місячні через ~${daysLeft} дн.`}
+                          ? t(language, 'nextToday')
+                          : t(language, 'nextIn', { days: daysLeft })}
                     </Text>
                   </>
                 )}
@@ -167,25 +169,26 @@ export default function App() {
                   style={[styles.cta, { backgroundColor: theme.accent }]}
                 >
                   <Text style={styles.ctaText}>
-                    {todayIsStart ? 'Скасувати запис на сьогодні' : 'Місячні почалися сьогодні'}
+                    {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.link, { color: theme.teal }]}>Обрати іншу дату</Text>
+                  <Text style={[styles.link, { color: theme.teal }]}>{t(language, 'chooseOtherDate')}</Text>
                 </Pressable>
               </View>
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>Цей тиждень</Text>
+                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
                   <Text style={[styles.sectionTag, { color: theme.accent }]}>
-                    {data.settings.calendarSync ? 'Календар' : 'Цикл'}
+                    {data.settings.calendarSync ? t(language, 'calendarTag') : t(language, 'cycleTag')}
                   </Text>
                 </View>
                 <WeekStrip
                   today={today}
                   data={data}
                   theme={theme}
+                  language={language}
                   items={items}
                   onSelectDay={onToggleDay}
                 />
@@ -210,7 +213,7 @@ export default function App() {
                   <Text style={[styles.insightMeta, { color: theme.muted }]}>{advice.note}</Text>
                   {data.settings.calendarSync && items.length ? (
                     <Text style={[styles.insightCounts, { color: theme.muted }]}>
-                      Сьогодні: {eventsToday.length} под. · {workoutsToday.length} трен.
+                      {t(language, 'eventsToday', { events: eventsToday.length, workouts: workoutsToday.length })}
                     </Text>
                   ) : null}
                 </View>
@@ -219,16 +222,16 @@ export default function App() {
               <View style={[styles.calendarRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.syncText, { color: theme.ink }]}>
-                    Синхронізація календаря
+                    {t(language, 'syncCalendar')}
                   </Text>
                   <Text style={[styles.settingMeta, { color: calendarPermissionDenied ? theme.accent : theme.muted }]}>
                   {data.settings.calendarSync
                     ? calendarPermissionDenied
-                      ? 'Дозвіл не надано — відкрийте Налаштування → Rhythma → Календар'
+                      ? t(language, 'calendarPermissionHint')
                       : items.length
-                        ? `${items.length} подій на тижні`
-                        : calendarError ?? 'Зчитую події…'
-                    : 'Події та тренування з телефону'}
+                        ? t(language, 'eventsOnWeek', { count: items.length })
+                        : calendarError ?? t(language, 'readingEvents')
+                    : t(language, 'syncPhone')}
                 </Text>
                 </View>
                 <Switch
@@ -246,7 +249,7 @@ export default function App() {
 
           {tab === 'year' ? (
             <>
-              <Text style={[styles.hero, { color: theme.ink }]}>Календар циклу</Text>
+              <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'cycleCalendar')}</Text>
               <View style={styles.yearNav}>
                 <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
                   <Text style={[styles.yearNavBtn, { color: theme.muted }]}>‹</Text>
@@ -261,6 +264,7 @@ export default function App() {
                 today={today}
                 marks={marks}
                 theme={theme}
+                language={language}
                 onToggleDay={onToggleDay}
               />
             </>
@@ -268,12 +272,12 @@ export default function App() {
 
           {tab === 'settings' ? (
             <>
-              <Text style={[styles.hero, { color: theme.ink }]}>Налаштування</Text>
+              <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'settings')}</Text>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Синхронізація календаря</Text>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'syncCalendar')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Читає події й тренування з телефону
+                    {t(language, 'calendarDesc')}
                   </Text>
                 </View>
                 <Switch
@@ -288,9 +292,9 @@ export default function App() {
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Прогноз місячних</Text>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'periodForecast')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Рожева смужка наступних місячних
+                    {t(language, 'forecastDesc')}
                   </Text>
                 </View>
                 <Switch
@@ -304,7 +308,7 @@ export default function App() {
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Темна тема</Text>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'darkTheme')}</Text>
                 </View>
                 <Switch
                   value={data.settings.themeMode === 'dark'}
@@ -324,21 +328,21 @@ export default function App() {
 
         <View style={[styles.tabBar, { backgroundColor: theme.tabBar, borderTopColor: theme.border }]}>
           <TabButton
-            label="Сьогодні"
+            label={t(language, 'todayTab')}
             active={tab === 'today'}
             theme={theme}
             onPress={() => setTab('today')}
             icon="●"
           />
           <TabButton
-            label="Рік"
+            label={t(language, 'yearTab')}
             active={tab === 'year'}
             theme={theme}
             onPress={() => setTab('year')}
             icon="▦"
           />
           <TabButton
-            label="Ще"
+            label={t(language, 'moreTab')}
             active={tab === 'settings'}
             theme={theme}
             onPress={() => setTab('settings')}

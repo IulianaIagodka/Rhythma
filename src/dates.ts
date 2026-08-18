@@ -1,3 +1,5 @@
+export type Language = 'uk' | 'en';
+
 export function toISODate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -36,41 +38,29 @@ export function mondayIndex(year: number, monthIndex: number, day: number): numb
   return (jsDay + 6) % 7;
 }
 
-export const MONTHS_UK = [
-  'січень',
-  'лютий',
-  'березень',
-  'квітень',
-  'травень',
-  'червень',
-  'липень',
-  'серпень',
-  'вересень',
-  'жовтень',
-  'листопад',
-  'грудень',
-] as const;
+const months = {
+  uk: ['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'],
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+} as const;
 
-export const MONTHS_GENITIVE_UK = [
-  'січня',
-  'лютого',
-  'березня',
-  'квітня',
-  'травня',
-  'червня',
-  'липня',
-  'серпня',
-  'вересня',
-  'жовтня',
-  'листопада',
-  'грудня',
-] as const;
+const monthsGenitiveUk = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'] as const;
+const weekdays = {
+  uk: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
+  en: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+} as const;
+const weekdayNames = {
+  uk: ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця", 'субота'],
+  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+} as const;
 
-export const WEEKDAYS_UK = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'] as const;
+export function monthName(monthIndex: number, lang: Language): string {
+  return months[lang][monthIndex];
+}
 
-export function formatDayUk(iso: string): string {
+export function formatDay(iso: string, lang: Language): string {
   const date = parseISODate(iso);
-  return `${date.getDate()} ${MONTHS_GENITIVE_UK[date.getMonth()]}`;
+  if (lang === 'uk') return `${date.getDate()} ${monthsGenitiveUk[date.getMonth()]}`;
+  return `${months.en[date.getMonth()]} ${date.getDate()}`;
 }
 
 export function weekDaysFromMonday(anchor: string): string[] {
@@ -80,13 +70,12 @@ export function weekDaysFromMonday(anchor: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
 
-export function weekdayShortUk(iso: string): string {
+export function weekdayShort(iso: string, lang: Language): string {
   const day = parseISODate(iso).getDay();
   const index = (day + 6) % 7;
-  return WEEKDAYS_UK[index];
+  return weekdays[lang][index];
 }
 
-export function weekdayNameUk(iso: string): string {
-  const names = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця", 'субота'];
-  return names[parseISODate(iso).getDay()];
+export function weekdayName(iso: string, lang: Language): string {
+  return weekdayNames[lang][parseISODate(iso).getDay()];
 }

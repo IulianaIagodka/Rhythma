@@ -2,18 +2,19 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { CalendarItem } from './calendar';
 import { markForDate, type StoredData } from './cycle';
-import { parseISODate, weekDaysFromMonday, weekdayShortUk } from './dates';
+import { parseISODate, weekDaysFromMonday, weekdayShort, type Language } from './dates';
 import type { Theme } from './theme';
 
 type WeekStripProps = {
   today: string;
   data: StoredData;
   theme: Theme;
+  language: Language;
   items: CalendarItem[];
   onSelectDay: (iso: string) => void;
 };
 
-export function WeekStrip({ today, data, theme, items, onSelectDay }: WeekStripProps) {
+export function WeekStrip({ today, data, theme, language, items, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
   const loadByDay = new Map<string, number>();
   for (const item of items) {
@@ -37,7 +38,7 @@ export function WeekStrip({ today, data, theme, items, onSelectDay }: WeekStripP
               isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
             ]}
           >
-            <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShortUk(iso)}</Text>
+            <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShort(iso, language)}</Text>
             <Text style={[styles.date, { color: isToday ? theme.accent : theme.ink }]}>{dayNum}</Text>
             <View style={styles.bars}>
               {period ? (
