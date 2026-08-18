@@ -64,6 +64,12 @@ export const copy = {
     bestForPhase: 'Краще в цій фазі',
     avoidThisPhase: 'Краще уникати',
     featureOn: 'Увімкнено',
+    periodStartTitle: 'Початок місячних',
+    confirmAddPeriod: 'Додати початок місячних на {date}?',
+    confirmRemovePeriod: 'Прибрати запис початку місячних на {date}?',
+    confirmAdd: 'Додати',
+    confirmRemove: 'Прибрати',
+    confirmCancel: 'Скасувати',
   },
   en: {
     appName: 'Rhythma',
@@ -120,6 +126,12 @@ export const copy = {
     bestForPhase: 'Best for this phase',
     avoidThisPhase: 'Avoid this phase',
     featureOn: 'On',
+    periodStartTitle: 'Period start',
+    confirmAddPeriod: 'Add the start of your period on {date}?',
+    confirmRemovePeriod: 'Remove the period start on {date}?',
+    confirmAdd: 'Add',
+    confirmRemove: 'Remove',
+    confirmCancel: 'Cancel',
   },
 } as const;
 

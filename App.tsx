@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,11 +20,12 @@ import {
   cycleStatus,
   daysUntilNextPeriod,
   marksForYear,
+  periodPromptForDate,
   togglePeriodStart,
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, todayISO } from './src/dates';
+import { addDays, formatDay, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { detectLanguage, t } from './src/i18n';
@@ -87,6 +89,29 @@ export default function App() {
       });
     },
     [data, persist],
+  );
+
+  const onCalendarDayPress = useCallback(
+    (iso: string) => {
+      if (!data) return;
+      const kind = periodPromptForDate(data.periodStarts, iso);
+      const dateLabel = formatDay(iso, language);
+      Alert.alert(
+        t(language, 'periodStartTitle'),
+        kind === 'remove'
+          ? t(language, 'confirmRemovePeriod', { date: dateLabel })
+          : t(language, 'confirmAddPeriod', { date: dateLabel }),
+        [
+          { text: t(language, 'confirmCancel'), style: 'cancel' },
+          {
+            text: kind === 'remove' ? t(language, 'confirmRemove') : t(language, 'confirmAdd'),
+            style: kind === 'remove' ? 'destructive' : 'default',
+            onPress: () => onToggleDay(iso),
+          },
+        ],
+      );
+    },
+    [data, language, onToggleDay],
   );
 
   const onFirstDay = useCallback(() => {
@@ -361,7 +386,7 @@ export default function App() {
                 marks={marks}
                 theme={theme}
                 language={language}
-                onToggleDay={onToggleDay}
+                onPressDay={onCalendarDayPress}
               />
             </>
           ) : null}

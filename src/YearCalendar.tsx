@@ -11,7 +11,7 @@ type YearCalendarProps = {
   marks: Map<string, DayMark>;
   theme: Theme;
   language: Language;
-  onToggleDay: (iso: string) => void;
+  onPressDay: (iso: string) => void;
 };
 
 const MONTH_HEIGHT = 106;
@@ -37,7 +37,7 @@ function MonthGrid({
   marks,
   theme,
   language,
-  onToggleDay,
+  onPressDay,
 }: YearCalendarProps & { monthIndex: number }) {
   const leading = mondayIndex(year, monthIndex, 1);
   const count = daysInMonth(year, monthIndex);
@@ -62,7 +62,7 @@ function MonthGrid({
           const isPeriod = mark === 'period' || mark === 'periodForecast';
           const fill = mark ? colors[mark] : undefined;
           return (
-            <Pressable key={iso} onPress={() => onToggleDay(iso)} style={styles.dayCell}>
+            <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
               <View
                 style={[
                   styles.dayFill,

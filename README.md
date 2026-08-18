@@ -6,7 +6,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Free
 
-- Log the first day of your period
+- Log the first day of your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days
 - Light / dark theme
 - English and Ukrainian, based on the phone language

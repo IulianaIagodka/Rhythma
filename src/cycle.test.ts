@@ -10,6 +10,7 @@ import {
   loggedPeriodDays,
   marksForYear,
   phaseIdForCycleDay,
+  periodPromptForDate,
   togglePeriodStart,
 } from './cycle';
 import { addDays, mondayIndex } from './dates';
@@ -99,6 +100,17 @@ describe('togglePeriodStart', () => {
     const added = togglePeriodStart([], '2026-08-17');
     assert.deepEqual(added, ['2026-08-17']);
     assert.deepEqual(togglePeriodStart(added, '2026-08-17'), []);
+  });
+});
+
+describe('periodPromptForDate', () => {
+  it('asks to add a period start on an empty day', () => {
+    assert.equal(periodPromptForDate([], '2026-08-18'), 'add');
+    assert.equal(periodPromptForDate(['2026-08-01'], '2026-08-18'), 'add');
+  });
+
+  it('asks to remove a period start that is already logged', () => {
+    assert.equal(periodPromptForDate(['2026-08-18'], '2026-08-18'), 'remove');
   });
 });
 

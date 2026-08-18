@@ -194,3 +194,9 @@ export function togglePeriodStart(starts: string[], iso: string): string[] {
   else set.add(iso);
   return sortedUnique([...set]);
 }
+
+export type PeriodPromptKind = 'add' | 'remove';
+
+export function periodPromptForDate(starts: string[], iso: string): PeriodPromptKind {
+  return starts.includes(iso) ? 'remove' : 'add';
+}

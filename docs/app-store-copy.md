@@ -11,7 +11,7 @@ Your cycle affects your energy, focus, and performance every day. Rhythma helps 
 Connect your iPhone calendar and see how your scheduled events, meetings, and workouts land across your cycle. Use that context to plan smarter: go harder when your body is ready, ease off when it needs rest.
 
 ### LOG YOUR PERIOD IN ONE TAP
-Record the first day of your period instantly or choose a date from your calendar.
+Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm before it is saved.
 
 ### SYNC YOUR CALENDAR
 Connect your iPhone calendar to see events and workouts alongside your cycle. Rhythma reads your schedule and tells you whether the week's load matches where you are in your cycle.
@@ -43,7 +43,7 @@ Rhythma is a cycle tracker built around your daily life — not the other way ar
 Log your period, connect your iPhone calendar, and see how your energy and capacity align with what you have planned. Use your cycle as a planning tool for work, training, rest, and social life.
 
 #### LOG YOUR PERIOD IN ONE TAP
-Record the first day of your period instantly, or choose another date.
+Record the first day of your period instantly from Today, or tap another date on the year calendar and confirm.
 
 #### CYCLE + CALENDAR INTEGRATION
 Connect your iPhone calendar to see your events and workouts alongside your cycle. Rhythma tells you whether this week's schedule matches your cycle phase.
