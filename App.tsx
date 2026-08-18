@@ -213,23 +213,29 @@ export default function App() {
                 </View>
               </View>
 
-              {!data.settings.calendarSync ? (
-                <Pressable
-                  onPress={() => {
-                    persist({ ...data, settings: { ...data.settings, calendarSync: true } });
-                  }}
-                  style={[styles.syncBtn, { borderColor: theme.border }]}
-                >
+              <View style={[styles.calendarRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
                   <Text style={[styles.syncText, { color: theme.ink }]}>
-                    Синхронізувати календар
+                    Синхронізація календаря
                   </Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Події та тренування з телефону
+                    {data.settings.calendarSync
+                      ? items.length
+                        ? `${items.length} подій на тижні`
+                        : calendarError ?? 'Зчитую події…'
+                      : 'Події та тренування з телефону'}
                   </Text>
-                </Pressable>
-              ) : calendarError && !items.length ? (
-                <Text style={[styles.settingMeta, { color: theme.muted }]}>{calendarError}</Text>
-              ) : null}
+                </View>
+                <Switch
+                  value={data.settings.calendarSync}
+                  onValueChange={(calendarSync) => {
+                    persist({ ...data, settings: { ...data.settings, calendarSync } });
+                    refreshCalendar(calendarSync);
+                  }}
+                  trackColor={{ false: theme.border, true: theme.accentSoft }}
+                  thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
+                />
+              </View>
             </>
           ) : null}
 
@@ -260,9 +266,9 @@ export default function App() {
               <Text style={[styles.hero, { color: theme.ink }]}>Налаштування</Text>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Календар</Text>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Синхронізація календаря</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Події й тренування з телефону
+                    Читає події й тренування з телефону
                   </Text>
                 </View>
                 <Switch
@@ -464,11 +470,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 4,
   },
-  syncBtn: {
-    borderWidth: 1,
+  calendarRow: {
     borderRadius: 16,
     padding: 16,
-    gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   syncText: {
     fontSize: 16,
