@@ -22,6 +22,11 @@ export type Capacity = {
 
 export type DayAlignment = 'under' | 'fit' | 'over';
 
+export type PhasePlan = {
+  best: string[];
+  avoid: string[];
+};
+
 export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacity {
   if (lang === 'uk') {
     if (phase === 'menstrual') {
@@ -174,6 +179,61 @@ export function dayAlignmentForPhase(phase: PhaseId | null, items: CalendarItem[
   if (loadScore >= 6) return 'over';
   if (loadScore <= 1) return 'under';
   return 'fit';
+}
+
+export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePlan {
+  if (lang === 'uk') {
+    if (phase === 'menstrual') {
+      return {
+        best: ['Сон і відновлення', 'Прогулянки, легка йога', 'Буфер між зустрічами'],
+        avoid: ['HIIT і силові піки', 'Щільні переговори', 'Пізні вечори'],
+      };
+    }
+    if (phase === 'follicular') {
+      return {
+        best: ['Нові плани й старти', 'Тренування з прогресією', 'Брейншторми, навчання'],
+        avoid: ['Відкладати важливі старти', 'Надмірний простій'],
+      };
+    }
+    if (phase === 'ovulatory') {
+      return {
+        best: ['Ключові розмови й рішення', 'Соціальні події', 'Інтенсивні сесії'],
+        avoid: ['Ізоляція без потреби', 'Дрібні задачі замість важливих'],
+      };
+    }
+    if (phase === 'luteal') {
+      return {
+        best: ['Закривати почате', 'Спрощений графік', 'Більше буфера перед місячними'],
+        avoid: ['Нові великі зобовʼязання', 'Пік навантаження в кінці циклу'],
+      };
+    }
+    return { best: [], avoid: [] };
+  }
+  if (phase === 'menstrual') {
+    return {
+      best: ['Sleep and recovery', 'Walks, light yoga', 'Buffer between meetings'],
+      avoid: ['HIIT and peak strength', 'Back-to-back negotiations', 'Late nights'],
+    };
+  }
+  if (phase === 'follicular') {
+    return {
+      best: ['New plans and starts', 'Progressive training', 'Brainstorms and learning'],
+      avoid: ['Delaying important starts', 'Unnecessary idle time'],
+    };
+  }
+  if (phase === 'ovulatory') {
+    return {
+      best: ['Key conversations and decisions', 'Social plans', 'Intense sessions'],
+      avoid: ['Unnecessary isolation', 'Busywork instead of important work'],
+    };
+  }
+  if (phase === 'luteal') {
+    return {
+      best: ['Close open loops', 'A simpler schedule', 'More buffer before your period'],
+      avoid: ['New big commitments', 'Peak load at the end of the cycle'],
+    };
+  }
+  return { best: [], avoid: [] };
 }
 
 function capitalize(value: string): string {

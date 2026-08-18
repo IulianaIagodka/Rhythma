@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { adviseLoad, capacityForPhase, dayAlignmentForPhase } from './activity';
+import { adviseLoad, capacityForPhase, dayAlignmentForPhase, planningForPhase } from './activity';
 
 function classifyTitle(title: string): 'workout' | 'event' {
   const lower = title.toLowerCase();
@@ -55,5 +55,13 @@ describe('dayAlignmentForPhase', () => {
 
   it('marks empty ovulation days as underloaded', () => {
     assert.equal(dayAlignmentForPhase('ovulatory', []), 'under');
+  });
+});
+
+describe('planningForPhase', () => {
+  it('gives rest guidance during menstruation', () => {
+    const plan = planningForPhase('menstrual', 'uk');
+    assert.match(plan.best.join(' '), /Сон|відновл/);
+    assert.match(plan.avoid.join(' '), /HIIT/);
   });
 });

@@ -58,6 +58,12 @@ export const copy = {
     proPhaseName: 'Назва фази на екрані Today',
     proPhaseLists: 'Списки “best for this phase” / “avoid this phase”',
     proReadyHint: 'Структура для платної версії вже готова, але ці функції поки вимкнені.',
+    devPlan: 'Dev',
+    proPlan: 'Pro',
+    devUnlockHint: 'Dev-версія відкриває всі функції для тестування.',
+    bestForPhase: 'Краще в цій фазі',
+    avoidThisPhase: 'Краще уникати',
+    featureOn: 'Увімкнено',
   },
   en: {
     appName: 'Rhythma',
@@ -108,6 +114,12 @@ export const copy = {
     proPhaseName: 'Phase name on the Today screen',
     proPhaseLists: '“Best for this phase” / “avoid this phase” lists',
     proReadyHint: 'The paid-version structure is ready, but these features remain disabled for now.',
+    devPlan: 'Dev',
+    proPlan: 'Pro',
+    devUnlockHint: 'The dev build unlocks every feature for testing.',
+    bestForPhase: 'Best for this phase',
+    avoidThisPhase: 'Avoid this phase',
+    featureOn: 'On',
   },
 } as const;
 

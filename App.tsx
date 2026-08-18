@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { hasFeatureAccess } from './src/access';
-import { adviseLoad } from './src/activity';
+import { effectiveAccessTier, hasFeatureAccess, isDevUnlockEnabled } from './src/access';
+import { adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
@@ -122,11 +122,12 @@ export default function App() {
 
   const todayIsStart = data.periodStarts.includes(today);
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
-  const tier = data.settings.accessTier;
-  const hasCalendarSync = hasFeatureAccess(tier, 'calendarSync');
-  const hasEventLoadAdvice = hasFeatureAccess(tier, 'eventLoadAdvice');
-  const hasPhaseTitle = hasFeatureAccess(tier, 'phaseTitle');
-  const hasPhasePlanningLists = hasFeatureAccess(tier, 'phasePlanningLists');
+  const storedTier = data.settings.accessTier;
+  const tier = effectiveAccessTier(storedTier);
+  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
+  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
+  const hasPhaseTitle = hasFeatureAccess(storedTier, 'phaseTitle');
+  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
@@ -135,6 +136,13 @@ export default function App() {
   const visibleAdvice = hasEventLoadAdvice
     ? adviseLoad(status.phase, calendarItems, language)
     : null;
+  const phaseCapacity = capacityForPhase(status.phase, language);
+  const phasePlan = planningForPhase(status.phase, language);
+  const planLabel = isDevUnlockEnabled()
+    ? t(language, 'devPlan')
+    : tier === 'pro'
+      ? t(language, 'proPlan')
+      : t(language, 'freePlan');
 
   return (
     <SafeAreaProvider>
@@ -164,6 +172,9 @@ export default function App() {
                     <Text style={[styles.cardTitle, { color: theme.ink }]}>
                       {t(language, 'cycleDay')} {status.cycleDay}
                     </Text>
+                    {hasPhaseTitle ? (
+                      <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
+                    ) : null}
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
                       {daysLeft == null
                         ? t(language, 'nextAfterRecords')
@@ -314,6 +325,21 @@ export default function App() {
                 />
               </View>
               ) : null}
+
+              {hasPhasePlanningLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'bestForPhase')}</Text>
+                  {phasePlan.best.map((item) => (
+                    <Text key={item} style={[styles.planItem, { color: theme.ink }]}>• {item}</Text>
+                  ))}
+                  <Text style={[styles.sectionTitle, { color: theme.ink, marginTop: 8 }]}>
+                    {t(language, 'avoidThisPhase')}
+                  </Text>
+                  {phasePlan.avoid.map((item) => (
+                    <Text key={item} style={[styles.planItem, { color: theme.muted }]}>• {item}</Text>
+                  ))}
+                </View>
+              ) : null}
             </>
           ) : null}
 
@@ -347,11 +373,11 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {t(language, 'proReadyHint')}
+                    {isDevUnlockEnabled() ? t(language, 'devUnlockHint') : t(language, 'proReadyHint')}
                   </Text>
                 </View>
                 <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
-                  <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'freePlan')}</Text>
+                  <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
                 </View>
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
@@ -381,34 +407,52 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasEventLoadAdvice ? t(language, 'calendarDesc') : t(language, 'eventAdviceLocked')}
+                    {hasEventLoadAdvice ? t(language, 'featureOn') : t(language, 'eventAdviceLocked')}
                   </Text>
                 </View>
-                <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                </View>
+                {hasEventLoadAdvice ? (
+                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
+                  </View>
+                ) : (
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                )}
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseName')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhaseTitle ? t(language, 'freePlan') : t(language, 'proFeatureLocked')}
+                    {hasPhaseTitle ? t(language, 'featureOn') : t(language, 'proFeatureLocked')}
                   </Text>
                 </View>
-                <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                </View>
+                {hasPhaseTitle ? (
+                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
+                  </View>
+                ) : (
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                )}
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhasePlanningLists ? t(language, 'freePlan') : t(language, 'proFeatureLocked')}
+                    {hasPhasePlanningLists ? t(language, 'featureOn') : t(language, 'proFeatureLocked')}
                   </Text>
                 </View>
-                <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                </View>
+                {hasPhasePlanningLists ? (
+                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
+                  </View>
+                ) : (
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                )}
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -547,6 +591,15 @@ const styles = StyleSheet.create({
   cardMeta: {
     fontSize: 15,
     marginTop: 4,
+  },
+  phaseName: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginTop: 6,
+  },
+  planItem: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   cta: {
     borderRadius: 14,
