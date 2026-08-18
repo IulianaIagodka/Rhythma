@@ -8,6 +8,7 @@ Upload the files in `iphone-6.9/` to App Store Connect → iPhone 6.9" Display. 
 | --- | --- |
 | `01-today-dark.png` | Today, dark theme |
 | `02-year.png` | Year calendar |
+| `03-today-light.png` | Today, light theme |
 
 `held/03-settings-testflight.png` is saved but **not for App Store Connect** — it shows the TestFlight plan pill.
 
