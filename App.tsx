@@ -3,7 +3,6 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -28,6 +27,7 @@ import {
 import { addDays, formatDay, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
+import { ConfirmDialog } from './src/ConfirmDialog';
 import { detectLanguage, t } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
@@ -44,6 +44,7 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
+  const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,24 +95,9 @@ export default function App() {
   const onCalendarDayPress = useCallback(
     (iso: string) => {
       if (!data) return;
-      const kind = periodPromptForDate(data.periodStarts, iso);
-      const dateLabel = formatDay(iso, language);
-      Alert.alert(
-        t(language, 'periodStartTitle'),
-        kind === 'remove'
-          ? t(language, 'confirmRemovePeriod', { date: dateLabel })
-          : t(language, 'confirmAddPeriod', { date: dateLabel }),
-        [
-          { text: t(language, 'confirmCancel'), style: 'cancel' },
-          {
-            text: kind === 'remove' ? t(language, 'confirmRemove') : t(language, 'confirmAdd'),
-            style: kind === 'remove' ? 'destructive' : 'default',
-            onPress: () => onToggleDay(iso),
-          },
-        ],
-      );
+      setPeriodPrompt({ iso, kind: periodPromptForDate(data.periodStarts, iso) });
     },
-    [data, language, onToggleDay],
+    [data],
   );
 
   const onFirstDay = useCallback(() => {
@@ -547,6 +533,31 @@ export default function App() {
           />
         </View>
       </SafeAreaView>
+      <ConfirmDialog
+        visible={periodPrompt != null}
+        theme={theme}
+        title={t(language, 'periodStartTitle')}
+        message={
+          periodPrompt
+            ? t(
+                language,
+                periodPrompt.kind === 'remove' ? 'confirmRemovePeriod' : 'confirmAddPeriod',
+                { date: formatDay(periodPrompt.iso, language) },
+              )
+            : ''
+        }
+        cancelLabel={t(language, 'confirmCancel')}
+        confirmLabel={
+          periodPrompt?.kind === 'remove' ? t(language, 'confirmRemove') : t(language, 'confirmAdd')
+        }
+        destructive={periodPrompt?.kind === 'remove'}
+        onCancel={() => setPeriodPrompt(null)}
+        onConfirm={() => {
+          if (!periodPrompt) return;
+          onToggleDay(periodPrompt.iso);
+          setPeriodPrompt(null);
+        }}
+      />
     </SafeAreaProvider>
   );
 }
