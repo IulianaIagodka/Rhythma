@@ -53,17 +53,14 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
               styles.day,
               alignment !== 'fit' && { borderColor: alignmentColor },
               isToday && { borderColor: theme.teal, backgroundColor: theme.tealSoft },
-              isSelected && !isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
+              isSelected && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
             ]}
           >
             <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShort(iso, language)}</Text>
             <Text
               style={[
                 styles.date,
-                {
-                  color:
-                    isSelected && !isToday ? theme.accent : isToday ? theme.teal : theme.ink,
-                },
+                { color: isSelected ? theme.accent : isToday ? theme.teal : theme.ink },
               ]}
             >
               {dayNum}
