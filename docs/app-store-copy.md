@@ -72,3 +72,19 @@ period tracker, cycle tracker, cycle calendar, period log, cycle planner, workou
 - Bundle ID: `app.rhythma.cycle`
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning (calendar, workouts, events).
 - Copyright: © 2026 Iuliana Iagodka
+
+## App Store URLs
+
+Paste these in App Store Connect after GitHub Pages is live:
+
+### Support URL
+
+https://iulianaiagodka.github.io/Rhythma/
+
+Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/support.md
+
+### Privacy Policy URL
+
+https://iulianaiagodka.github.io/Rhythma/privacy.html
+
+Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/privacy.md

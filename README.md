@@ -39,6 +39,12 @@ npm test
 npx tsc --noEmit
 ```
 
+## Support
+
+- [Support page](docs/support.md)
+- [Privacy policy](docs/privacy.md)
+- Email: [iuliana.iagodka@gmail.com](mailto:iuliana.iagodka@gmail.com)
+
 ## Privacy
 
 Cycle data is stored locally with AsyncStorage. Calendar access is read-only and only used when Plus calendar sync is enabled.
