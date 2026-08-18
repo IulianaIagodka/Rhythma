@@ -75,24 +75,16 @@ period tracker, cycle tracker, cycle calendar, period log, cycle planner, workou
 
 ## App Store URLs
 
-Use these public URLs in App Store Connect after this branch is on `main`.
+Paste these in App Store Connect after GitHub Pages is live:
 
 ### Support URL
 
-Works immediately (GitHub markdown):
-
-https://github.com/IulianaIagodka/Rhythma/blob/main/docs/support.md
-
-After GitHub Pages is on (`Settings → Pages → Deploy from a branch → main / docs`):
-
 https://iulianaiagodka.github.io/Rhythma/
+
+Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/support.md
 
 ### Privacy Policy URL
 
-Works immediately:
-
-https://github.com/IulianaIagodka/Rhythma/blob/main/docs/privacy.md
-
-After GitHub Pages:
-
 https://iulianaiagodka.github.io/Rhythma/privacy.html
+
+Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/privacy.md
