@@ -341,7 +341,7 @@ export default function App() {
                     </Text>
                   </View>
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
                   </View>
                 </View>
               ) : null}
@@ -466,7 +466,7 @@ export default function App() {
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
                   </View>
                 )}
               </View>
@@ -488,7 +488,7 @@ export default function App() {
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
                   </View>
                 )}
               </View>
@@ -510,7 +510,7 @@ export default function App() {
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
                   </View>
                 )}
               </View>
@@ -532,7 +532,7 @@ export default function App() {
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
                   </View>
                 )}
               </View>

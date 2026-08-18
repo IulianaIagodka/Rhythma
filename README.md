@@ -13,7 +13,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Dark theme by default, with a light-mode switch
 - English and Ukrainian, based on the phone language
 
-## Pro
+## Plus
 
 - Calendar sync for events and workouts
 - Load recommendations, with a switch to hide them
@@ -39,7 +39,7 @@ npx tsc --noEmit
 
 ## Privacy
 
-Cycle data is stored locally with AsyncStorage. Calendar access is read-only and only used when Pro calendar sync is enabled.
+Cycle data is stored locally with AsyncStorage. Calendar access is read-only and only used when Plus calendar sync is enabled.
 
 ## iOS
 
