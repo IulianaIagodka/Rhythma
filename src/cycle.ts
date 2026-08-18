@@ -14,6 +14,7 @@ export type Settings = {
   showOvulation: boolean;
   showEventAdvice: boolean;
   showPhaseLists: boolean;
+  phaseListsExpanded: boolean;
   periodLength: number;
   lutealLength: number;
   themeMode: 'light' | 'dark';
@@ -47,6 +48,7 @@ export function defaultSettings(): Settings {
     showOvulation: false,
     showEventAdvice: true,
     showPhaseLists: true,
+    phaseListsExpanded: false,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'light',

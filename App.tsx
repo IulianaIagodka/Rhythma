@@ -341,17 +341,54 @@ export default function App() {
               ) : null}
 
               {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'bestForPhase')}</Text>
-                  {phasePlan.best.map((item) => (
-                    <Text key={item} style={[styles.planItem, { color: theme.ink }]}>• {item}</Text>
-                  ))}
-                  <Text style={[styles.sectionTitle, { color: theme.ink, marginTop: 8 }]}>
-                    {t(language, 'avoidThisPhase')}
-                  </Text>
-                  {phasePlan.avoid.map((item) => (
-                    <Text key={item} style={[styles.planItem, { color: theme.muted }]}>• {item}</Text>
-                  ))}
+                <View
+                  style={[
+                    styles.card,
+                    { backgroundColor: theme.card, gap: data.settings.phaseListsExpanded ? 14 : 6 },
+                  ]}
+                >
+                  <Pressable
+                    onPress={() =>
+                      persist({
+                        ...data,
+                        settings: {
+                          ...data.settings,
+                          phaseListsExpanded: !data.settings.phaseListsExpanded,
+                        },
+                      })
+                    }
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: data.settings.phaseListsExpanded }}
+                    style={styles.recommendHeader}
+                  >
+                    <View style={styles.settingText}>
+                      <Text style={[styles.sectionTitle, { color: theme.ink }]}>
+                        {t(language, 'phaseRecommendations')}
+                      </Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                        {t(language, 'phaseRecommendationsHint')}
+                      </Text>
+                    </View>
+                    <Text style={[styles.recommendChevron, { color: theme.muted }]}>
+                      {data.settings.phaseListsExpanded ? '⌃' : '⌄'}
+                    </Text>
+                  </Pressable>
+                  {data.settings.phaseListsExpanded ? (
+                    <>
+                      <Text style={[styles.sectionTitle, { color: theme.ink }]}>
+                        {t(language, 'bestForPhase')}
+                      </Text>
+                      {phasePlan.best.map((item) => (
+                        <Text key={item} style={[styles.planItem, { color: theme.ink }]}>• {item}</Text>
+                      ))}
+                      <Text style={[styles.sectionTitle, { color: theme.ink, marginTop: 8 }]}>
+                        {t(language, 'avoidThisPhase')}
+                      </Text>
+                      {phasePlan.avoid.map((item) => (
+                        <Text key={item} style={[styles.planItem, { color: theme.muted }]}>• {item}</Text>
+                      ))}
+                    </>
+                  ) : null}
                 </View>
               ) : null}
             </>
@@ -648,6 +685,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     marginTop: 6,
+  },
+  recommendHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  recommendChevron: {
+    fontSize: 18,
+    fontWeight: '500',
+    lineHeight: 22,
   },
   planItem: {
     fontSize: 14,
