@@ -1,8 +1,16 @@
 # App Store screenshots
 
-iPhone **6.9"** set for App Store Connect: `1320 × 2868` px, portrait.
+## iPhone 6.5" Display — `1284 × 2778`
 
-Upload the files in `iphone-6.9/` to App Store Connect → iPhone 6.9" Display. Apple scales them to smaller iPhones.
+Use these if App Store Connect shows **iPhone 6.5" Display** (1242×2688 or 1284×2778).
+
+Files: `iphone-6.5/`
+
+## iPhone 6.9" Display — `1320 × 2868`
+
+Use these if App Store Connect shows **iPhone 6.9" Display**.
+
+Files: `iphone-6.9/`
 
 | File | Screen |
 | --- | --- |
