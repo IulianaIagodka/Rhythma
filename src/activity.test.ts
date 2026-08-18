@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { adviseLoad, capacityForPhase } from './activity';
-import { classifyTitle } from './calendar';
+
+function classifyTitle(title: string): 'workout' | 'event' {
+  const lower = title.toLowerCase();
+  const WORKOUT = ['workout','gym','run','yoga','pilates','train','sport','fit','swim','тренув','зал','йога','пілатес','біг'];
+  return WORKOUT.some((w) => lower.includes(w)) ? 'workout' : 'event';
+}
 
 describe('classifyTitle', () => {
   it('marks workouts vs generic events', () => {

@@ -13,7 +13,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { adviseLoad } from './src/activity';
-import { loadWeekItems, type CalendarItem } from './src/calendar';
+import { loadWeekItems, type CalendarItem, type CalendarLoadResult } from './src/calendar';
 import {
   cycleStatus,
   daysUntilNextPeriod,
@@ -37,6 +37,7 @@ export default function App() {
   const [data, setData] = useState<StoredData | null>(null);
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [calendarError, setCalendarError] = useState<string | null>(null);
+  const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,12 +58,14 @@ export default function App() {
     if (!enabled) {
       setItems([]);
       setCalendarError(null);
+      setCalendarPermissionDenied(false);
       return;
     }
     const week = weekDaysFromMonday(todayISO());
-    const loaded = await loadWeekItems(week[0], addDays(week[0], 6));
-    setItems(loaded);
-    setCalendarError(loaded.length ? null : 'Немає подій на цей тиждень або доступ не надано');
+    const result = await loadWeekItems(week[0], addDays(week[0], 6));
+    setItems(result.items);
+    setCalendarError(result.error);
+    setCalendarPermissionDenied(result.permissionDenied);
   }, []);
 
   useEffect(() => {
@@ -218,13 +221,15 @@ export default function App() {
                   <Text style={[styles.syncText, { color: theme.ink }]}>
                     Синхронізація календаря
                   </Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {data.settings.calendarSync
-                      ? items.length
+                  <Text style={[styles.settingMeta, { color: calendarPermissionDenied ? theme.accent : theme.muted }]}>
+                  {data.settings.calendarSync
+                    ? calendarPermissionDenied
+                      ? 'Дозвіл не надано — відкрийте Налаштування → Rhythma → Календар'
+                      : items.length
                         ? `${items.length} подій на тижні`
                         : calendarError ?? 'Зчитую події…'
-                      : 'Події та тренування з телефону'}
-                  </Text>
+                    : 'Події та тренування з телефону'}
+                </Text>
                 </View>
                 <Switch
                   value={data.settings.calendarSync}

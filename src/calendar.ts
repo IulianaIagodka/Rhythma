@@ -1,3 +1,12 @@
+import {
+  EntityTypes,
+  getCalendarPermissions,
+  getCalendars,
+  listEvents,
+  requestCalendarPermissions,
+  type PermissionResponse,
+} from 'expo-calendar';
+
 import { toISODate } from './dates';
 
 export type CalendarItem = {
@@ -7,67 +16,80 @@ export type CalendarItem = {
   kind: 'workout' | 'event';
 };
 
+export type CalendarLoadResult = {
+  items: CalendarItem[];
+  error: string | null;
+  permissionDenied: boolean;
+};
+
 const WORKOUT = [
-  'workout',
-  'gym',
-  'run',
-  'yoga',
-  'pilates',
-  'train',
-  'sport',
-  'fit',
-  'swim',
-  'cycle',
-  'bike',
-  'hiit',
-  'crossfit',
-  'walk',
-  'hike',
-  'тренув',
-  'зал',
-  'йога',
-  'пілатес',
-  'біг',
-  'спорт',
-  'фітнес',
-  'плаван',
-  'силов',
+  'workout', 'gym', 'run', 'yoga', 'pilates', 'train', 'sport', 'fit',
+  'swim', 'cycle', 'bike', 'hiit', 'crossfit', 'walk', 'hike',
+  'тренув', 'зал', 'йога', 'пілатес', 'біг', 'спорт', 'фітнес', 'плаван', 'силов',
 ];
 
 export function classifyTitle(title: string): 'workout' | 'event' {
-  const value = title.toLowerCase();
-  return WORKOUT.some((word) => value.includes(word)) ? 'workout' : 'event';
+  const lower = title.toLowerCase();
+  return WORKOUT.some((word) => lower.includes(word)) ? 'workout' : 'event';
 }
 
-export async function loadWeekItems(weekStart: string, weekEnd: string): Promise<CalendarItem[]> {
-  try {
-    const Calendar = await import('expo-calendar');
-    const permission = await Calendar.requestCalendarPermissionsAsync();
-    if (permission.status !== 'granted') return [];
+async function ensurePermission(): Promise<PermissionResponse> {
+  const current = await getCalendarPermissions();
+  if (current.status === 'granted') return current;
+  return requestCalendarPermissions();
+}
 
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    if (!calendars.length) return [];
+export async function loadWeekItems(
+  weekStart: string,
+  weekEnd: string,
+): Promise<CalendarLoadResult> {
+  try {
+    const permission = await ensurePermission();
+    if (permission.status !== 'granted') {
+      return {
+        items: [],
+        error:
+          'Немає дозволу — відкрийте Налаштування → Rhythma → Календар → Повний доступ.',
+        permissionDenied: true,
+      };
+    }
+
+    const calendars = await getCalendars(EntityTypes.EVENT);
+    if (!calendars.length) {
+      return {
+        items: [],
+        error: 'Не знайдено жодного календаря на телефоні.',
+        permissionDenied: false,
+      };
+    }
 
     const start = new Date(`${weekStart}T00:00:00`);
     const end = new Date(`${weekEnd}T23:59:59`);
-    const events = await Calendar.getEventsAsync(
-      calendars.map((calendar) => calendar.id),
-      start,
-      end,
-    );
+    const events = await listEvents(calendars, start, end);
 
-    return events
+    const items: CalendarItem[] = events
       .map((event) => {
         const title = event.title?.trim() || 'Подія';
         return {
           id: event.id,
           title,
-          day: toISODate(new Date(event.startDate)),
+          day: toISODate(new Date(event.startDate as string)),
           kind: classifyTitle(title),
         };
       })
       .sort((a, b) => a.day.localeCompare(b.day) || a.title.localeCompare(b.title));
-  } catch {
-    return [];
+
+    return {
+      items,
+      error: items.length ? null : 'Подій на цьому тижні немає.',
+      permissionDenied: false,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      items: [],
+      error: `Помилка: ${message}`,
+      permissionDenied: false,
+    };
   }
 }
