@@ -19,11 +19,11 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Phase name on Today (`Rest & release`, `Renew & rise`, `Peak & powerful`, `Turn inward`)
 - Best / avoid lists for adapting the calendar to the phase
 
-## Dev
+## Dev / TestFlight
 
-Local Expo (`__DEV__`) and the EAS `development` profile unlock **every** feature.
+Local Expo (`__DEV__`), the EAS `development` profile, and **TestFlight** unlock **every** feature.
 
-Production / TestFlight stays on Free until a purchase is added.
+The App Store binary will stay on Free once `EXPO_PUBLIC_UNLOCK_PRO` is removed from the production profile.
 
 ```bash
 npm install

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { effectiveAccessTier, hasFeatureAccess, isDevUnlockEnabled } from './src/access';
+import { effectiveAccessTier, hasFeatureAccess, previewUnlockSource } from './src/access';
 import { adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -163,11 +163,15 @@ export default function App() {
     : null;
   const phaseCapacity = capacityForPhase(status.phase, language);
   const phasePlan = planningForPhase(status.phase, language);
-  const planLabel = isDevUnlockEnabled()
-    ? t(language, 'devPlan')
-    : tier === 'pro'
-      ? t(language, 'proPlan')
-      : t(language, 'freePlan');
+  const unlockSource = previewUnlockSource();
+  const planLabel =
+    unlockSource === 'dev'
+      ? t(language, 'devPlan')
+      : unlockSource === 'testflight'
+        ? t(language, 'testFlightPlan')
+        : tier === 'pro'
+          ? t(language, 'proPlan')
+          : t(language, 'freePlan');
 
   return (
     <SafeAreaProvider>
@@ -398,7 +402,11 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {isDevUnlockEnabled() ? t(language, 'devUnlockHint') : t(language, 'proReadyHint')}
+                    {unlockSource === 'dev'
+                      ? t(language, 'devUnlockHint')
+                      : unlockSource === 'testflight'
+                        ? t(language, 'testFlightUnlockHint')
+                        : t(language, 'proReadyHint')}
                   </Text>
                 </View>
                 <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>

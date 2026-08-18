@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { effectiveAccessTier, hasFeatureAccess, isDevUnlockEnabled } from './access';
+import {
+  effectiveAccessTier,
+  hasFeatureAccess,
+  isPreviewUnlockEnabled,
+  previewUnlockSource,
+} from './access';
 import { defaultSettings } from './cycle';
 
 describe('access', () => {
@@ -10,7 +15,8 @@ describe('access', () => {
   });
 
   it('keeps calendar sync, event advice, and phase extras behind pro', () => {
-    assert.equal(isDevUnlockEnabled(), false);
+    assert.equal(previewUnlockSource(), 'off');
+    assert.equal(isPreviewUnlockEnabled(), false);
     assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
     assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
     assert.equal(hasFeatureAccess('free', 'phaseTitle'), false);
@@ -21,11 +27,12 @@ describe('access', () => {
     assert.equal(hasFeatureAccess('pro', 'phasePlanningLists'), true);
   });
 
-  it('unlocks every feature in the dev build', () => {
+  it('unlocks every feature in TestFlight and dev preview builds', () => {
     const previous = process.env.EXPO_PUBLIC_UNLOCK_PRO;
     process.env.EXPO_PUBLIC_UNLOCK_PRO = '1';
     try {
-      assert.equal(isDevUnlockEnabled(), true);
+      assert.equal(previewUnlockSource(), 'testflight');
+      assert.equal(isPreviewUnlockEnabled(), true);
       assert.equal(effectiveAccessTier('free'), 'pro');
       assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
       assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), true);
