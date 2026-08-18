@@ -61,7 +61,7 @@ describe('dayAlignmentForPhase', () => {
 describe('planningForPhase', () => {
   it('gives rest guidance during menstruation', () => {
     const plan = planningForPhase('menstrual', 'uk');
-    assert.match(plan.best.join(' '), /Сон|відновл/);
-    assert.match(plan.avoid.join(' '), /HIIT/);
+    assert.match(plan.best.join(' '), /Відновлен/);
+    assert.match(plan.avoid.join(' '), /інтенсивн|графік|вечор/);
   });
 });

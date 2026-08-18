@@ -185,52 +185,52 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
   if (lang === 'uk') {
     if (phase === 'menstrual') {
       return {
-        best: ['Сон і відновлення', 'Прогулянки, легка йога', 'Буфер між зустрічами'],
-        avoid: ['HIIT і силові піки', 'Щільні переговори', 'Пізні вечори'],
+        best: ['Відновлення', 'Легкий рух', 'Буфер між зустрічами'],
+        avoid: ['Висока інтенсивність', 'Щільний графік', 'Пізні вечори'],
       };
     }
     if (phase === 'follicular') {
       return {
-        best: ['Нові плани й старти', 'Тренування з прогресією', 'Брейншторми, навчання'],
-        avoid: ['Відкладати важливі старти', 'Надмірний простій'],
+        best: ['Нові старти', 'Тренування з прогресією', 'Брейншторми'],
+        avoid: ['Відкладати старти', 'Надмірний простій'],
       };
     }
     if (phase === 'ovulatory') {
       return {
-        best: ['Ключові розмови й рішення', 'Соціальні події', 'Інтенсивні сесії'],
-        avoid: ['Ізоляція без потреби', 'Дрібні задачі замість важливих'],
+        best: ['Ключові розмови', 'Соціальні плани', 'Інтенсивні сесії'],
+        avoid: ['Ізоляція', 'Дрібні задачі'],
       };
     }
     if (phase === 'luteal') {
       return {
-        best: ['Закривати почате', 'Спрощений графік', 'Більше буфера перед місячними'],
-        avoid: ['Нові великі зобовʼязання', 'Пік навантаження в кінці циклу'],
+        best: ['Закривати почате', 'Простіший графік', 'Більше буфера'],
+        avoid: ['Великі зобовʼязання', 'Пік навантаження'],
       };
     }
     return { best: [], avoid: [] };
   }
   if (phase === 'menstrual') {
     return {
-      best: ['Sleep and recovery', 'Walks, light yoga', 'Buffer between meetings'],
-      avoid: ['HIIT and peak strength', 'Back-to-back negotiations', 'Late nights'],
+      best: ['Recovery', 'Light movement', 'Meeting buffers'],
+      avoid: ['High intensity', 'Packed schedule', 'Late nights'],
     };
   }
   if (phase === 'follicular') {
     return {
-      best: ['New plans and starts', 'Progressive training', 'Brainstorms and learning'],
-      avoid: ['Delaying important starts', 'Unnecessary idle time'],
+      best: ['New starts', 'Progressive training', 'Brainstorms'],
+      avoid: ['Delayed starts', 'Idle time'],
     };
   }
   if (phase === 'ovulatory') {
     return {
-      best: ['Key conversations and decisions', 'Social plans', 'Intense sessions'],
-      avoid: ['Unnecessary isolation', 'Busywork instead of important work'],
+      best: ['Key conversations', 'Social plans', 'Intense sessions'],
+      avoid: ['Isolation', 'Busywork'],
     };
   }
   if (phase === 'luteal') {
     return {
-      best: ['Close open loops', 'A simpler schedule', 'More buffer before your period'],
-      avoid: ['New big commitments', 'Peak load at the end of the cycle'],
+      best: ['Close loops', 'Simpler schedule', 'Extra buffer'],
+      avoid: ['Big commitments', 'Peak load'],
     };
   }
   return { best: [], avoid: [] };

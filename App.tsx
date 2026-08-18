@@ -376,18 +376,20 @@ export default function App() {
                   </Pressable>
                   {data.settings.phaseListsExpanded ? (
                     <>
-                      <Text style={[styles.sectionTitle, { color: theme.ink }]}>
-                        {t(language, 'bestForPhase')}
-                      </Text>
-                      {phasePlan.best.map((item) => (
-                        <Text key={item} style={[styles.planItem, { color: theme.ink }]}>• {item}</Text>
-                      ))}
-                      <Text style={[styles.sectionTitle, { color: theme.ink, marginTop: 8 }]}>
-                        {t(language, 'avoidThisPhase')}
-                      </Text>
-                      {phasePlan.avoid.map((item) => (
-                        <Text key={item} style={[styles.planItem, { color: theme.muted }]}>• {item}</Text>
-                      ))}
+                      <ChipGroup
+                        title={t(language, 'bestForPhase')}
+                        items={phasePlan.best}
+                        dot={theme.teal}
+                        chipBackground={theme.tealSoft}
+                        text={theme.ink}
+                      />
+                      <ChipGroup
+                        title={t(language, 'avoidThisPhase')}
+                        items={phasePlan.avoid}
+                        dot={theme.accent}
+                        chipBackground={theme.accentSoft}
+                        text={theme.ink}
+                      />
                     </>
                   ) : null}
                 </View>
@@ -608,6 +610,37 @@ export default function App() {
   );
 }
 
+function ChipGroup({
+  title,
+  items,
+  dot,
+  chipBackground,
+  text,
+}: {
+  title: string;
+  items: string[];
+  dot: string;
+  chipBackground: string;
+  text: string;
+}) {
+  if (!items.length) return null;
+  return (
+    <View style={styles.chipGroup}>
+      <View style={styles.chipGroupHeader}>
+        <View style={[styles.chipDot, { backgroundColor: dot }]} />
+        <Text style={[styles.chipGroupTitle, { color: text }]}>{title}</Text>
+      </View>
+      <View style={styles.chipWrap}>
+        {items.map((item) => (
+          <View key={item} style={[styles.chip, { backgroundColor: chipBackground }]}>
+            <Text style={[styles.chipText, { color: text }]}>{item}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function TabButton({
   label,
   active,
@@ -697,9 +730,36 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 22,
   },
-  planItem: {
-    fontSize: 14,
-    lineHeight: 20,
+  chipGroup: {
+    gap: 10,
+  },
+  chipGroupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  chipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  chipGroupTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  chipWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  chipText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   cta: {
     borderRadius: 14,

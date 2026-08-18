@@ -18,7 +18,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Calendar sync for events and workouts
 - Load recommendations, with a switch to hide them
 - Day highlighting when the schedule is too heavy or too light for the phase
-- Best / avoid lists for adapting the calendar to the phase, with a switch to hide them
+- Phase chips for what may support you now and what may feel harder, with a switch to hide them
 
 ## Dev / TestFlight
 
