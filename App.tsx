@@ -244,7 +244,7 @@ export default function App() {
                           <View
                             style={[
                               styles.dayBullet,
-                              { backgroundColor: item.kind === 'workout' ? theme.teal : theme.accent },
+                              { backgroundColor: theme.teal },
                             ]}
                           />
                           <View style={styles.dayTextWrap}>
