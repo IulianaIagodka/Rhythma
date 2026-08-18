@@ -19,10 +19,10 @@ type WeekStripProps = {
 
 export function WeekStrip({ today, selectedDay, data, theme, language, items, showCalendarLoad, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
-  const loadByDay = new Map<string, number>();
+  const countByDay = new Map<string, number>();
   if (showCalendarLoad) {
     for (const item of items) {
-      loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + (item.kind === 'workout' ? 2 : 1));
+      countByDay.set(item.day, (countByDay.get(item.day) ?? 0) + 1);
     }
   }
 
@@ -30,7 +30,7 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
     <View style={styles.row}>
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
-        const load = Math.min(4, loadByDay.get(iso) ?? 0);
+        const eventCount = Math.min(4, countByDay.get(iso) ?? 0);
         const dayItems = showCalendarLoad ? items.filter((item) => item.day === iso) : [];
         const phase = phaseOnDate(iso, data.periodStarts, data.settings);
         const alignment = showCalendarLoad ? dayAlignmentForPhase(phase, dayItems) : 'fit';
@@ -86,11 +86,11 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
                 <View style={[styles.bar, { backgroundColor: theme.ovulatory }]} />
               ) : null}
               {showCalendarLoad
-                ? Array.from({ length: load }, (_, i) => (
+                ? Array.from({ length: eventCount }, (_, i) => (
                     <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
                   ))
                 : null}
-              {!period && !ovulatory && !load ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
+              {!period && !ovulatory && !eventCount ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
             </View>
           </Pressable>
         );
