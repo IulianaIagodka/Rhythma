@@ -8,6 +8,7 @@ export type Theme = {
   accentSoft: string;
   border: string;
   teal: string;
+  tealSoft: string;
   tabBar: string;
   period: string;
   periodForecast: string;
@@ -26,6 +27,7 @@ export const lightTheme: Theme = {
   accentSoft: '#FCE4F1',
   border: '#E5E5EA',
   teal: '#5ECAD6',
+  tealSoft: '#D7F4F7',
   tabBar: '#FFFFFF',
   period: '#E91E8C',
   periodForecast: '#F5A8D0',
@@ -44,6 +46,7 @@ export const darkTheme: Theme = {
   accentSoft: '#3A1530',
   border: '#2C2C2E',
   teal: '#5ECAD6',
+  tealSoft: '#16383C',
   tabBar: '#0A0A0A',
   period: '#FF10F0',
   periodForecast: '#8A1480',

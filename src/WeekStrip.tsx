@@ -11,12 +11,13 @@ type WeekStripProps = {
   data: StoredData;
   theme: Theme;
   language: Language;
+  selectedDay: string;
   items: CalendarItem[];
   showCalendarLoad: boolean;
   onSelectDay: (iso: string) => void;
 };
 
-export function WeekStrip({ today, data, theme, language, items, showCalendarLoad, onSelectDay }: WeekStripProps) {
+export function WeekStrip({ today, selectedDay, data, theme, language, items, showCalendarLoad, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
   const loadByDay = new Map<string, number>();
   if (showCalendarLoad) {
@@ -36,6 +37,7 @@ export function WeekStrip({ today, data, theme, language, items, showCalendarLoa
         const period = mark === 'period' || mark === 'periodForecast';
         const ovulatory = data.settings.showOvulation && mark === 'ovulatory';
         const isToday = iso === today;
+        const isSelected = iso === selectedDay;
         const dayNum = parseISODate(iso).getDate();
         const alignmentColor =
           alignment === 'over'
@@ -50,11 +52,22 @@ export function WeekStrip({ today, data, theme, language, items, showCalendarLoa
             style={[
               styles.day,
               alignment !== 'fit' && { borderColor: alignmentColor },
-              isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
+              isToday && { borderColor: theme.teal, backgroundColor: theme.tealSoft },
+              isSelected && !isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
             ]}
           >
             <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShort(iso, language)}</Text>
-            <Text style={[styles.date, { color: isToday ? theme.accent : theme.ink }]}>{dayNum}</Text>
+            <Text
+              style={[
+                styles.date,
+                {
+                  color:
+                    isSelected && !isToday ? theme.accent : isToday ? theme.teal : theme.ink,
+                },
+              ]}
+            >
+              {dayNum}
+            </Text>
             {alignment !== 'fit' ? (
               <View
                 style={[

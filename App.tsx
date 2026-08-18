@@ -225,6 +225,7 @@ export default function App() {
                   theme={theme}
                   language={language}
                   items={calendarItems}
+                  selectedDay={selectedDay}
                   showCalendarLoad={calendarEnabled && showEventsAndAdvice}
                   onSelectDay={setSelectedDay}
                 />
@@ -234,7 +235,7 @@ export default function App() {
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
-                    <Text style={[styles.sectionTag, { color: theme.teal }]}>{selectedDay}</Text>
+                    <Text style={[styles.sectionTag, { color: theme.accent }]}>{selectedDay}</Text>
                   </View>
                   {selectedItems.length ? (
                     <View style={styles.dayList}>
