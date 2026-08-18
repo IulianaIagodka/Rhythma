@@ -51,7 +51,6 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
             onPress={() => onSelectDay(iso)}
             style={[
               styles.day,
-              alignment !== 'fit' && { borderColor: alignmentColor },
               isToday && { borderColor: theme.teal, backgroundColor: theme.tealSoft },
               isSelected && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
             ]}
