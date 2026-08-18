@@ -10,7 +10,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Week and year calendars for recorded and forecasted period days
 - Phase name on Today (`Rest & release`, `Renew & rise`, `Peak & powerful`, `Turn inward`)
 - Optional ovulation marks on the calendars
-- Light / dark theme
+- Dark theme by default, with a light-mode switch
 - English and Ukrainian, based on the phone language
 
 ## Pro

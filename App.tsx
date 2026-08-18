@@ -112,7 +112,7 @@ export default function App() {
   }, [data, today]);
 
   const theme = useMemo(
-    () => themeFor(data?.settings.themeMode ?? 'light'),
+    () => themeFor(data?.settings.themeMode ?? 'dark'),
     [data?.settings.themeMode],
   );
 
@@ -124,8 +124,8 @@ export default function App() {
   if (!data || !status) {
     return (
       <SafeAreaProvider>
-        <SafeAreaView style={[styles.screen, { backgroundColor: '#FFFFFF' }]}>
-          <ActivityIndicator color="#E91E8C" />
+        <SafeAreaView style={[styles.screen, { backgroundColor: '#0A0A0A' }]}>
+          <ActivityIndicator color="#FF10F0" />
         </SafeAreaView>
       </SafeAreaProvider>
     );

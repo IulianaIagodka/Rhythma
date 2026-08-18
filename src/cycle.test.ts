@@ -23,6 +23,7 @@ describe('defaultSettings', () => {
     assert.equal(settings.showEventAdvice, true);
     assert.equal(settings.showPhaseLists, true);
     assert.equal(settings.phaseListsExpanded, false);
+    assert.equal(settings.themeMode, 'dark');
   });
 });
 

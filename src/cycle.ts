@@ -51,7 +51,7 @@ export function defaultSettings(): Settings {
     phaseListsExpanded: false,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
-    themeMode: 'light',
+    themeMode: 'dark',
     calendarSync: false,
     accessTier: 'free',
   };
