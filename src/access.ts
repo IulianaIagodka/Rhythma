@@ -21,6 +21,10 @@ export const FEATURE_ACCESS: Record<ProFeatureKey, FeatureConfig> = {
   cycleRhythm: { tier: 'pro' },
 };
 
+function hasPlanSwitchEnv(): boolean {
+  return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_PLAN_SWITCH === '1';
+}
+
 function hasUnlockEnv(): boolean {
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_UNLOCK_PRO === '1';
 }
@@ -29,8 +33,12 @@ function isDevRuntime(): boolean {
   return (globalThis as { __DEV__?: boolean }).__DEV__ === true;
 }
 
+export function canSwitchPlan(): boolean {
+  return hasPlanSwitchEnv() || isDevRuntime();
+}
+
 export function previewUnlockSource(): PreviewUnlockSource {
-  if (isDevRuntime()) return 'dev';
+  if (canSwitchPlan()) return 'off';
   if (hasUnlockEnv()) return 'plus';
   return 'off';
 }

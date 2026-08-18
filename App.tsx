@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { effectiveAccessTier, hasFeatureAccess, previewUnlockSource } from './src/access';
+import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -163,6 +163,7 @@ export default function App() {
   const phaseCapacity = capacityForPhase(status.phase, language);
   const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
+  const planSwitcher = canSwitchPlan();
   const planLabel =
     unlockSource === 'dev'
       ? t(language, 'devPlan')
@@ -430,16 +431,31 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {unlockSource === 'dev'
-                      ? t(language, 'devUnlockHint')
-                      : unlockSource === 'plus'
-                        ? t(language, 'plusUnlockHint')
-                        : t(language, 'proReadyHint')}
+                    {planSwitcher
+                      ? t(language, 'planSwitchHint')
+                      : unlockSource === 'dev'
+                        ? t(language, 'devUnlockHint')
+                        : unlockSource === 'plus'
+                          ? t(language, 'plusUnlockHint')
+                          : t(language, 'proReadyHint')}
                   </Text>
                 </View>
-                <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
-                  <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
-                </View>
+                {planSwitcher ? (
+                  <PlanSwitch
+                    value={storedTier}
+                    theme={theme}
+                    language={language}
+                    onChange={(accessTier) => {
+                      persist({ ...data, settings: { ...data.settings, accessTier } });
+                      if (accessTier === 'pro' && data.settings.calendarSync) refreshCalendar(true);
+                      else refreshCalendar(false);
+                    }}
+                  />
+                ) : (
+                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
+                  </View>
+                )}
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -662,6 +678,41 @@ function ChipGroup({
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+function PlanSwitch({
+  value,
+  theme,
+  language,
+  onChange,
+}: {
+  value: AccessTier;
+  theme: Theme;
+  language: Language;
+  onChange: (tier: AccessTier) => void;
+}) {
+  return (
+    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
+      {(['free', 'pro'] as const).map((tier) => {
+        const active = value === tier;
+        return (
+          <Pressable
+            key={tier}
+            onPress={() => {
+              if (tier === value) return;
+              void Haptics.selectionAsync();
+              onChange(tier);
+            }}
+            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
+          >
+            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
+              {tier === 'pro' ? t(language, 'proPlan') : t(language, 'freePlan')}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -948,6 +999,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   planPillText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  planSwitch: {
+    flexDirection: 'row',
+    borderRadius: 999,
+    borderWidth: 1,
+    padding: 2,
+    gap: 2,
+  },
+  planSwitchBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  planSwitchText: {
     fontSize: 13,
     fontWeight: '700',
   },

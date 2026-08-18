@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
+  canSwitchPlan,
   effectiveAccessTier,
   hasFeatureAccess,
   isPreviewUnlockEnabled,
@@ -17,6 +18,7 @@ describe('access', () => {
   it('keeps calendar sync, event advice, and phase lists behind pro', () => {
     assert.equal(previewUnlockSource(), 'off');
     assert.equal(isPreviewUnlockEnabled(), false);
+    assert.equal(canSwitchPlan(), false);
     assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
     assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
     assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
@@ -27,6 +29,26 @@ describe('access', () => {
     assert.equal(hasFeatureAccess('pro', 'phaseTitle'), true);
     assert.equal(hasFeatureAccess('pro', 'phasePlanningLists'), true);
     assert.equal(hasFeatureAccess('pro', 'cycleRhythm'), true);
+  });
+
+  it('lets a preview build keep Free until Plus is selected', () => {
+    const previousSwitch = process.env.EXPO_PUBLIC_PLAN_SWITCH;
+    const previousUnlock = process.env.EXPO_PUBLIC_UNLOCK_PRO;
+    process.env.EXPO_PUBLIC_PLAN_SWITCH = '1';
+    process.env.EXPO_PUBLIC_UNLOCK_PRO = '1';
+    try {
+      assert.equal(canSwitchPlan(), true);
+      assert.equal(previewUnlockSource(), 'off');
+      assert.equal(isPreviewUnlockEnabled(), false);
+      assert.equal(effectiveAccessTier('free'), 'free');
+      assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
+      assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
+    } finally {
+      if (previousSwitch == null) delete process.env.EXPO_PUBLIC_PLAN_SWITCH;
+      else process.env.EXPO_PUBLIC_PLAN_SWITCH = previousSwitch;
+      if (previousUnlock == null) delete process.env.EXPO_PUBLIC_UNLOCK_PRO;
+      else process.env.EXPO_PUBLIC_UNLOCK_PRO = previousUnlock;
+    }
   });
 
   it('unlocks Plus features in the Plus preview build', () => {

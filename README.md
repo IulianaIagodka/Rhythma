@@ -25,7 +25,8 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 - `production` — Free TestFlight / App Store. Plus features stay locked.
 - `plus` — TestFlight preview with Plus unlocked.
-- Local Expo (`__DEV__`) and the EAS `development` profile also unlock Plus.
+- `preview` — TestFlight build with a Free / Plus switch in Settings.
+- Local Expo (`__DEV__`) also shows the Free / Plus switch.
 
 ```bash
 npm install
