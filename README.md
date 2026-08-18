@@ -21,11 +21,11 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Phase chips for what may support you now and what may feel harder, with a switch to hide them
 - Cycle rhythm: a compact four-phase sparkline to the right of cycle day, with a today marker
 
-## Dev
+## Builds
 
-Local Expo (`__DEV__`) and the EAS `development` profile unlock Plus for testing.
-
-TestFlight and the App Store stay on Free. Calendar sync, recommendations, and phase tips need Plus.
+- `production` — Free TestFlight / App Store. Plus features stay locked.
+- `plus` — TestFlight preview with Plus unlocked.
+- Local Expo (`__DEV__`) and the EAS `development` profile also unlock Plus.
 
 ```bash
 npm install

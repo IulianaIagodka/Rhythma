@@ -1,6 +1,6 @@
 export type AccessTier = 'free' | 'pro';
 
-export type PreviewUnlockSource = 'off' | 'dev' | 'testflight';
+export type PreviewUnlockSource = 'off' | 'dev' | 'plus';
 
 export type ProFeatureKey =
   | 'calendarSync'
@@ -31,7 +31,7 @@ function isDevRuntime(): boolean {
 
 export function previewUnlockSource(): PreviewUnlockSource {
   if (isDevRuntime()) return 'dev';
-  if (hasUnlockEnv()) return 'testflight';
+  if (hasUnlockEnv()) return 'plus';
   return 'off';
 }
 

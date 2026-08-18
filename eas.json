@@ -13,10 +13,22 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "plus": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_UNLOCK_PRO": "1"
+      }
     }
   },
   "submit": {
     "production": {
+      "ios": {
+        "ascAppId": "6802549751",
+        "appleTeamId": "F8M552HN2V"
+      }
+    },
+    "plus": {
       "ios": {
         "ascAppId": "6802549751",
         "appleTeamId": "F8M552HN2V"

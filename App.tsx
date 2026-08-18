@@ -166,8 +166,8 @@ export default function App() {
   const planLabel =
     unlockSource === 'dev'
       ? t(language, 'devPlan')
-      : unlockSource === 'testflight'
-        ? t(language, 'testFlightPlan')
+      : unlockSource === 'plus'
+        ? t(language, 'proPlan')
         : tier === 'pro'
           ? t(language, 'proPlan')
           : t(language, 'freePlan');
@@ -432,8 +432,8 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {unlockSource === 'dev'
                       ? t(language, 'devUnlockHint')
-                      : unlockSource === 'testflight'
-                        ? t(language, 'testFlightUnlockHint')
+                      : unlockSource === 'plus'
+                        ? t(language, 'plusUnlockHint')
                         : t(language, 'proReadyHint')}
                   </Text>
                 </View>

@@ -29,11 +29,11 @@ describe('access', () => {
     assert.equal(hasFeatureAccess('pro', 'cycleRhythm'), true);
   });
 
-  it('unlocks every feature in TestFlight and dev preview builds', () => {
+  it('unlocks Plus features in the Plus preview build', () => {
     const previous = process.env.EXPO_PUBLIC_UNLOCK_PRO;
     process.env.EXPO_PUBLIC_UNLOCK_PRO = '1';
     try {
-      assert.equal(previewUnlockSource(), 'testflight');
+      assert.equal(previewUnlockSource(), 'plus');
       assert.equal(isPreviewUnlockEnabled(), true);
       assert.equal(effectiveAccessTier('free'), 'pro');
       assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
