@@ -28,6 +28,7 @@ import { addDays, formatDay, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
+import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
@@ -147,6 +148,7 @@ export default function App() {
   const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
   const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
+  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
@@ -219,6 +221,28 @@ export default function App() {
                   <Text style={[styles.link, { color: theme.teal }]}>{t(language, 'chooseOtherDate')}</Text>
                 </Pressable>
               </View>
+
+              {status.cycleDay != null && hasCycleRhythm && data.settings.showCycleRhythm ? (
+                <CycleRhythm
+                  cycleDay={status.cycleDay}
+                  cycleLength={status.cycleLength}
+                  settings={data.settings}
+                  theme={theme}
+                  language={language}
+                />
+              ) : status.cycleDay != null && !hasCycleRhythm ? (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {t(language, 'cycleRhythmLocked')}
+                    </Text>
+                  </View>
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                </View>
+              ) : null}
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
@@ -486,6 +510,28 @@ export default function App() {
                     readyRef={switchesReady}
                     onValueChange={(showPhaseListsValue) =>
                       persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
+                    }
+                  />
+                ) : (
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                )}
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {hasCycleRhythm ? t(language, 'cycleRhythmDesc') : t(language, 'cycleRhythmLocked')}
+                  </Text>
+                </View>
+                {hasCycleRhythm ? (
+                  <BrightSwitch
+                    value={data.settings.showCycleRhythm}
+                    theme={theme}
+                    readyRef={switchesReady}
+                    onValueChange={(showCycleRhythm) =>
+                      persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
                     }
                   />
                 ) : (

@@ -15,6 +15,8 @@ export type Theme = {
   follicular: string;
   ovulatory: string;
   luteal: string;
+  rhythmFollicular: string;
+  rhythmLuteal: string;
 };
 
 export const lightTheme: Theme = {
@@ -34,6 +36,8 @@ export const lightTheme: Theme = {
   follicular: '#B8E8EE',
   ovulatory: '#5ECAD6',
   luteal: '#D4D4D8',
+  rhythmFollicular: '#3AA9B8',
+  rhythmLuteal: '#A984C2',
 };
 
 export const darkTheme: Theme = {
@@ -53,6 +57,8 @@ export const darkTheme: Theme = {
   follicular: '#2A4050',
   ovulatory: '#5ECAD6',
   luteal: '#3A3A3C',
+  rhythmFollicular: '#6EC8D8',
+  rhythmLuteal: '#C9A6DC',
 };
 
 export type ThemeMode = 'light' | 'dark';

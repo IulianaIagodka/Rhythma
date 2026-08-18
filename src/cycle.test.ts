@@ -9,9 +9,15 @@ import {
   forecastStarts,
   loggedPeriodDays,
   marksForYear,
+  energyAtCycleDay,
+  nextRhythmMarker,
+  ovulationDayForCycle,
   phaseIdForCycleDay,
+  phaseWindows,
   periodPromptForDate,
+  rhythmEnergyKind,
   togglePeriodStart,
+  wrappedCycleDay,
 } from './cycle';
 import { addDays, mondayIndex } from './dates';
 
@@ -23,6 +29,7 @@ describe('defaultSettings', () => {
     assert.equal(settings.showEventAdvice, true);
     assert.equal(settings.showPhaseLists, true);
     assert.equal(settings.phaseListsExpanded, false);
+    assert.equal(settings.showCycleRhythm, true);
     assert.equal(settings.themeMode, 'dark');
   });
 });
@@ -121,6 +128,54 @@ describe('phaseIdForCycleDay', () => {
     assert.equal(phaseIdForCycleDay(14, 28, settings), 'ovulatory');
     assert.equal(phaseIdForCycleDay(16, 28, settings), 'luteal');
     assert.equal(phaseIdForCycleDay(32, 28, settings), 'luteal');
+  });
+});
+
+describe('phaseWindows', () => {
+  it('covers a 28-day cycle with four load windows', () => {
+    const settings = defaultSettings();
+    assert.deepEqual(phaseWindows(28, settings), [
+      { phase: 'menstrual', startDay: 1, endDay: 5 },
+      { phase: 'follicular', startDay: 6, endDay: 12 },
+      { phase: 'ovulatory', startDay: 13, endDay: 15 },
+      { phase: 'luteal', startDay: 16, endDay: 28 },
+    ]);
+  });
+});
+
+describe('nextRhythmMarker', () => {
+  it('forecasts the peak window from late follicular', () => {
+    const marker = nextRhythmMarker(10, 28, defaultSettings());
+    assert.deepEqual(marker, { kind: 'phase', phase: 'ovulatory', days: 3 });
+  });
+
+  it('forecasts the next period from luteal', () => {
+    const marker = nextRhythmMarker(18, 28, defaultSettings());
+    assert.deepEqual(marker, { kind: 'period', phase: 'menstrual', days: 11 });
+  });
+});
+
+describe('energyAtCycleDay', () => {
+  it('peaks near the ovulatory window and stays lower in menstrual', () => {
+    const settings = defaultSettings();
+    const peakDay = ovulationDayForCycle(28, settings);
+    assert.equal(peakDay, 14);
+    assert.ok(energyAtCycleDay(peakDay, 28, settings) > energyAtCycleDay(1, 28, settings));
+    assert.ok(energyAtCycleDay(peakDay, 28, settings) > energyAtCycleDay(22, 28, settings));
+  });
+
+  it('names energy by phase, not as a lab curve', () => {
+    assert.equal(rhythmEnergyKind('menstrual'), 'low');
+    assert.equal(rhythmEnergyKind('follicular'), 'rising');
+    assert.equal(rhythmEnergyKind('ovulatory'), 'peak');
+    assert.equal(rhythmEnergyKind('luteal'), 'easing');
+  });
+});
+
+describe('wrappedCycleDay', () => {
+  it('wraps days past the current cycle length', () => {
+    assert.equal(wrappedCycleDay(29, 28), 1);
+    assert.equal(wrappedCycleDay(18, 28), 18);
   });
 });
 

@@ -6,7 +6,8 @@ export type ProFeatureKey =
   | 'calendarSync'
   | 'eventLoadAdvice'
   | 'phaseTitle'
-  | 'phasePlanningLists';
+  | 'phasePlanningLists'
+  | 'cycleRhythm';
 
 type FeatureConfig = {
   tier: AccessTier;
@@ -17,6 +18,7 @@ export const FEATURE_ACCESS: Record<ProFeatureKey, FeatureConfig> = {
   eventLoadAdvice: { tier: 'pro' },
   phaseTitle: { tier: 'free' },
   phasePlanningLists: { tier: 'pro' },
+  cycleRhythm: { tier: 'pro' },
 };
 
 function hasUnlockEnv(): boolean {

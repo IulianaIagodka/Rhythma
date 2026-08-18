@@ -21,10 +21,12 @@ describe('access', () => {
     assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
     assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
     assert.equal(hasFeatureAccess('free', 'phasePlanningLists'), false);
+    assert.equal(hasFeatureAccess('free', 'cycleRhythm'), false);
     assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
     assert.equal(hasFeatureAccess('pro', 'eventLoadAdvice'), true);
     assert.equal(hasFeatureAccess('pro', 'phaseTitle'), true);
     assert.equal(hasFeatureAccess('pro', 'phasePlanningLists'), true);
+    assert.equal(hasFeatureAccess('pro', 'cycleRhythm'), true);
   });
 
   it('unlocks every feature in TestFlight and dev preview builds', () => {
@@ -38,6 +40,7 @@ describe('access', () => {
       assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), true);
       assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
       assert.equal(hasFeatureAccess('free', 'phasePlanningLists'), true);
+      assert.equal(hasFeatureAccess('free', 'cycleRhythm'), true);
     } finally {
       if (previous == null) delete process.env.EXPO_PUBLIC_UNLOCK_PRO;
       else process.env.EXPO_PUBLIC_UNLOCK_PRO = previous;

@@ -15,6 +15,7 @@ export type Settings = {
   showEventAdvice: boolean;
   showPhaseLists: boolean;
   phaseListsExpanded: boolean;
+  showCycleRhythm: boolean;
   periodLength: number;
   lutealLength: number;
   themeMode: 'light' | 'dark';
@@ -49,6 +50,7 @@ export function defaultSettings(): Settings {
     showEventAdvice: true,
     showPhaseLists: true,
     phaseListsExpanded: false,
+    showCycleRhythm: true,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'dark',
@@ -134,12 +136,85 @@ export function cycleStatus(today: string, starts: string[], settings: Settings)
   };
 }
 
+export function ovulationDayForCycle(cycleLength: number, settings: Settings): number {
+  return Math.max(settings.periodLength + 2, cycleLength - settings.lutealLength);
+}
+
+export function wrappedCycleDay(cycleDay: number, cycleLength: number): number {
+  if (cycleLength < 1) return 1;
+  if (cycleDay < 1) return 1;
+  return ((cycleDay - 1) % cycleLength) + 1;
+}
+
+export type PhaseWindow = {
+  phase: PhaseId;
+  startDay: number;
+  endDay: number;
+};
+
+export function phaseWindows(cycleLength: number, settings: Settings): PhaseWindow[] {
+  const windows: PhaseWindow[] = [];
+  for (let day = 1; day <= cycleLength; day += 1) {
+    const phase = phaseIdForCycleDay(day, cycleLength, settings);
+    const last = windows[windows.length - 1];
+    if (last && last.phase === phase) last.endDay = day;
+    else windows.push({ phase, startDay: day, endDay: day });
+  }
+  return windows;
+}
+
+export type RhythmMarker = {
+  kind: 'phase' | 'period';
+  phase: PhaseId;
+  days: number;
+};
+
+export function nextRhythmMarker(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): RhythmMarker | null {
+  if (cycleLength < 1 || cycleDay < 1) return null;
+  const day = wrappedCycleDay(cycleDay, cycleLength);
+  const windows = phaseWindows(cycleLength, settings);
+  const index = windows.findIndex((window) => day >= window.startDay && day <= window.endDay);
+  if (index < 0) return null;
+  const next = windows[index + 1];
+  if (next) {
+    return { kind: 'phase', phase: next.phase, days: next.startDay - day };
+  }
+  return { kind: 'period', phase: 'menstrual', days: cycleLength - day + 1 };
+}
+
+export function energyAtCycleDay(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): number {
+  const day = wrappedCycleDay(cycleDay, cycleLength);
+  const peak = ovulationDayForCycle(cycleLength, settings);
+  const delta = Math.min(Math.abs(day - peak), cycleLength - Math.abs(day - peak));
+  const width = Math.max(cycleLength * 0.35, 6);
+  const bell = Math.cos(Math.min(1, delta / width) * Math.PI) * 0.5 + 0.5;
+  const menstrualDip = day <= settings.periodLength ? 0.18 : 0;
+  return Math.max(0.18, Math.min(1, 0.28 + 0.7 * bell - menstrualDip));
+}
+
+export type RhythmEnergyKind = 'low' | 'rising' | 'peak' | 'easing';
+
+export function rhythmEnergyKind(phase: PhaseId): RhythmEnergyKind {
+  if (phase === 'menstrual') return 'low';
+  if (phase === 'follicular') return 'rising';
+  if (phase === 'ovulatory') return 'peak';
+  return 'easing';
+}
+
 export function phaseIdForCycleDay(
   cycleDay: number,
   cycleLength: number,
   settings: Settings,
 ): PhaseId {
-  const ovulationDay = Math.max(settings.periodLength + 2, cycleLength - settings.lutealLength);
+  const ovulationDay = ovulationDayForCycle(cycleLength, settings);
   if (cycleDay <= settings.periodLength) return 'menstrual';
   if (cycleDay < ovulationDay - 1) return 'follicular';
   if (cycleDay <= ovulationDay + 1) return 'ovulatory';
