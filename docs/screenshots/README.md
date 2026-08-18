@@ -7,5 +7,6 @@ Upload the files in `iphone-6.9/` to App Store Connect → iPhone 6.9" Display. 
 | File | Screen |
 | --- | --- |
 | `01-today-dark.png` | Today, dark theme |
+| `02-year.png` | Year calendar |
 
 Source captures from the phone (1206 × 2622) are in `source/`.
