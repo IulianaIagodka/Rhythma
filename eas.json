@@ -25,6 +25,13 @@
       "env": {
         "EXPO_PUBLIC_PLAN_SWITCH": "1"
       }
+    },
+    "internal": {
+      "extends": "production",
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_PLAN_SWITCH": "1"
+      }
     }
   },
   "submit": {
