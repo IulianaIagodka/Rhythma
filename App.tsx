@@ -594,7 +594,7 @@ export default function App() {
             active={tab === 'settings'}
             theme={theme}
             onPress={() => setTab('settings')}
-            icon="⚙"
+            icon="menu"
           />
         </View>
       </SafeAreaView>
@@ -658,6 +658,16 @@ function ChipGroup({
   );
 }
 
+function MenuIcon({ color }: { color: string }) {
+  return (
+    <View style={styles.menuIcon}>
+      <View style={[styles.menuBar, { backgroundColor: color }]} />
+      <View style={[styles.menuBar, { backgroundColor: color }]} />
+      <View style={[styles.menuBar, { backgroundColor: color }]} />
+    </View>
+  );
+}
+
 function TabButton({
   label,
   active,
@@ -674,7 +684,11 @@ function TabButton({
   const color = active ? theme.accent : theme.muted;
   return (
     <Pressable onPress={onPress} style={styles.tabBtn}>
-      <Text style={[styles.tabIcon, { color }]}>{icon}</Text>
+      {icon === 'menu' ? (
+        <MenuIcon color={color} />
+      ) : (
+        <Text style={[styles.tabIcon, { color }]}>{icon}</Text>
+      )}
       <Text style={[styles.tabLabel, { color }]}>{label}</Text>
     </Pressable>
   );
@@ -922,5 +936,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   tabIcon: { fontSize: 18 },
+  menuIcon: {
+    width: 18,
+    height: 14,
+    justifyContent: 'space-between',
+    paddingVertical: 1,
+  },
+  menuBar: {
+    height: 2,
+    borderRadius: 1,
+  },
   tabLabel: { fontSize: 11, fontWeight: '600' },
 });
