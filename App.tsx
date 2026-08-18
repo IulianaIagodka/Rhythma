@@ -149,6 +149,7 @@ export default function App() {
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
   const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
+  const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
@@ -194,19 +195,36 @@ export default function App() {
                     </Text>
                   </>
                 ) : (
-                  <>
-                    <Text style={[styles.cardTitle, { color: theme.ink }]}>
-                      {t(language, 'cycleDay')} {status.cycleDay}
-                    </Text>
-                    <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
-                    <Text style={[styles.cardMeta, { color: theme.muted }]}>
-                      {daysLeft == null
-                        ? t(language, 'nextAfterRecords')
-                        : daysLeft === 0
-                          ? t(language, 'nextToday')
-                          : t(language, 'nextIn', { days: daysLeft })}
-                    </Text>
-                  </>
+                  <View style={showCycleRhythm ? styles.cycleHero : undefined}>
+                    <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
+                      <Text
+                        style={[
+                          styles.cardTitle,
+                          showCycleRhythm ? styles.cardTitleWithChart : null,
+                          { color: theme.ink },
+                        ]}
+                      >
+                        {t(language, 'cycleDay')} {status.cycleDay}
+                      </Text>
+                      <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
+                      <Text style={[styles.cardMeta, { color: theme.muted }]}>
+                        {daysLeft == null
+                          ? t(language, 'nextAfterRecords')
+                          : daysLeft === 0
+                            ? t(language, 'nextToday')
+                            : t(language, 'nextIn', { days: daysLeft })}
+                      </Text>
+                    </View>
+                    {showCycleRhythm ? (
+                      <CycleRhythm
+                        cycleDay={status.cycleDay}
+                        cycleLength={status.cycleLength}
+                        settings={data.settings}
+                        theme={theme}
+                        language={language}
+                      />
+                    ) : null}
+                  </View>
                 )}
 
                 <Pressable
@@ -221,28 +239,6 @@ export default function App() {
                   <Text style={[styles.link, { color: theme.teal }]}>{t(language, 'chooseOtherDate')}</Text>
                 </Pressable>
               </View>
-
-              {status.cycleDay != null && hasCycleRhythm && data.settings.showCycleRhythm ? (
-                <CycleRhythm
-                  cycleDay={status.cycleDay}
-                  cycleLength={status.cycleLength}
-                  settings={data.settings}
-                  theme={theme}
-                  language={language}
-                />
-              ) : status.cycleDay != null && !hasCycleRhythm ? (
-                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                  <View style={styles.settingText}>
-                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
-                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                      {t(language, 'cycleRhythmLocked')}
-                    </Text>
-                  </View>
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                  </View>
-                </View>
-              ) : null}
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
@@ -770,6 +766,15 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 14,
   },
+  cycleHero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cycleHeroText: {
+    flex: 1,
+    minWidth: 0,
+  },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -780,6 +785,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.4,
   },
+  cardTitleWithChart: {
+    fontSize: 22,
+  },
   cardMeta: {
     fontSize: 15,
     marginTop: 4,
@@ -787,7 +795,7 @@ const styles = StyleSheet.create({
   phaseName: {
     fontSize: 15,
     fontWeight: '600',
-    marginTop: 6,
+    marginTop: 4,
   },
   recommendHeader: {
     flexDirection: 'row',

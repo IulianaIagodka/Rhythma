@@ -1,19 +1,23 @@
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
-import { capacityForPhase } from './activity';
 import {
   energyAtCycleDay,
-  nextRhythmMarker,
   phaseIdForCycleDay,
-  rhythmEnergyKind,
   wrappedCycleDay,
   type PhaseId,
   type Settings,
 } from './cycle';
 import { t, type Language } from './i18n';
 import type { Theme } from './theme';
+
+const CHART_WIDTH = 132;
+const CHART_HEIGHT = 64;
+const PAD_X = 10;
+const PAD_Y = 16;
+
+type Point = { x: number; y: number; day: number; phase: PhaseId };
 
 type CycleRhythmProps = {
   cycleDay: number;
@@ -30,11 +34,50 @@ function phaseColor(phase: PhaseId, theme: Theme): string {
   return theme.rhythmLuteal;
 }
 
-function energyCopy(kind: ReturnType<typeof rhythmEnergyKind>, language: Language): string {
-  if (kind === 'low') return t(language, 'rhythmEnergyLow');
-  if (kind === 'rising') return t(language, 'rhythmEnergyRising');
-  if (kind === 'peak') return t(language, 'rhythmEnergyPeak');
-  return t(language, 'rhythmEnergyEasing');
+function curvePoints(cycleLength: number, settings: Settings): Point[] {
+  const innerWidth = CHART_WIDTH - PAD_X * 2;
+  const innerHeight = CHART_HEIGHT - PAD_Y * 2;
+  return Array.from({ length: cycleLength }, (_, index) => {
+    const day = index + 1;
+    const energy = energyAtCycleDay(day, cycleLength, settings);
+    return {
+      day,
+      phase: phaseIdForCycleDay(day, cycleLength, settings),
+      x: PAD_X + ((day - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
+      y: PAD_Y + (1 - energy) * innerHeight,
+    };
+  });
+}
+
+function smoothPath(points: Point[]): string {
+  if (points.length < 2) return '';
+  let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const p0 = points[i - 1] ?? points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+  }
+  return d;
+}
+
+function phaseSegments(points: Point[]): { phase: PhaseId; points: Point[] }[] {
+  const segments: { phase: PhaseId; points: Point[] }[] = [];
+  for (const point of points) {
+    const last = segments[segments.length - 1];
+    if (last && last.phase === point.phase) {
+      last.points.push(point);
+    } else {
+      const join = last ? [last.points[last.points.length - 1], point] : [point];
+      segments.push({ phase: point.phase, points: join });
+    }
+  }
+  return segments.filter((segment) => segment.points.length >= 2);
 }
 
 export function CycleRhythm({
@@ -44,152 +87,65 @@ export function CycleRhythm({
   theme,
   language,
 }: CycleRhythmProps) {
+  const points = useMemo(() => curvePoints(cycleLength, settings), [cycleLength, settings]);
   const todayDay = wrappedCycleDay(cycleDay, cycleLength);
-  const [previewDay, setPreviewDay] = useState<number | null>(null);
-  const activeDay = previewDay ?? todayDay;
-
-  const samples = useMemo(
-    () =>
-      Array.from({ length: cycleLength }, (_, index) => {
-        const day = index + 1;
-        const phase = phaseIdForCycleDay(day, cycleLength, settings);
-        return {
-          day,
-          phase,
-          energy: energyAtCycleDay(day, cycleLength, settings),
-        };
-      }),
-    [cycleLength, settings],
-  );
-
-  const activePhase = phaseIdForCycleDay(activeDay, cycleLength, settings);
-  const marker = nextRhythmMarker(activeDay, cycleLength, settings);
-  const phaseLabel = capacityForPhase(activePhase, language).label;
-  const forecast = marker
-    ? marker.kind === 'period'
-      ? marker.days === 0
-        ? t(language, 'nextToday')
-        : t(language, 'nextIn', { days: marker.days })
-      : t(language, 'rhythmNextPhase', {
-          phase: capacityForPhase(marker.phase, language).label,
-          days: marker.days,
-        })
-    : null;
+  const today = points[todayDay - 1] ?? points[0];
+  const segments = useMemo(() => phaseSegments(points), [points]);
+  const labelWidth = language === 'uk' ? 72 : 44;
+  const labelLeft = Math.max(0, Math.min(CHART_WIDTH - labelWidth, today.x - labelWidth / 2));
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.card }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
-        {previewDay == null || previewDay === todayDay ? (
-          <Text style={[styles.tag, { color: theme.teal }]}>{t(language, 'rhythmToday')}</Text>
-        ) : (
-          <Text style={[styles.tag, { color: theme.muted }]}>
-            {t(language, 'rhythmPreviewDay', { day: previewDay })}
-          </Text>
-        )}
-      </View>
-
-      <View style={styles.chart} accessibilityLabel={t(language, 'cycleRhythm')}>
-        {samples.map((sample) => {
-          const isToday = sample.day === todayDay;
-          const isActive = sample.day === activeDay;
-          const height = 8 + sample.energy * 36;
-          return (
-            <Pressable
-              key={sample.day}
-              onPress={() => {
-                void Haptics.selectionAsync();
-                setPreviewDay(sample.day === todayDay ? null : sample.day);
-              }}
-              hitSlop={4}
-              style={styles.barHit}
-              accessibilityLabel={`${t(language, 'rhythmPreviewDay', { day: sample.day })}`}
-            >
-              <View
-                style={[
-                  styles.dot,
-                  {
-                    backgroundColor: isToday ? '#FFFFFF' : 'transparent',
-                    borderColor: isToday ? theme.teal : isActive ? theme.ink : 'transparent',
-                  },
-                ]}
-              />
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    height,
-                    backgroundColor: phaseColor(sample.phase, theme),
-                    opacity: isActive || isToday ? 1 : 0.72,
-                  },
-                ]}
-              />
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <Text style={[styles.phase, { color: theme.accent }]}>{phaseLabel}</Text>
-      {forecast ? <Text style={[styles.meta, { color: theme.muted }]}>{forecast}</Text> : null}
-      <Text style={[styles.meta, { color: theme.muted }]}>
-        {energyCopy(rhythmEnergyKind(activePhase), language)}
+    <View
+      style={styles.wrap}
+      accessibilityLabel={`${t(language, 'cycleRhythm')}. ${t(language, 'rhythmToday')}`}
+    >
+      <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
+        {segments.map((segment) => (
+          <Path
+            key={`${segment.phase}-${segment.points[0].day}`}
+            d={smoothPath(segment.points)}
+            stroke={phaseColor(segment.phase, theme)}
+            strokeWidth={2.4}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        ))}
+        <Circle
+          cx={today.x}
+          cy={today.y}
+          r={5}
+          fill={theme.teal}
+          stroke="#FFFFFF"
+          strokeWidth={2}
+        />
+      </Svg>
+      <Text
+        style={[
+          styles.todayLabel,
+          {
+            color: theme.teal,
+            left: labelLeft,
+            top: Math.max(0, today.y - 18),
+            width: labelWidth,
+          },
+        ]}
+      >
+        {t(language, 'rhythmToday')}
       </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    padding: 20,
-    gap: 8,
+  wrap: {
+    width: CHART_WIDTH,
+    height: CHART_HEIGHT,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  tag: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  chart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: 56,
-    gap: 1,
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  barHit: {
-    flex: 1,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 2,
-    marginBottom: 3,
-  },
-  bar: {
-    width: '100%',
-    borderRadius: 3,
-  },
-  phase: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  meta: {
-    fontSize: 14,
-    lineHeight: 20,
+  todayLabel: {
+    position: 'absolute',
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });
