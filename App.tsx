@@ -13,7 +13,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { effectiveAccessTier, hasFeatureAccess, previewUnlockSource } from './src/access';
-import { adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
@@ -249,8 +249,25 @@ export default function App() {
                           />
                           <View style={styles.dayTextWrap}>
                             <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
-                            <Text style={[styles.dayMeta, { color: theme.muted }]}>
-                              {item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events')}
+                            <Text
+                              style={[
+                                styles.dayMeta,
+                                {
+                                  color:
+                                    activityFitForPhase(status.phase, item.activity) === 'support'
+                                      ? theme.teal
+                                      : activityFitForPhase(status.phase, item.activity) === 'harder'
+                                        ? theme.accent
+                                        : theme.muted,
+                                },
+                              ]}
+                            >
+                              {[
+                                item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events'),
+                                activityFitLabel(status.phase, item.activity, language),
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
                             </Text>
                           </View>
                         </View>

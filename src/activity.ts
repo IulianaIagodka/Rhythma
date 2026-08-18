@@ -1,4 +1,4 @@
-import type { CalendarItem } from './calendar';
+import type { ActivityKind, CalendarItem } from './calendarItems';
 import type { PhaseId } from './cycle';
 import { weekdayName, type Language } from './dates';
 
@@ -20,7 +20,61 @@ export type Capacity = {
   calendarHint: string;
 };
 
-export type DayAlignment = 'under' | 'fit' | 'over';
+export type ActivityFit = 'support' | 'harder' | 'neutral';
+
+export function activityLoad(activity: ActivityKind): number {
+  return activity === 'intense' ? 2 : 1;
+}
+
+export function activityFitForPhase(phase: PhaseId | null, activity: ActivityKind): ActivityFit {
+  if (activity === 'event') return 'neutral';
+  if (phase === 'menstrual' || phase === 'luteal') {
+    return activity === 'intense' ? 'harder' : 'support';
+  }
+  return 'support';
+}
+
+export function activityFitLabel(
+  phase: PhaseId | null,
+  activity: ActivityKind,
+  lang: Language,
+): string | null {
+  const fit = activityFitForPhase(phase, activity);
+  if (fit === 'support') return lang === 'uk' ? 'ок зараз' : 'okay now';
+  if (fit === 'harder') return lang === 'uk' ? 'краще перенести' : 'consider moving';
+  return null;
+}
+
+function activityChecks(phase: PhaseId | null, items: CalendarItem[], lang: Language): string[] {
+  const kinds = new Set(items.map((item) => item.activity));
+  const uk = lang === 'uk';
+  const checks: string[] = [];
+  const restful = phase === 'menstrual' || phase === 'luteal';
+
+  if (kinds.has('yoga')) checks.push(uk ? 'Йога — ок' : 'Yoga is okay');
+  if (kinds.has('massage')) checks.push(uk ? 'Масаж — ок' : 'Massage is okay');
+  if (kinds.has('swim')) checks.push(uk ? 'Плавання — ок' : 'Swimming is okay');
+  if (kinds.has('gentle')) checks.push(uk ? 'Легкий рух — ок' : 'Light movement is okay');
+
+  if (restful && kinds.has('intense')) {
+    checks.push(uk ? 'Силове тренування краще перенести' : 'Consider moving hard training');
+  } else if (!restful && kinds.has('intense')) {
+    checks.push(uk ? 'Тренування пасує до фази' : 'Training fits this phase');
+  }
+
+  const hasGentleMove = kinds.has('yoga') || kinds.has('swim') || kinds.has('gentle') || kinds.has('massage');
+  if (restful && !kinds.has('intense') && !hasGentleMove) {
+    checks.push(uk ? 'Можна додати легке тренування' : 'You could add a light session');
+  }
+  if (!restful && phase === 'ovulatory' && !kinds.has('intense')) {
+    checks.push(uk ? 'Можна додати тренування' : 'You could add training');
+  }
+  if (!restful && phase === 'follicular' && !kinds.has('intense') && !hasGentleMove) {
+    checks.push(uk ? 'Можна додати тренування' : 'You could add training');
+  }
+
+  return checks;
+}
 
 export type PhasePlan = {
   best: string[];
@@ -110,47 +164,54 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
 
 export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: Language): LoadAdvice {
   const capacity = capacityForPhase(phase, lang);
-  const workouts = items.filter((item) => item.kind === 'workout').length;
+  const workouts = items.filter((item) => item.activity !== 'event').length;
+  const intense = items.filter((item) => item.activity === 'intense').length;
   const events = items.length;
   const byDay = new Map<string, number>();
   for (const item of items) {
-    byDay.set(item.day, (byDay.get(item.day) ?? 0) + (item.kind === 'workout' ? 2 : 1));
+    byDay.set(item.day, (byDay.get(item.day) ?? 0) + activityLoad(item.activity));
   }
   const busiest = [...byDay.entries()].sort((a, b) => b[1] - a[1])[0];
   const busiestDay = busiest ? weekdayName(busiest[0], lang) : null;
+  const checks = activityChecks(phase, items, lang);
 
   let fit: Fit = 'ok';
   if (!items.length) {
+    const emptyChecks = activityChecks(phase, items, lang);
     return {
       title: capacity.label,
       note:
         lang === 'uk'
-          ? `${capacity.hint}. ${capacity.calendarHint}. Підключіть календар, щоб звірити події й тренування.`
-          : `${capacity.hint}. ${capacity.calendarHint}. Connect your calendar to compare events and workouts.`,
-      fit: 'ok',
+          ? [capacity.hint, ...emptyChecks, capacity.calendarHint].filter(Boolean).join('. ') + '.'
+          : [capacity.hint, ...emptyChecks, capacity.calendarHint].filter(Boolean).join('. ') + '.',
+      fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
       events: 0,
       workouts: 0,
     };
   }
 
-  if (capacity.load === 'low' && (workouts >= 2 || events >= 5)) fit = 'high';
-  else if (capacity.load === 'medium' && workouts >= 4) fit = 'high';
-  else if (capacity.load === 'high' && events === 0 && workouts === 0) fit = 'low';
-  else if (capacity.load === 'high' && workouts === 0 && events < 2) fit = 'low';
+  if (capacity.load === 'low' && (intense >= 1 || events >= 5)) fit = 'high';
+  else if (capacity.load === 'medium' && intense >= 4) fit = 'high';
+  else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
+
+  const counts =
+    lang === 'uk'
+      ? `На цьому тижні ${events} под. / ${workouts} трен.`
+      : `This week has ${events} events / ${workouts} workouts`;
 
   const note =
     fit === 'high'
       ? (lang === 'uk'
-          ? `На цьому тижні ${events} под. / ${workouts} трен. — це більше, ніж фаза зараз комфортно тримає. ${capacity.calendarHint}.`
-          : `This week has ${events} events / ${workouts} workouts — more than this phase is likely to support comfortably. ${capacity.calendarHint}.`)
+          ? `${counts} — це більше, ніж фаза зараз комфортно тримає. ${checks.join('. ')}. ${capacity.calendarHint}.`
+          : `${counts} — more than this phase is likely to support comfortably. ${checks.join('. ')}. ${capacity.calendarHint}.`)
       : fit === 'low'
         ? (lang === 'uk'
-            ? `Подій мало (${events}), тренувань ${workouts}. Ця фаза дозволяє більше — можна додати рух, зустрічі або важливі плани. ${capacity.calendarHint}.`
-            : `There is little planned (${events} events, ${workouts} workouts). This phase can likely support more — you can add movement, meetings, or important plans. ${capacity.calendarHint}.`)
+            ? `${checks.join('. ')}. ${capacity.calendarHint}.`
+            : `${checks.join('. ')}. ${capacity.calendarHint}.`)
         : (lang === 'uk'
-            ? `На цьому тижні ${events} под. / ${workouts} трен. — навантаження відповідає фазі. ${capacity.hint}. ${capacity.calendarHint}.`
-            : `This week has ${events} events / ${workouts} workouts — the load fits this phase. ${capacity.hint}. ${capacity.calendarHint}.`);
+            ? `${checks.join('. ') || `${counts} — навантаження відповідає фазі`}. ${capacity.hint}.`
+            : `${checks.join('. ') || `${counts} — the load fits this phase`}. ${capacity.hint}.`);
 
   return {
     title: busiestDay ? (lang === 'uk' ? `${capitalize(busiestDay)} — найнасиченіший день` : `${capitalize(busiestDay)} is the busiest day`) : capacity.label,
@@ -162,9 +223,11 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   };
 }
 
+export type DayAlignment = 'under' | 'fit' | 'over';
+
 export function dayAlignmentForPhase(phase: PhaseId | null, items: CalendarItem[]): DayAlignment {
   const capacity = capacityForPhase(phase, 'en');
-  const loadScore = items.reduce((sum, item) => sum + (item.kind === 'workout' ? 2 : 1), 0);
+  const loadScore = items.reduce((sum, item) => sum + activityLoad(item.activity), 0);
 
   if (capacity.load === 'low') {
     return loadScore >= 3 ? 'over' : 'fit';

@@ -1,10 +1,13 @@
 import { addDays, toISODate, type Language } from './dates';
 
+export type ActivityKind = 'yoga' | 'massage' | 'swim' | 'gentle' | 'intense' | 'event';
+
 export type CalendarItem = {
   id: string;
   title: string;
   day: string;
   kind: 'workout' | 'event';
+  activity: ActivityKind;
 };
 
 export type CalendarEventLike = {
@@ -15,15 +18,30 @@ export type CalendarEventLike = {
   allDay?: boolean | null;
 };
 
-const WORKOUT = [
-  'workout', 'gym', 'run', 'yoga', 'pilates', 'train', 'sport', 'fit',
-  'swim', 'cycle', 'bike', 'hiit', 'crossfit', 'walk', 'hike',
-  'тренув', 'зал', 'йога', 'пілатес', 'біг', 'спорт', 'фітнес', 'плаван', 'силов',
+const MATCHERS: Array<{ activity: ActivityKind; words: string[] }> = [
+  { activity: 'massage', words: ['massage', 'масаж', 'spa', 'restore', 'recovery', 'відновл'] },
+  { activity: 'yoga', words: ['yoga', 'йога', 'pilates', 'пілатес', 'stretch', 'розтяжк'] },
+  { activity: 'swim', words: ['swim', 'плаван', 'басейн'] },
+  { activity: 'gentle', words: ['walk', 'hike', 'прогулян', 'ходьб', 'mobility'] },
+  {
+    activity: 'intense',
+    words: [
+      'hiit', 'crossfit', 'gym', 'зал', 'силов', 'train', 'тренув', 'run', 'біг',
+      'sport', 'спорт', 'workout', 'фітнес', 'fitness', 'cycle', 'bike',
+    ],
+  },
 ];
 
-export function classifyTitle(title: string): 'workout' | 'event' {
+export function classifyActivity(title: string): ActivityKind {
   const lower = title.toLowerCase();
-  return WORKOUT.some((word) => lower.includes(word)) ? 'workout' : 'event';
+  for (const group of MATCHERS) {
+    if (group.words.some((word) => lower.includes(word))) return group.activity;
+  }
+  return 'event';
+}
+
+export function classifyTitle(title: string): 'workout' | 'event' {
+  return classifyActivity(title) === 'event' ? 'event' : 'workout';
 }
 
 function parseCalendarDate(value: Date | string): Date {
@@ -85,7 +103,8 @@ export function itemsFromCalendarEvents(
   const items: CalendarItem[] = [];
   events.forEach((event, index) => {
     const title = event.title?.trim() || (lang === 'uk' ? 'Подія' : 'Event');
-    const kind = classifyTitle(title);
+    const activity = classifyActivity(title);
+    const kind = activity === 'event' ? 'event' : 'workout';
     const eventId = event.id?.trim() || `event-${index}`;
     for (const day of daysSpannedByEvent(event, rangeStart, rangeEnd)) {
       items.push({
@@ -93,6 +112,7 @@ export function itemsFromCalendarEvents(
         title,
         day,
         kind,
+        activity,
       });
     }
   });

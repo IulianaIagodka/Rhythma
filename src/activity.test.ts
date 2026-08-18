@@ -2,11 +2,21 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { adviseLoad, capacityForPhase, dayAlignmentForPhase, planningForPhase } from './activity';
+import { classifyActivity, classifyTitle, type CalendarItem } from './calendarItems';
 
-function classifyTitle(title: string): 'workout' | 'event' {
-  const lower = title.toLowerCase();
-  const WORKOUT = ['workout','gym','run','yoga','pilates','train','sport','fit','swim','тренув','зал','йога','пілатес','біг'];
-  return WORKOUT.some((w) => lower.includes(w)) ? 'workout' : 'event';
+function item(
+  id: string,
+  title: string,
+  day: string,
+  activity: CalendarItem['activity'],
+): CalendarItem {
+  return {
+    id,
+    title,
+    day,
+    activity,
+    kind: activity === 'event' ? 'event' : 'workout',
+  };
 }
 
 describe('classifyTitle', () => {
@@ -15,6 +25,16 @@ describe('classifyTitle', () => {
     assert.equal(classifyTitle('Тренування ніг'), 'workout');
     assert.equal(classifyTitle('Йога 30'), 'workout');
     assert.equal(classifyTitle('Дзвінок з клієнтом'), 'event');
+  });
+});
+
+describe('classifyActivity', () => {
+  it('splits yoga, massage, swim and hard training', () => {
+    assert.equal(classifyActivity('Йога 30'), 'yoga');
+    assert.equal(classifyActivity('Масаж спини'), 'massage');
+    assert.equal(classifyActivity('Плавання'), 'swim');
+    assert.equal(classifyActivity('HIIT'), 'intense');
+    assert.equal(classifyActivity('Meeting'), 'event');
   });
 });
 
@@ -27,19 +47,29 @@ describe('capacityForPhase', () => {
 });
 
 describe('adviseLoad', () => {
-  it('flags too much training during period', () => {
-    const advice = adviseLoad('menstrual', [
-      { id: '1', title: 'Gym', day: '2026-08-18', kind: 'workout' },
-      { id: '2', title: 'Run', day: '2026-08-19', kind: 'workout' },
-      { id: '3', title: 'HIIT', day: '2026-08-20', kind: 'workout' },
+  it('flags hard training during period, not gentle movement', () => {
+    const heavy = adviseLoad('menstrual', [
+      item('1', 'Gym', '2026-08-18', 'intense'),
+      item('2', 'Run', '2026-08-19', 'intense'),
+      item('3', 'HIIT', '2026-08-20', 'intense'),
     ], 'uk');
-    assert.equal(advice.fit, 'high');
-    assert.equal(advice.workouts, 3);
+    assert.equal(heavy.fit, 'high');
+    assert.match(heavy.note, /перенести/);
+
+    const gentle = adviseLoad('menstrual', [
+      item('1', 'Йога', '2026-08-18', 'yoga'),
+      item('2', 'Масаж', '2026-08-19', 'massage'),
+      item('3', 'Плавання', '2026-08-20', 'swim'),
+    ], 'uk');
+    assert.equal(gentle.fit, 'ok');
+    assert.match(gentle.note, /Йога — ок/);
+    assert.match(gentle.note, /Масаж — ок/);
+    assert.match(gentle.note, /Плавання — ок/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
     const advice = adviseLoad('ovulatory', [], 'uk');
-    assert.match(advice.note, /календар/);
+    assert.match(advice.note, /додати тренування/);
     assert.match(advice.note, /найважливіші розмови|важливі/);
   });
 });
@@ -47,10 +77,17 @@ describe('adviseLoad', () => {
 describe('dayAlignmentForPhase', () => {
   it('marks heavy period days as overloaded', () => {
     const fit = dayAlignmentForPhase('menstrual', [
-      { id: '1', title: 'Gym', day: '2026-08-18', kind: 'workout' },
-      { id: '2', title: 'Run', day: '2026-08-18', kind: 'workout' },
+      item('1', 'Gym', '2026-08-18', 'intense'),
+      item('2', 'Run', '2026-08-18', 'intense'),
     ]);
     assert.equal(fit, 'over');
+  });
+
+  it('keeps yoga on a period day inside a comfortable load', () => {
+    assert.equal(
+      dayAlignmentForPhase('menstrual', [item('1', 'Йога', '2026-08-18', 'yoga')]),
+      'fit',
+    );
   });
 
   it('marks empty ovulation days as underloaded', () => {
