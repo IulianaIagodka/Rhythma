@@ -380,19 +380,17 @@ export default function App() {
                   </Pressable>
                   {data.settings.phaseListsExpanded ? (
                     <>
-                      <ChipGroup
+                      <TipGroup
                         title={t(language, 'bestForPhase')}
                         items={phasePlan.best}
-                        dot={theme.teal}
-                        chipBackground={theme.tealSoft}
-                        text={theme.ink}
+                        titleColor={theme.ink}
+                        textColor={theme.muted}
                       />
-                      <ChipGroup
+                      <TipGroup
                         title={t(language, 'avoidThisPhase')}
                         items={phasePlan.avoid}
-                        dot={theme.accent}
-                        chipBackground={theme.accentSoft}
-                        text={theme.ink}
+                        titleColor={theme.ink}
+                        textColor={theme.muted}
                       />
                     </>
                   ) : null}
@@ -651,33 +649,22 @@ export default function App() {
   );
 }
 
-function ChipGroup({
+function TipGroup({
   title,
   items,
-  dot,
-  chipBackground,
-  text,
+  titleColor,
+  textColor,
 }: {
   title: string;
   items: string[];
-  dot: string;
-  chipBackground: string;
-  text: string;
+  titleColor: string;
+  textColor: string;
 }) {
   if (!items.length) return null;
   return (
-    <View style={styles.chipGroup}>
-      <View style={styles.chipGroupHeader}>
-        <View style={[styles.chipDot, { backgroundColor: dot }]} />
-        <Text style={[styles.chipGroupTitle, { color: text }]}>{title}</Text>
-      </View>
-      <View style={styles.chipWrap}>
-        {items.map((item) => (
-          <View key={item} style={[styles.chip, { backgroundColor: chipBackground }]}>
-            <Text style={[styles.chipText, { color: text }]}>{item}</Text>
-          </View>
-        ))}
-      </View>
+    <View style={styles.tipGroup}>
+      <Text style={[styles.tipGroupTitle, { color: titleColor }]}>{title}</Text>
+      <Text style={[styles.tipGroupItems, { color: textColor }]}>{items.join(' · ')}</Text>
     </View>
   );
 }
@@ -860,36 +847,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 22,
   },
-  chipGroup: {
-    gap: 10,
+  tipGroup: {
+    gap: 6,
   },
-  chipGroupHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  chipDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  chipGroupTitle: {
+  tipGroupTitle: {
     fontSize: 15,
     fontWeight: '600',
   },
-  chipWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
-  chipText: {
-    fontSize: 13,
-    fontWeight: '600',
+  tipGroupItems: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   cta: {
     borderRadius: 14,
