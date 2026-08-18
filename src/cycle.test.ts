@@ -53,37 +53,36 @@ describe('marksForYear', () => {
     assert.equal(marks.has('2026-08-29'), false);
   });
 
-  it('paints inner seasons when forecast is on', () => {
+  it('paints cycle marks when forecast is on', () => {
     const marks = marksForYear(2026, ['2026-08-01'], {
       ...defaultSettings(),
       showForecast: true,
     });
     assert.equal(marks.get('2026-08-01'), 'period');
     assert.equal(marks.get('2026-08-29'), 'periodForecast');
-    assert.equal(marks.get('2026-08-10'), 'follicular');
-    assert.equal(marks.get('2026-08-14'), 'ovulatory');
-    assert.equal(marks.get('2026-08-20'), 'luteal');
+    assert.equal(marks.has('2026-08-10'), false);
+    assert.equal(marks.has('2026-08-14'), false);
   });
 });
 
 describe('cycleStatus', () => {
-  it('reports cycle day, next period and inner season', () => {
+  it('reports cycle day, next period and phase', () => {
     const status = cycleStatus('2026-08-10', ['2026-08-01'], defaultSettings());
     assert.equal(status.cycleDay, 10);
     assert.equal(status.inPeriod, false);
     assert.equal(status.nextPeriod, '2026-08-29');
-    assert.equal(status.phase?.id, 'follicular');
+    assert.equal(status.phase, 'follicular');
   });
 
-  it('flags the bleeding window as winter', () => {
+  it('flags the bleeding window', () => {
     const status = cycleStatus('2026-08-03', ['2026-08-01'], defaultSettings());
     assert.equal(status.inPeriod, true);
-    assert.equal(status.phase?.id, 'menstrual');
+    assert.equal(status.phase, 'menstrual');
   });
 });
 
 describe('phaseIdForCycleDay', () => {
-  it('maps a 28-day cycle to four inner seasons', () => {
+  it('maps a 28-day cycle to four load windows', () => {
     const settings = defaultSettings();
     assert.equal(phaseIdForCycleDay(1, 28, settings), 'menstrual');
     assert.equal(phaseIdForCycleDay(5, 28, settings), 'menstrual');

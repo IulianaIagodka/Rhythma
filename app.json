@@ -15,11 +15,15 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCalendarsUsageDescription": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом.",
+        "NSCalendarsFullAccessUsageDescription": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом.",
+        "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma може додати позначку циклу в календар, якщо ви дозволите."
       }
     },
     "android": {
       "package": "app.rhythma.cycle",
+      "permissions": ["READ_CALENDAR"],
       "adaptiveIcon": {
         "backgroundColor": "#0D0012",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -30,6 +34,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "f1157231-8250-45b9-a28f-94f35c10b230"

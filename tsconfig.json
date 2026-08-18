@@ -3,5 +3,5 @@
   "compilerOptions": {
     "strict": true
   },
-  "exclude": ["src/cycle.test.ts", "node_modules"]
+  "exclude": ["src/*.test.ts", "node_modules"]
 }

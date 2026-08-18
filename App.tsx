@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+import { adviseLoad } from './src/activity';
+import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
   daysUntilNextPeriod,
@@ -20,7 +22,7 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { todayISO, weekdayNameUk } from './src/dates';
+import { addDays, todayISO, weekDaysFromMonday } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { WeekStrip } from './src/WeekStrip';
@@ -33,6 +35,8 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('today');
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [data, setData] = useState<StoredData | null>(null);
+  const [items, setItems] = useState<CalendarItem[]>([]);
+  const [calendarError, setCalendarError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +52,24 @@ export default function App() {
     setData(next);
     saveData(next);
   }, []);
+
+  const refreshCalendar = useCallback(async (enabled: boolean) => {
+    if (!enabled) {
+      setItems([]);
+      setCalendarError(null);
+      return;
+    }
+    const week = weekDaysFromMonday(todayISO());
+    const loaded = await loadWeekItems(week[0], addDays(week[0], 6));
+    setItems(loaded);
+    setCalendarError(loaded.length ? null : 'Немає подій на цей тиждень або доступ не надано');
+  }, []);
+
+  useEffect(() => {
+    if (data?.settings.calendarSync) {
+      refreshCalendar(true);
+    }
+  }, [data?.settings.calendarSync, refreshCalendar]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -82,6 +104,8 @@ export default function App() {
     return marksForYear(year, data.periodStarts, data.settings);
   }, [data, year]);
 
+  const advice = useMemo(() => adviseLoad(status?.phase ?? null, items), [status?.phase, items]);
+
   if (!data || !status) {
     return (
       <SafeAreaProvider>
@@ -94,9 +118,8 @@ export default function App() {
 
   const todayIsStart = data.periodStarts.includes(today);
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
-  const phase = status.phase;
-  const insightDay = status.nextPeriod ?? today;
-  const insightName = weekdayNameUk(insightDay);
+  const workoutsToday = items.filter((item) => item.day === today && item.kind === 'workout');
+  const eventsToday = items.filter((item) => item.day === today && item.kind === 'event');
 
   return (
     <SafeAreaProvider>
@@ -108,11 +131,7 @@ export default function App() {
           <View style={[styles.avatar, { borderColor: theme.accent }]} />
         </View>
 
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {tab === 'today' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>Ваш ритм сьогодні</Text>
@@ -120,11 +139,9 @@ export default function App() {
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 {status.cycleDay == null ? (
                   <>
-                    <Text style={[styles.cardTitle, { color: theme.ink }]}>
-                      Позначте перший день
-                    </Text>
+                    <Text style={[styles.cardTitle, { color: theme.ink }]}>Запишіть цикл</Text>
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
-                      Rhythma підлаштує тиждень і рік під ваш цикл
+                      Перший день місячних — і Rhythma звірить навантаження з календарем
                     </Text>
                   </>
                 ) : (
@@ -134,7 +151,7 @@ export default function App() {
                     </Text>
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
                       {daysLeft == null
-                        ? 'Наступні місячні зʼявляться після запису'
+                        ? 'Наступні місячні зʼявляться після кількох записів'
                         : daysLeft === 0
                           ? 'Місячні очікуються сьогодні'
                           : `Наступні місячні через ~${daysLeft} дн.`}
@@ -159,42 +176,72 @@ export default function App() {
                 <View style={styles.cardHeader}>
                   <Text style={[styles.sectionTitle, { color: theme.ink }]}>Цей тиждень</Text>
                   <Text style={[styles.sectionTag, { color: theme.accent }]}>
-                    {data.settings.showForecast ? 'Прогноз місячних' : 'Записи'}
+                    {data.settings.calendarSync ? 'Календар' : 'Цикл'}
                   </Text>
                 </View>
-                <WeekStrip today={today} data={data} theme={theme} onSelectDay={onToggleDay} />
+                <WeekStrip
+                  today={today}
+                  data={data}
+                  theme={theme}
+                  items={items}
+                  onSelectDay={onToggleDay}
+                />
               </View>
 
-              {phase ? (
-                <View style={[styles.insight, { backgroundColor: theme.card }]}>
-                  <Text style={styles.insightIcon}>◎</Text>
-                  <View style={styles.insightBody}>
-                    <Text style={[styles.insightTitle, { color: theme.ink }]}>
-                      {phase.season} — {phase.title}
+              <View style={[styles.insight, { backgroundColor: theme.card }]}>
+                <View
+                  style={[
+                    styles.fitDot,
+                    {
+                      backgroundColor:
+                        advice.fit === 'high'
+                          ? theme.accent
+                          : advice.fit === 'low'
+                            ? theme.teal
+                            : theme.faint,
+                    },
+                  ]}
+                />
+                <View style={styles.insightBody}>
+                  <Text style={[styles.insightTitle, { color: theme.ink }]}>{advice.title}</Text>
+                  <Text style={[styles.insightMeta, { color: theme.muted }]}>{advice.note}</Text>
+                  {data.settings.calendarSync && items.length ? (
+                    <Text style={[styles.insightCounts, { color: theme.muted }]}>
+                      Сьогодні: {eventsToday.length} под. · {workoutsToday.length} трен.
                     </Text>
-                    <Text style={[styles.insightMeta, { color: theme.muted }]}>
-                      {phase.note}
-                    </Text>
-                  </View>
-                  <Pressable style={[styles.insightBtn, { borderColor: theme.border }]}>
-                    <Text style={[styles.insightBtnText, { color: theme.muted }]}>
-                      {insightName}
-                    </Text>
-                  </Pressable>
+                  ) : null}
                 </View>
+              </View>
+
+              {!data.settings.calendarSync ? (
+                <Pressable
+                  onPress={() => {
+                    persist({ ...data, settings: { ...data.settings, calendarSync: true } });
+                  }}
+                  style={[styles.syncBtn, { borderColor: theme.border }]}
+                >
+                  <Text style={[styles.syncText, { color: theme.ink }]}>
+                    Синхронізувати календар
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    Події та тренування з телефону
+                  </Text>
+                </Pressable>
+              ) : calendarError && !items.length ? (
+                <Text style={[styles.settingMeta, { color: theme.muted }]}>{calendarError}</Text>
               ) : null}
             </>
           ) : null}
 
           {tab === 'year' ? (
             <>
-              <Text style={[styles.hero, { color: theme.ink }]}>Рік</Text>
+              <Text style={[styles.hero, { color: theme.ink }]}>Календар циклу</Text>
               <View style={styles.yearNav}>
-                <Pressable onPress={() => setYear((v) => v - 1)} hitSlop={12}>
+                <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
                   <Text style={[styles.yearNavBtn, { color: theme.muted }]}>‹</Text>
                 </Pressable>
                 <Text style={[styles.yearLabel, { color: theme.ink }]}>{year}</Text>
-                <Pressable onPress={() => setYear((v) => v + 1)} hitSlop={12}>
+                <Pressable onPress={() => setYear((value) => value + 1)} hitSlop={12}>
                   <Text style={[styles.yearNavBtn, { color: theme.muted }]}>›</Text>
                 </Pressable>
               </View>
@@ -213,11 +260,26 @@ export default function App() {
               <Text style={[styles.hero, { color: theme.ink }]}>Налаштування</Text>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
-                    Прогноз місячних
-                  </Text>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Календар</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Рожеві смужки в тижні та році
+                    Події й тренування з телефону
+                  </Text>
+                </View>
+                <Switch
+                  value={data.settings.calendarSync}
+                  onValueChange={(calendarSync) => {
+                    persist({ ...data, settings: { ...data.settings, calendarSync } });
+                    refreshCalendar(calendarSync);
+                  }}
+                  trackColor={{ false: theme.border, true: theme.accentSoft }}
+                  thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
+                />
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>Прогноз місячних</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    Рожева смужка наступних місячних
                   </Text>
                 </View>
                 <Switch
@@ -232,9 +294,6 @@ export default function App() {
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>Темна тема</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    Як на другому макеті
-                  </Text>
                 </View>
                 <Switch
                   value={data.settings.themeMode === 'dark'}
@@ -253,9 +312,27 @@ export default function App() {
         </ScrollView>
 
         <View style={[styles.tabBar, { backgroundColor: theme.tabBar, borderTopColor: theme.border }]}>
-          <TabButton label="Сьогодні" active={tab === 'today'} theme={theme} onPress={() => setTab('today')} icon="◎" />
-          <TabButton label="Рік" active={tab === 'year'} theme={theme} onPress={() => setTab('year')} icon="▦" />
-          <TabButton label="Ще" active={tab === 'settings'} theme={theme} onPress={() => setTab('settings')} icon="⚙" />
+          <TabButton
+            label="Сьогодні"
+            active={tab === 'today'}
+            theme={theme}
+            onPress={() => setTab('today')}
+            icon="●"
+          />
+          <TabButton
+            label="Рік"
+            active={tab === 'year'}
+            theme={theme}
+            onPress={() => setTab('year')}
+            icon="▦"
+          />
+          <TabButton
+            label="Ще"
+            active={tab === 'settings'}
+            theme={theme}
+            onPress={() => setTab('settings')}
+            icon="⚙"
+          />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -368,10 +445,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12,
   },
-  insightIcon: {
-    fontSize: 22,
-    color: '#E91E8C',
-    marginTop: 2,
+  fitDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 6,
   },
   insightBody: { flex: 1, gap: 4 },
   insightTitle: {
@@ -382,16 +460,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  insightBtn: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    alignSelf: 'flex-start',
+  insightCounts: {
+    fontSize: 13,
+    marginTop: 4,
   },
-  insightBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
+  syncBtn: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    gap: 4,
+  },
+  syncText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   yearNav: {
     flexDirection: 'row',

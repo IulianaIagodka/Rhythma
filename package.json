@@ -8,13 +8,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "tsx --test src/cycle.test.ts",
+    "test": "tsx --test src/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "babel-preset-expo": "~57.0.0",
     "expo": "~57.0.14",
+    "expo-calendar": "~57.0.2",
     "expo-haptics": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",

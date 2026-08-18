@@ -1,5 +1,4 @@
 import { addDays, diffDays } from './dates';
-import { PHASES, type PhaseCopy, type PhaseId } from './phases';
 
 export const DEFAULT_CYCLE_LENGTH = 28;
 export const DEFAULT_PERIOD_LENGTH = 5;
@@ -7,11 +6,14 @@ export const DEFAULT_LUTEAL_LENGTH = 14;
 export const MIN_CYCLE = 18;
 export const MAX_CYCLE = 45;
 
+export type PhaseId = 'menstrual' | 'follicular' | 'ovulatory' | 'luteal';
+
 export type Settings = {
   showForecast: boolean;
   periodLength: number;
   lutealLength: number;
   themeMode: 'light' | 'dark';
+  calendarSync: boolean;
 };
 
 export type StoredData = {
@@ -31,7 +33,7 @@ export type CycleStatus = {
   nextPeriod: string | null;
   cycleLength: number;
   inPeriod: boolean;
-  phase: PhaseCopy | null;
+  phase: PhaseId | null;
 };
 
 export function defaultSettings(): Settings {
@@ -40,6 +42,7 @@ export function defaultSettings(): Settings {
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'light',
+    calendarSync: false,
   };
 }
 
@@ -116,7 +119,7 @@ export function cycleStatus(today: string, starts: string[], settings: Settings)
     nextPeriod,
     cycleLength,
     inPeriod,
-    phase: cycleDay > 0 ? PHASES[phaseIdForCycleDay(cycleDay, cycleLength, settings)] : null,
+    phase: cycleDay > 0 ? phaseIdForCycleDay(cycleDay, cycleLength, settings) : null,
   };
 }
 
@@ -164,9 +167,6 @@ export function marksForYear(
     while (day <= last) {
       const phase = phaseOnDate(day, starts, settings);
       if (phase === 'menstrual') marks.set(day, 'periodForecast');
-      else if (phase === 'follicular') marks.set(day, 'follicular');
-      else if (phase === 'ovulatory') marks.set(day, 'ovulatory');
-      else if (phase === 'luteal') marks.set(day, 'luteal');
       day = addDays(day, 1);
     }
 

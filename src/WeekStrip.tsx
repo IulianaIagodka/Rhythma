@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { markForDate, type DayMark, type Settings, type StoredData } from './cycle';
+import type { CalendarItem } from './calendar';
+import { markForDate, type StoredData } from './cycle';
 import { parseISODate, weekDaysFromMonday, weekdayShortUk } from './dates';
 import type { Theme } from './theme';
 
@@ -8,52 +9,49 @@ type WeekStripProps = {
   today: string;
   data: StoredData;
   theme: Theme;
+  items: CalendarItem[];
   onSelectDay: (iso: string) => void;
 };
 
-function barCount(mark: DayMark | null): { count: number; tone: 'accent' | 'teal' | 'faint' } {
-  if (mark === 'period' || mark === 'periodForecast') return { count: 4, tone: 'accent' };
-  if (mark === 'ovulatory') return { count: 3, tone: 'teal' };
-  if (mark === 'follicular') return { count: 2, tone: 'teal' };
-  if (mark === 'luteal') return { count: 1, tone: 'teal' };
-  return { count: 1, tone: 'faint' };
-}
-
-function barColor(tone: 'accent' | 'teal' | 'faint', mark: DayMark | null, theme: Theme): string {
-  if (tone === 'accent') {
-    return mark === 'period' ? theme.period : theme.periodForecast;
-  }
-  if (tone === 'teal') return theme.teal;
-  return theme.faint;
-}
-
-export function WeekStrip({ today, data, theme, onSelectDay }: WeekStripProps) {
+export function WeekStrip({ today, data, theme, items, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
+  const loadByDay = new Map<string, number>();
+  for (const item of items) {
+    loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + (item.kind === 'workout' ? 2 : 1));
+  }
 
   return (
     <View style={styles.row}>
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
-        const { count, tone } = barCount(mark);
+        const load = Math.min(4, loadByDay.get(iso) ?? 0);
+        const period = mark === 'period' || mark === 'periodForecast';
         const isToday = iso === today;
         const dayNum = parseISODate(iso).getDate();
         return (
           <Pressable
             key={iso}
             onPress={() => onSelectDay(iso)}
-            style={[styles.day, isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft }]}
+            style={[
+              styles.day,
+              isToday && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
+            ]}
           >
             <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShortUk(iso)}</Text>
-            <Text style={[styles.date, { color: theme.ink }, isToday && { color: theme.accent }]}>
-              {dayNum}
-            </Text>
+            <Text style={[styles.date, { color: isToday ? theme.accent : theme.ink }]}>{dayNum}</Text>
             <View style={styles.bars}>
-              {Array.from({ length: count }, (_, i) => (
+              {period ? (
                 <View
-                  key={i}
-                  style={[styles.bar, { backgroundColor: barColor(tone, mark, theme) }]}
+                  style={[
+                    styles.bar,
+                    { backgroundColor: mark === 'period' ? theme.period : theme.periodForecast },
+                  ]}
                 />
+              ) : null}
+              {Array.from({ length: load }, (_, i) => (
+                <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
               ))}
+              {!period && !load ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
             </View>
           </Pressable>
         );
