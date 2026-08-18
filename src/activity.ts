@@ -20,6 +20,8 @@ export type Capacity = {
   calendarHint: string;
 };
 
+export type DayAlignment = 'under' | 'fit' | 'over';
+
 export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacity {
   if (lang === 'uk') {
     if (phase === 'menstrual') {
@@ -153,6 +155,25 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     events,
     workouts,
   };
+}
+
+export function dayAlignmentForPhase(phase: PhaseId | null, items: CalendarItem[]): DayAlignment {
+  const capacity = capacityForPhase(phase, 'en');
+  const loadScore = items.reduce((sum, item) => sum + (item.kind === 'workout' ? 2 : 1), 0);
+
+  if (capacity.load === 'low') {
+    return loadScore >= 3 ? 'over' : 'fit';
+  }
+
+  if (capacity.load === 'medium') {
+    if (loadScore >= 5) return 'over';
+    if (loadScore === 0) return 'under';
+    return 'fit';
+  }
+
+  if (loadScore >= 6) return 'over';
+  if (loadScore <= 1) return 'under';
+  return 'fit';
 }
 
 function capitalize(value: string): string {
