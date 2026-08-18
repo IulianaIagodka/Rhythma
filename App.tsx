@@ -73,10 +73,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (data?.settings.calendarSync) {
-      refreshCalendar(true);
-    }
-  }, [data?.settings.calendarSync, refreshCalendar]);
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    refreshCalendar(Boolean(canSync && data?.settings.calendarSync));
+  }, [data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -111,8 +110,6 @@ export default function App() {
     return marksForYear(year, data.periodStarts, data.settings);
   }, [data, year]);
 
-  const advice = useMemo(() => adviseLoad(status?.phase ?? null, items, language), [status?.phase, items, language]);
-
   if (!data || !status) {
     return (
       <SafeAreaProvider>
@@ -125,12 +122,19 @@ export default function App() {
 
   const todayIsStart = data.periodStarts.includes(today);
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
-  const selectedItems = items.filter((item) => item.day === selectedDay);
-  const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
-  const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
   const tier = data.settings.accessTier;
+  const hasCalendarSync = hasFeatureAccess(tier, 'calendarSync');
+  const hasEventLoadAdvice = hasFeatureAccess(tier, 'eventLoadAdvice');
   const hasPhaseTitle = hasFeatureAccess(tier, 'phaseTitle');
   const hasPhasePlanningLists = hasFeatureAccess(tier, 'phasePlanningLists');
+  const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
+  const calendarItems = calendarEnabled ? items : [];
+  const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
+  const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
+  const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
+  const visibleAdvice = hasEventLoadAdvice
+    ? adviseLoad(status.phase, calendarItems, language)
+    : null;
 
   return (
     <SafeAreaProvider>
@@ -187,7 +191,7 @@ export default function App() {
                 <View style={styles.cardHeader}>
                   <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
                   <Text style={[styles.sectionTag, { color: theme.accent }]}>
-                    {data.settings.calendarSync ? t(language, 'calendarTag') : t(language, 'cycleTag')}
+                    {calendarEnabled ? t(language, 'calendarTag') : t(language, 'cycleTag')}
                   </Text>
                 </View>
                 <WeekStrip
@@ -195,66 +199,95 @@ export default function App() {
                   data={data}
                   theme={theme}
                   language={language}
-                  items={items}
+                  items={calendarItems}
+                  showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
               </View>
 
-
-              <View style={[styles.card, { backgroundColor: theme.card }]}>
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
-                  <Text style={[styles.sectionTag, { color: theme.teal }]}>{selectedDay}</Text>
-                </View>
-                {selectedItems.length ? (
-                  <View style={styles.dayList}>
-                    {selectedItems.map((item) => (
-                      <View key={item.id} style={styles.dayRow}>
-                        <View
-                          style={[
-                            styles.dayBullet,
-                            { backgroundColor: item.kind === 'workout' ? theme.teal : theme.accent },
-                          ]}
-                        />
-                        <View style={styles.dayTextWrap}>
-                          <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
-                          <Text style={[styles.dayMeta, { color: theme.muted }]}>
-                            {item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events')}
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
+              {hasCalendarSync ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <View style={styles.cardHeader}>
+                    <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
+                    <Text style={[styles.sectionTag, { color: theme.teal }]}>{selectedDay}</Text>
                   </View>
-                ) : (
-                  <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
-                )}
-              </View>
-
-              <View style={[styles.insight, { backgroundColor: theme.card }]}>
-                <View
-                  style={[
-                    styles.fitDot,
-                    {
-                      backgroundColor:
-                        advice.fit === 'high'
-                          ? theme.accent
-                          : advice.fit === 'low'
-                            ? theme.teal
-                            : theme.faint,
-                    },
-                  ]}
-                />
-                <View style={styles.insightBody}>
-                  <Text style={[styles.insightTitle, { color: theme.ink }]}>{advice.title}</Text>
-                  <Text style={[styles.insightMeta, { color: theme.muted }]}>{advice.note}</Text>
-                  {data.settings.calendarSync && items.length ? (
-                    <Text style={[styles.insightCounts, { color: theme.muted }]}>
-                      {t(language, 'eventsToday', { events: selectedEvents.length, workouts: selectedWorkouts.length })}
-                    </Text>
-                  ) : null}
+                  {selectedItems.length ? (
+                    <View style={styles.dayList}>
+                      {selectedItems.map((item) => (
+                        <View key={item.id} style={styles.dayRow}>
+                          <View
+                            style={[
+                              styles.dayBullet,
+                              { backgroundColor: item.kind === 'workout' ? theme.teal : theme.accent },
+                            ]}
+                          />
+                          <View style={styles.dayTextWrap}>
+                            <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
+                            <Text style={[styles.dayMeta, { color: theme.muted }]}>
+                              {item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events')}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
+                  )}
                 </View>
-              </View>
+              ) : (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {t(language, 'calendarSyncLocked')}
+                    </Text>
+                  </View>
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                </View>
+              )}
 
+              {hasEventLoadAdvice && visibleAdvice ? (
+                <View style={[styles.insight, { backgroundColor: theme.card }]}>
+                  <View
+                    style={[
+                      styles.fitDot,
+                      {
+                        backgroundColor:
+                          visibleAdvice.fit === 'high'
+                            ? theme.accent
+                            : visibleAdvice.fit === 'low'
+                              ? theme.teal
+                              : theme.faint,
+                      },
+                    ]}
+                  />
+                  <View style={styles.insightBody}>
+                    <Text style={[styles.insightTitle, { color: theme.ink }]}>{visibleAdvice.title}</Text>
+                    <Text style={[styles.insightMeta, { color: theme.muted }]}>{visibleAdvice.note}</Text>
+                    {calendarEnabled && calendarItems.length ? (
+                      <Text style={[styles.insightCounts, { color: theme.muted }]}>
+                        {t(language, 'eventsToday', { events: selectedEvents.length, workouts: selectedWorkouts.length })}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              ) : (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {t(language, 'eventAdviceLocked')}
+                    </Text>
+                  </View>
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                </View>
+              )}
+
+              {hasCalendarSync ? (
               <View style={[styles.calendarRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.syncText, { color: theme.ink }]}>
@@ -264,8 +297,8 @@ export default function App() {
                   {data.settings.calendarSync
                     ? calendarPermissionDenied
                       ? t(language, 'calendarPermissionHint')
-                      : items.length
-                        ? t(language, 'eventsOnWeek', { count: items.length })
+                      : calendarItems.length
+                        ? t(language, 'eventsOnWeek', { count: calendarItems.length })
                         : calendarError ?? t(language, 'readingEvents')
                     : t(language, 'syncPhone')}
                 </Text>
@@ -280,6 +313,7 @@ export default function App() {
                   thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
                 />
               </View>
+              ) : null}
             </>
           ) : null}
 
@@ -322,6 +356,40 @@ export default function App() {
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {hasCalendarSync ? t(language, 'calendarDesc') : t(language, 'calendarSyncLocked')}
+                  </Text>
+                </View>
+                {hasCalendarSync ? (
+                  <Switch
+                    value={data.settings.calendarSync}
+                    onValueChange={(calendarSync) => {
+                      persist({ ...data, settings: { ...data.settings, calendarSync } });
+                      refreshCalendar(calendarSync);
+                    }}
+                    trackColor={{ false: theme.border, true: theme.accentSoft }}
+                    thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
+                  />
+                ) : (
+                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                  </View>
+                )}
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {hasEventLoadAdvice ? t(language, 'calendarDesc') : t(language, 'eventAdviceLocked')}
+                  </Text>
+                </View>
+                <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                </View>
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseName')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {hasPhaseTitle ? t(language, 'freePlan') : t(language, 'proFeatureLocked')}
@@ -341,23 +409,6 @@ export default function App() {
                 <View style={[styles.lockPill, { borderColor: theme.border }]}>
                   <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
                 </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'syncCalendar')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {t(language, 'calendarDesc')}
-                  </Text>
-                </View>
-                <Switch
-                  value={data.settings.calendarSync}
-                  onValueChange={(calendarSync) => {
-                    persist({ ...data, settings: { ...data.settings, calendarSync } });
-                    refreshCalendar(calendarSync);
-                  }}
-                  trackColor={{ false: theme.border, true: theme.accentSoft }}
-                  thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
-                />
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>

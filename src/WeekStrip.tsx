@@ -12,14 +12,17 @@ type WeekStripProps = {
   theme: Theme;
   language: Language;
   items: CalendarItem[];
+  showCalendarLoad: boolean;
   onSelectDay: (iso: string) => void;
 };
 
-export function WeekStrip({ today, data, theme, language, items, onSelectDay }: WeekStripProps) {
+export function WeekStrip({ today, data, theme, language, items, showCalendarLoad, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
   const loadByDay = new Map<string, number>();
-  for (const item of items) {
-    loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + (item.kind === 'workout' ? 2 : 1));
+  if (showCalendarLoad) {
+    for (const item of items) {
+      loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + (item.kind === 'workout' ? 2 : 1));
+    }
   }
 
   return (
@@ -27,9 +30,9 @@ export function WeekStrip({ today, data, theme, language, items, onSelectDay }: 
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
         const load = Math.min(4, loadByDay.get(iso) ?? 0);
-        const dayItems = items.filter((item) => item.day === iso);
+        const dayItems = showCalendarLoad ? items.filter((item) => item.day === iso) : [];
         const phase = phaseOnDate(iso, data.periodStarts, data.settings);
-        const alignment = dayAlignmentForPhase(phase, dayItems);
+        const alignment = showCalendarLoad ? dayAlignmentForPhase(phase, dayItems) : 'fit';
         const period = mark === 'period' || mark === 'periodForecast';
         const isToday = iso === today;
         const dayNum = parseISODate(iso).getDate();
@@ -68,9 +71,11 @@ export function WeekStrip({ today, data, theme, language, items, onSelectDay }: 
                   ]}
                 />
               ) : null}
-              {Array.from({ length: load }, (_, i) => (
-                <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
-              ))}
+              {showCalendarLoad
+                ? Array.from({ length: load }, (_, i) => (
+                    <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
+                  ))
+                : null}
               {!period && !load ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
             </View>
           </Pressable>
