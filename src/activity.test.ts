@@ -22,6 +22,7 @@ describe('capacityForPhase', () => {
   it('keeps period as recovery and ovulation as peak', () => {
     assert.equal(capacityForPhase('menstrual', 'uk').load, 'low');
     assert.equal(capacityForPhase('ovulatory', 'uk').load, 'high');
+    assert.match(capacityForPhase('luteal', 'uk').calendarHint, /спрощувати графік/);
   });
 });
 
@@ -39,5 +40,6 @@ describe('adviseLoad', () => {
   it('says peak days can take more when the calendar is empty', () => {
     const advice = adviseLoad('ovulatory', [], 'uk');
     assert.match(advice.note, /календар/);
+    assert.match(advice.note, /найважливіші розмови|важливі/);
   });
 });

@@ -17,21 +17,88 @@ export type Capacity = {
   label: string;
   load: 'low' | 'medium' | 'high';
   hint: string;
+  calendarHint: string;
 };
 
 export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacity {
   if (lang === 'uk') {
-    if (phase === 'menstrual') return { label: 'Відновлення', load: 'low', hint: 'легке навантаження, сон, прогулянки' };
-    if (phase === 'follicular') return { label: 'Набір', load: 'medium', hint: 'можна додавати тренування й нові плани' };
-    if (phase === 'ovulatory') return { label: 'Пік', load: 'high', hint: 'складні тренування, зустрічі, рішення' };
-    if (phase === 'luteal') return { label: 'Спад', load: 'medium', hint: 'завершуйте, не додавайте пік навантаження' };
-    return { label: 'Цикл', load: 'medium', hint: 'позначте перший день, щоб оцінити навантаження' };
+    if (phase === 'menstrual') {
+      return {
+        label: 'Rest & release',
+        load: 'low',
+        hint: 'гормони на мінімумі: більше сну, легкий рух, менше інтенсивності',
+        calendarHint: 'залишайте у календарі простір, переносіть жорсткі тренування й важкі зустрічі, якщо можете',
+      };
+    }
+    if (phase === 'follicular') {
+      return {
+        label: 'Renew & rise',
+        load: 'medium',
+        hint: 'енергія, креативність і мотивація ростуть',
+        calendarHint: 'добрий час додавати нові плани, тренування, брейншторми й старт задач',
+      };
+    }
+    if (phase === 'ovulatory') {
+      return {
+        label: 'Peak & powerful',
+        load: 'high',
+        hint: 'пік енергії: складні тренування, виступи, зустрічі, рішення',
+        calendarHint: 'ставте сюди найважливіші розмови, соціальні події та інтенсивні сесії',
+      };
+    }
+    if (phase === 'luteal') {
+      return {
+        label: 'Turn inward',
+        load: 'medium',
+        hint: 'прогестерон росте, енергія може спадати — потрібен буфер',
+        calendarHint: 'краще закривати розпочате, спрощувати графік і не перевантажувати кінець циклу',
+      };
+    }
+    return {
+      label: 'Цикл',
+      load: 'medium',
+      hint: 'позначте перший день, щоб Rhythma звіряла фазу з навантаженням',
+      calendarHint: 'після кількох записів зʼявляться підказки, як адаптувати календар під ваш ритм',
+    };
   }
-  if (phase === 'menstrual') return { label: 'Recovery', load: 'low', hint: 'lighter load, sleep, walks' };
-  if (phase === 'follicular') return { label: 'Build', load: 'medium', hint: 'good time to add workouts and new plans' };
-  if (phase === 'ovulatory') return { label: 'Peak', load: 'high', hint: 'hard sessions, meetings, decisions' };
-  if (phase === 'luteal') return { label: 'Ease down', load: 'medium', hint: 'finish things, avoid adding peak load' };
-  return { label: 'Cycle', load: 'medium', hint: 'log your first day to evaluate load' };
+  if (phase === 'menstrual') {
+    return {
+      label: 'Rest & release',
+      load: 'low',
+      hint: 'hormones are lowest: favor sleep, walks, and lighter effort',
+      calendarHint: 'keep more space in your calendar and move hard workouts or heavy meetings when possible',
+    };
+  }
+  if (phase === 'follicular') {
+    return {
+      label: 'Renew & rise',
+      load: 'medium',
+      hint: 'energy, creativity, and motivation are climbing',
+      calendarHint: 'good time to add new plans, training blocks, brainstorms, and starts',
+    };
+  }
+  if (phase === 'ovulatory') {
+    return {
+      label: 'Peak & powerful',
+      load: 'high',
+      hint: 'energy tends to peak: use it for hard sessions, meetings, and decisions',
+      calendarHint: 'place important conversations, social plans, and intense sessions here',
+    };
+  }
+  if (phase === 'luteal') {
+    return {
+      label: 'Turn inward',
+      load: 'medium',
+      hint: 'progesterone rises and energy may dip, so leave more buffer',
+      calendarHint: 'close loops, simplify the schedule, and avoid stacking the end of the cycle',
+    };
+  }
+  return {
+    label: 'Cycle',
+    load: 'medium',
+    hint: 'log your first day so Rhythma can map your phase against your load',
+    calendarHint: 'after a few records, you will get suggestions on how to adapt your calendar',
+  };
 }
 
 export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: Language): LoadAdvice {
@@ -49,7 +116,10 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   if (!items.length) {
     return {
       title: capacity.label,
-      note: lang === 'uk' ? `${capacity.hint}. Підключіть календар, щоб звірити події й тренування.` : `${capacity.hint}. Connect your calendar to compare events and workouts.`,
+      note:
+        lang === 'uk'
+          ? `${capacity.hint}. ${capacity.calendarHint}. Підключіть календар, щоб звірити події й тренування.`
+          : `${capacity.hint}. ${capacity.calendarHint}. Connect your calendar to compare events and workouts.`,
       fit: 'ok',
       busiestDay: null,
       events: 0,
@@ -64,10 +134,16 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
 
   const note =
     fit === 'high'
-      ? (lang === 'uk' ? `На цьому тижні ${events} под. / ${workouts} трен. — більше, ніж зараз добре тримає цикл. Зменшіть інтенсивність.` : `This week has ${events} events / ${workouts} workouts — more than your cycle is likely to support well right now. Reduce intensity.`)
+      ? (lang === 'uk'
+          ? `На цьому тижні ${events} под. / ${workouts} трен. — це більше, ніж фаза зараз комфортно тримає. ${capacity.calendarHint}.`
+          : `This week has ${events} events / ${workouts} workouts — more than this phase is likely to support comfortably. ${capacity.calendarHint}.`)
       : fit === 'low'
-        ? (lang === 'uk' ? `Подій мало (${events}), тренувань ${workouts}. Цикл зараз тримає більше — можна додати рух або зустрічі.` : `There is little planned (${events} events, ${workouts} workouts). Your cycle can likely support more right now — you can add movement or meetings.`)
-        : (lang === 'uk' ? `На цьому тижні ${events} под. / ${workouts} трен. — навантаження відповідає циклу. ${capacity.hint}.` : `This week has ${events} events / ${workouts} workouts — the load fits your cycle. ${capacity.hint}.`);
+        ? (lang === 'uk'
+            ? `Подій мало (${events}), тренувань ${workouts}. Ця фаза дозволяє більше — можна додати рух, зустрічі або важливі плани. ${capacity.calendarHint}.`
+            : `There is little planned (${events} events, ${workouts} workouts). This phase can likely support more — you can add movement, meetings, or important plans. ${capacity.calendarHint}.`)
+        : (lang === 'uk'
+            ? `На цьому тижні ${events} под. / ${workouts} трен. — навантаження відповідає фазі. ${capacity.hint}. ${capacity.calendarHint}.`
+            : `This week has ${events} events / ${workouts} workouts — the load fits this phase. ${capacity.hint}. ${capacity.calendarHint}.`);
 
   return {
     title: busiestDay ? (lang === 'uk' ? `${capitalize(busiestDay)} — найнасиченіший день` : `${capitalize(busiestDay)} is the busiest day`) : capacity.label,
