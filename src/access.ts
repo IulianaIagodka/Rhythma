@@ -15,7 +15,7 @@ type FeatureConfig = {
 export const FEATURE_ACCESS: Record<ProFeatureKey, FeatureConfig> = {
   calendarSync: { tier: 'pro' },
   eventLoadAdvice: { tier: 'pro' },
-  phaseTitle: { tier: 'pro' },
+  phaseTitle: { tier: 'free' },
   phasePlanningLists: { tier: 'pro' },
 };
 

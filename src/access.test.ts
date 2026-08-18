@@ -14,12 +14,12 @@ describe('access', () => {
     assert.equal(defaultSettings().accessTier, 'free');
   });
 
-  it('keeps calendar sync, event advice, and phase extras behind pro', () => {
+  it('keeps calendar sync, event advice, and phase lists behind pro', () => {
     assert.equal(previewUnlockSource(), 'off');
     assert.equal(isPreviewUnlockEnabled(), false);
     assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
     assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
-    assert.equal(hasFeatureAccess('free', 'phaseTitle'), false);
+    assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
     assert.equal(hasFeatureAccess('free', 'phasePlanningLists'), false);
     assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
     assert.equal(hasFeatureAccess('pro', 'eventLoadAdvice'), true);

@@ -28,6 +28,7 @@ function monthISO(year: number, monthIndex: number, day: number): string {
 const MARK_COLORS = (theme: Theme): Partial<Record<DayMark, string>> => ({
   period: theme.period,
   periodForecast: theme.periodForecast,
+  ovulatory: theme.ovulatory,
 });
 
 function MonthGrid({
@@ -60,6 +61,7 @@ function MonthGrid({
           const mark = marks.get(iso);
           const isToday = iso === today;
           const isPeriod = mark === 'period' || mark === 'periodForecast';
+          const isOvulatory = mark === 'ovulatory';
           const fill = mark ? colors[mark] : undefined;
           return (
             <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
@@ -75,6 +77,7 @@ function MonthGrid({
                     styles.dayText,
                     { color: theme.muted },
                     isPeriod && mark === 'period' && styles.dayPeriod,
+                    isOvulatory && styles.dayPeriod,
                     isToday && { color: theme.accent, fontWeight: '700' },
                   ]}
                 >

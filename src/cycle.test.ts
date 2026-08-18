@@ -15,6 +15,16 @@ import {
 } from './cycle';
 import { addDays, mondayIndex } from './dates';
 
+describe('defaultSettings', () => {
+  it('shows forecast and lists, hides ovulation', () => {
+    const settings = defaultSettings();
+    assert.equal(settings.showForecast, true);
+    assert.equal(settings.showOvulation, false);
+    assert.equal(settings.showEventAdvice, true);
+    assert.equal(settings.showPhaseLists, true);
+  });
+});
+
 describe('averageCycleLength', () => {
   it('defaults when there are fewer than two starts', () => {
     assert.equal(averageCycleLength([]), DEFAULT_CYCLE_LENGTH);
@@ -62,6 +72,23 @@ describe('marksForYear', () => {
     assert.equal(marks.get('2026-08-01'), 'period');
     assert.equal(marks.get('2026-08-29'), 'periodForecast');
     assert.equal(marks.has('2026-08-10'), false);
+    assert.equal(marks.has('2026-08-14'), false);
+  });
+
+  it('paints ovulation when the switch is on', () => {
+    const marks = marksForYear(2026, ['2026-08-01'], {
+      ...defaultSettings(),
+      showOvulation: true,
+    });
+    assert.equal(marks.get('2026-08-14'), 'ovulatory');
+    assert.equal(marks.get('2026-08-01'), 'period');
+  });
+
+  it('hides ovulation when the switch is off', () => {
+    const marks = marksForYear(2026, ['2026-08-01'], {
+      ...defaultSettings(),
+      showOvulation: false,
+    });
     assert.equal(marks.has('2026-08-14'), false);
   });
 });

@@ -34,6 +34,7 @@ export function WeekStrip({ today, data, theme, language, items, showCalendarLoa
         const phase = phaseOnDate(iso, data.periodStarts, data.settings);
         const alignment = showCalendarLoad ? dayAlignmentForPhase(phase, dayItems) : 'fit';
         const period = mark === 'period' || mark === 'periodForecast';
+        const ovulatory = data.settings.showOvulation && mark === 'ovulatory';
         const isToday = iso === today;
         const dayNum = parseISODate(iso).getDate();
         const alignmentColor =
@@ -71,12 +72,15 @@ export function WeekStrip({ today, data, theme, language, items, showCalendarLoa
                   ]}
                 />
               ) : null}
+              {ovulatory ? (
+                <View style={[styles.bar, { backgroundColor: theme.ovulatory }]} />
+              ) : null}
               {showCalendarLoad
                 ? Array.from({ length: load }, (_, i) => (
                     <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
                   ))
                 : null}
-              {!period && !load ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
+              {!period && !ovulatory && !load ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
             </View>
           </Pressable>
         );

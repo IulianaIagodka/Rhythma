@@ -11,6 +11,9 @@ export type PhaseId = 'menstrual' | 'follicular' | 'ovulatory' | 'luteal';
 
 export type Settings = {
   showForecast: boolean;
+  showOvulation: boolean;
+  showEventAdvice: boolean;
+  showPhaseLists: boolean;
   periodLength: number;
   lutealLength: number;
   themeMode: 'light' | 'dark';
@@ -41,6 +44,9 @@ export type CycleStatus = {
 export function defaultSettings(): Settings {
   return {
     showForecast: true,
+    showOvulation: false,
+    showEventAdvice: true,
+    showPhaseLists: true,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'light',
@@ -178,6 +184,17 @@ export function marksForYear(
         const iso = addDays(start, i);
         if (inYear(iso)) marks.set(iso, 'periodForecast');
       }
+    }
+  }
+
+  if (settings.showOvulation && starts.length > 0) {
+    let day = `${year}-01-01`;
+    const last = `${year}-12-31`;
+    while (day <= last) {
+      if (!marks.has(day) && phaseOnDate(day, starts, settings) === 'ovulatory') {
+        marks.set(day, 'ovulatory');
+      }
+      day = addDays(day, 1);
     }
   }
 

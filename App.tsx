@@ -137,14 +137,15 @@ export default function App() {
   const tier = effectiveAccessTier(storedTier);
   const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
-  const hasPhaseTitle = hasFeatureAccess(storedTier, 'phaseTitle');
   const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
+  const showEventsAndAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
+  const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
   const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
-  const visibleAdvice = hasEventLoadAdvice
+  const visibleAdvice = showEventsAndAdvice
     ? adviseLoad(status.phase, calendarItems, language)
     : null;
   const phaseCapacity = capacityForPhase(status.phase, language);
@@ -187,9 +188,7 @@ export default function App() {
                     <Text style={[styles.cardTitle, { color: theme.ink }]}>
                       {t(language, 'cycleDay')} {status.cycleDay}
                     </Text>
-                    {hasPhaseTitle ? (
-                      <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
-                    ) : null}
+                    <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
                     <Text style={[styles.cardMeta, { color: theme.muted }]}>
                       {daysLeft == null
                         ? t(language, 'nextAfterRecords')
@@ -226,12 +225,12 @@ export default function App() {
                   theme={theme}
                   language={language}
                   items={calendarItems}
-                  showCalendarLoad={calendarEnabled}
+                  showCalendarLoad={calendarEnabled && showEventsAndAdvice}
                   onSelectDay={setSelectedDay}
                 />
               </View>
 
-              {hasCalendarSync ? (
+              {showEventsAndAdvice && calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
@@ -260,7 +259,7 @@ export default function App() {
                     <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
                   )}
                 </View>
-              ) : (
+              ) : !hasCalendarSync ? (
                 <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                   <View style={styles.settingText}>
                     <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
@@ -272,9 +271,9 @@ export default function App() {
                     <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
                   </View>
                 </View>
-              )}
+              ) : null}
 
-              {hasEventLoadAdvice && visibleAdvice ? (
+              {visibleAdvice ? (
                 <View style={[styles.insight, { backgroundColor: theme.card }]}>
                   <View
                     style={[
@@ -299,7 +298,7 @@ export default function App() {
                     ) : null}
                   </View>
                 </View>
-              ) : (
+              ) : !hasEventLoadAdvice ? (
                 <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                   <View style={styles.settingText}>
                     <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
@@ -311,7 +310,7 @@ export default function App() {
                     <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
                   </View>
                 </View>
-              )}
+              ) : null}
 
               {hasCalendarSync ? (
               <View style={[styles.calendarRow, { backgroundColor: theme.card }]}>
@@ -341,7 +340,7 @@ export default function App() {
               </View>
               ) : null}
 
-              {hasPhasePlanningLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
+              {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'bestForPhase')}</Text>
                   {phasePlan.best.map((item) => (
@@ -426,30 +425,18 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasEventLoadAdvice ? t(language, 'featureOn') : t(language, 'eventAdviceLocked')}
+                    {hasEventLoadAdvice ? t(language, 'eventAdviceDesc') : t(language, 'eventAdviceLocked')}
                   </Text>
                 </View>
                 {hasEventLoadAdvice ? (
-                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
-                  </View>
-                ) : (
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                  </View>
-                )}
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseName')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhaseTitle ? t(language, 'featureOn') : t(language, 'proFeatureLocked')}
-                  </Text>
-                </View>
-                {hasPhaseTitle ? (
-                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
-                  </View>
+                  <Switch
+                    value={data.settings.showEventAdvice}
+                    onValueChange={(showEventAdvice) =>
+                      persist({ ...data, settings: { ...data.settings, showEventAdvice } })
+                    }
+                    trackColor={{ false: theme.border, true: theme.accentSoft }}
+                    thumbColor={data.settings.showEventAdvice ? theme.accent : theme.faint}
+                  />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
                     <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
@@ -460,13 +447,18 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhasePlanningLists ? t(language, 'featureOn') : t(language, 'proFeatureLocked')}
+                    {hasPhasePlanningLists ? t(language, 'phaseListsDesc') : t(language, 'proFeatureLocked')}
                   </Text>
                 </View>
                 {hasPhasePlanningLists ? (
-                  <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'featureOn')}</Text>
-                  </View>
+                  <Switch
+                    value={data.settings.showPhaseLists}
+                    onValueChange={(showPhaseListsValue) =>
+                      persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
+                    }
+                    trackColor={{ false: theme.border, true: theme.accentSoft }}
+                    thumbColor={data.settings.showPhaseLists ? theme.accent : theme.faint}
+                  />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
                     <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
@@ -487,6 +479,22 @@ export default function App() {
                   }
                   trackColor={{ false: theme.border, true: theme.accentSoft }}
                   thumbColor={data.settings.showForecast ? theme.accent : theme.faint}
+                />
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'ovulationMark')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'ovulationDesc')}
+                  </Text>
+                </View>
+                <Switch
+                  value={data.settings.showOvulation}
+                  onValueChange={(showOvulation) =>
+                    persist({ ...data, settings: { ...data.settings, showOvulation } })
+                  }
+                  trackColor={{ false: theme.border, true: theme.accentSoft }}
+                  thumbColor={data.settings.showOvulation ? theme.accent : theme.faint}
                 />
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
