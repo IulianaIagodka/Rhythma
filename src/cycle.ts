@@ -1,4 +1,5 @@
 import { addDays, diffDays } from './dates';
+import type { AccessTier } from './access';
 
 export const DEFAULT_CYCLE_LENGTH = 28;
 export const DEFAULT_PERIOD_LENGTH = 5;
@@ -14,6 +15,7 @@ export type Settings = {
   lutealLength: number;
   themeMode: 'light' | 'dark';
   calendarSync: boolean;
+  accessTier: AccessTier;
 };
 
 export type StoredData = {
@@ -43,6 +45,7 @@ export function defaultSettings(): Settings {
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'light',
     calendarSync: false,
+    accessTier: 'free',
   };
 }
 

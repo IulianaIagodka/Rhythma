@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+import { hasFeatureAccess } from './src/access';
 import { adviseLoad } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -127,6 +128,9 @@ export default function App() {
   const selectedItems = items.filter((item) => item.day === selectedDay);
   const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
   const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
+  const tier = data.settings.accessTier;
+  const hasPhaseTitle = hasFeatureAccess(tier, 'phaseTitle');
+  const hasPhasePlanningLists = hasFeatureAccess(tier, 'phasePlanningLists');
 
   return (
     <SafeAreaProvider>
@@ -305,6 +309,39 @@ export default function App() {
           {tab === 'settings' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'settings')}</Text>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'proReadyHint')}
+                  </Text>
+                </View>
+                <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
+                  <Text style={[styles.planPillText, { color: theme.accent }]}>{t(language, 'freePlan')}</Text>
+                </View>
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseName')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {hasPhaseTitle ? t(language, 'freePlan') : t(language, 'proFeatureLocked')}
+                  </Text>
+                </View>
+                <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                </View>
+              </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {hasPhasePlanningLists ? t(language, 'freePlan') : t(language, 'proFeatureLocked')}
+                  </Text>
+                </View>
+                <View style={[styles.lockPill, { borderColor: theme.border }]}>
+                  <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
+                </View>
+              </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'syncCalendar')}</Text>
@@ -565,6 +602,32 @@ const styles = StyleSheet.create({
   settingText: { flex: 1 },
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
+  planPill: {
+    minWidth: 56,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planPillText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  lockPill: {
+    minWidth: 56,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lockPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+  },
   tabBar: {
     flexDirection: 'row',
     borderTopWidth: StyleSheet.hairlineWidth,

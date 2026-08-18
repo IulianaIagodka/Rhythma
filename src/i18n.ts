@@ -48,6 +48,12 @@ export const copy = {
     noEventsForDay: 'На цей день подій або тренувань немає.',
     workouts: 'Тренування',
     events: 'Події',
+    plan: 'План',
+    freePlan: 'Free',
+    proFeatureLocked: 'Функція Pro',
+    proPhaseName: 'Назва фази на екрані Today',
+    proPhaseLists: 'Списки “best for this phase” / “avoid this phase”',
+    proReadyHint: 'Структура для платної версії вже готова, але ці функції поки вимкнені.',
   },
   en: {
     appName: 'Rhythma',
@@ -88,6 +94,12 @@ export const copy = {
     noEventsForDay: 'No events or workouts found for this day.',
     workouts: 'Workouts',
     events: 'Events',
+    plan: 'Plan',
+    freePlan: 'Free',
+    proFeatureLocked: 'Pro feature',
+    proPhaseName: 'Phase name on the Today screen',
+    proPhaseLists: '“Best for this phase” / “avoid this phase” lists',
+    proReadyHint: 'The paid-version structure is ready, but these features remain disabled for now.',
   },
 } as const;
 
