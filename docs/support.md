@@ -45,6 +45,18 @@ Paid features. They stay locked until Plus is purchased. There is no in-app purc
 3. In **Settings**, choose appearance, forecast, and optional ovulation marks.
 4. Plus only: turn on calendar sync in Settings, then allow calendar access when iOS asks.
 
+### Google Calendar
+
+Rhythma does not sign in to Google. It reads calendars that are already on this iPhone.
+
+1. iPhone **Settings → Calendar → Accounts** (on newer iOS: **Settings → Apps → Calendar → Calendar Accounts**).
+2. **Add Account → Google**, then sign in.
+3. Turn **Calendars** on for that account.
+4. Open the **Calendar** app → **Calendars** → check the Google calendars you want.
+5. In **Rhythma → Settings**, turn on **Calendar sync** and allow Full Access.
+
+The same steps work for iCloud, Outlook, or any other account in the iPhone Calendar.
+
 Removing a logged day: tap it again on the year calendar and confirm.
 
 ---
@@ -52,7 +64,7 @@ Removing a logged day: tap it again on the year calendar and confirm.
 ## Troubleshooting
 
 **Calendar events do not appear**  
-Calendar sync is a Plus feature. Turn it on in Settings and allow calendar access. Events are shown on their start day.
+Calendar sync is a Plus feature. Turn it on in Settings and allow calendar access. Events are shown on their start day. Google events need Google added to the iPhone Calendar first — see [Google Calendar](#google-calendar).
 
 **The cycle length looks wrong**  
 Rhythma estimates from the days you have logged. Log a few more periods; the forecast updates from that history.
@@ -129,12 +141,24 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 3. У **Налаштуваннях** оберіть тему, прогноз і за бажанням позначки овуляції.
 4. Лише Plus: увімкніть синхронізацію календаря в Налаштуваннях і дозвольте доступ, коли iOS запитає.
 
+### Google Календар
+
+Rhythma не входить у Google. Вона читає календарі, які вже є на цьому iPhone.
+
+1. **Налаштування iPhone → Календар → Облікові записи** (на новіших iOS: **Налаштування → Програми → Календар → Облікові записи календаря**).
+2. **Додати обліковий запис → Google**, потім увійдіть.
+3. Увімкніть **Календарі** для цього акаунта.
+4. Відкрийте програму **Календар → Календарі** і поставте галочки на потрібних Google-календарях.
+5. У **Rhythma → Налаштування** увімкніть **Синхронізація календаря** і дайте повний доступ.
+
+Так само працюють iCloud, Outlook та будь-який інший акаунт у Календарі iPhone.
+
 Щоб прибрати день: натисніть його ще раз у річному календарі й підтвердіть.
 
 ## Якщо щось не працює
 
 **Події календаря не видно**  
-Синхронізація календаря — функція Plus. Увімкніть її в Налаштуваннях і дозвольте доступ. Події показуються в день початку.
+Синхронізація календаря — функція Plus. Увімкніть її в Налаштуваннях і дозвольте доступ. Події показуються в день початку. Події Google потрібні спочатку в Календарі iPhone — див. [Google Календар](#google-календар).
 
 **Довжина циклу виглядає неправильно**  
 Rhythma рахує оцінку з днів, які ви вже позначили. Позначте ще кілька циклів — прогноз оновиться.

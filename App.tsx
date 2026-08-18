@@ -465,6 +465,11 @@ export default function App() {
                         : t(language, 'calendarDesc')
                       : t(language, 'calendarSyncLocked')}
                   </Text>
+                  {hasCalendarSync && !calendarPermissionDenied ? (
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {t(language, 'calendarGoogleHint')}
+                    </Text>
+                  ) : null}
                 </View>
                 <View style={styles.settingControl}>
                   {hasCalendarSync ? (
