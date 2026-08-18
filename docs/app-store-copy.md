@@ -88,3 +88,9 @@ Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/support.
 https://iulianaiagodka.github.io/Rhythma/privacy.html
 
 Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/privacy.md
+
+## Screenshots
+
+App Store Connect → iPhone **6.9" Display** (`1320 × 2868`).
+
+Files: `docs/screenshots/iphone-6.9/`
