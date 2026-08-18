@@ -12,10 +12,7 @@
       }
     },
     "production": {
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_UNLOCK_PRO": "1"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {

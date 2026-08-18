@@ -29,7 +29,7 @@ import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
-import { detectLanguage, t } from './src/i18n';
+import { detectLanguage, t, type Language } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -340,9 +340,7 @@ export default function App() {
                       {t(language, 'eventAdviceLocked')}
                     </Text>
                   </View>
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
-                  </View>
+                  <PlusBadge theme={theme} language={language} />
                 </View>
               ) : null}
 
@@ -454,21 +452,20 @@ export default function App() {
                       : t(language, 'calendarSyncLocked')}
                   </Text>
                 </View>
-                {hasCalendarSync ? (
-                  <BrightSwitch
-                    value={data.settings.calendarSync}
-                    theme={theme}
-                    readyRef={switchesReady}
-                    onValueChange={(calendarSync) => {
-                      persist({ ...data, settings: { ...data.settings, calendarSync } });
-                      refreshCalendar(calendarSync);
-                    }}
-                  />
-                ) : (
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
-                  </View>
-                )}
+                <View style={styles.settingControl}>
+                  {hasCalendarSync ? (
+                    <BrightSwitch
+                      value={data.settings.calendarSync}
+                      theme={theme}
+                      readyRef={switchesReady}
+                      onValueChange={(calendarSync) => {
+                        persist({ ...data, settings: { ...data.settings, calendarSync } });
+                        refreshCalendar(calendarSync);
+                      }}
+                    />
+                  ) : null}
+                  <PlusBadge theme={theme} language={language} />
+                </View>
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -477,20 +474,19 @@ export default function App() {
                     {hasEventLoadAdvice ? t(language, 'eventAdviceDesc') : t(language, 'eventAdviceLocked')}
                   </Text>
                 </View>
-                {hasEventLoadAdvice ? (
-                  <BrightSwitch
-                    value={data.settings.showEventAdvice}
-                    theme={theme}
-                    readyRef={switchesReady}
-                    onValueChange={(showEventAdvice) =>
-                      persist({ ...data, settings: { ...data.settings, showEventAdvice } })
-                    }
-                  />
-                ) : (
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
-                  </View>
-                )}
+                <View style={styles.settingControl}>
+                  {hasEventLoadAdvice ? (
+                    <BrightSwitch
+                      value={data.settings.showEventAdvice}
+                      theme={theme}
+                      readyRef={switchesReady}
+                      onValueChange={(showEventAdvice) =>
+                        persist({ ...data, settings: { ...data.settings, showEventAdvice } })
+                      }
+                    />
+                  ) : null}
+                  <PlusBadge theme={theme} language={language} />
+                </View>
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -499,20 +495,19 @@ export default function App() {
                     {hasPhasePlanningLists ? t(language, 'phaseListsDesc') : t(language, 'proFeatureLocked')}
                   </Text>
                 </View>
-                {hasPhasePlanningLists ? (
-                  <BrightSwitch
-                    value={data.settings.showPhaseLists}
-                    theme={theme}
-                    readyRef={switchesReady}
-                    onValueChange={(showPhaseListsValue) =>
-                      persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
-                    }
-                  />
-                ) : (
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
-                  </View>
-                )}
+                <View style={styles.settingControl}>
+                  {hasPhasePlanningLists ? (
+                    <BrightSwitch
+                      value={data.settings.showPhaseLists}
+                      theme={theme}
+                      readyRef={switchesReady}
+                      onValueChange={(showPhaseListsValue) =>
+                        persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
+                      }
+                    />
+                  ) : null}
+                  <PlusBadge theme={theme} language={language} />
+                </View>
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -521,20 +516,19 @@ export default function App() {
                     {hasCycleRhythm ? t(language, 'cycleRhythmDesc') : t(language, 'cycleRhythmLocked')}
                   </Text>
                 </View>
-                {hasCycleRhythm ? (
-                  <BrightSwitch
-                    value={data.settings.showCycleRhythm}
-                    theme={theme}
-                    readyRef={switchesReady}
-                    onValueChange={(showCycleRhythm) =>
-                      persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
-                    }
-                  />
-                ) : (
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
-                  </View>
-                )}
+                <View style={styles.settingControl}>
+                  {hasCycleRhythm ? (
+                    <BrightSwitch
+                      value={data.settings.showCycleRhythm}
+                      theme={theme}
+                      readyRef={switchesReady}
+                      onValueChange={(showCycleRhythm) =>
+                        persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
+                      }
+                    />
+                  ) : null}
+                  <PlusBadge theme={theme} language={language} />
+                </View>
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -668,6 +662,14 @@ function ChipGroup({
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+function PlusBadge({ theme, language }: { theme: Theme; language: Language }) {
+  return (
+    <View style={[styles.lockPill, { borderColor: theme.border }]}>
+      <Text style={[styles.lockPillText, { color: theme.muted }]}>{t(language, 'plusBadge')}</Text>
     </View>
   );
 }
@@ -930,6 +932,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   settingText: { flex: 1 },
+  settingControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
   planPill: {
