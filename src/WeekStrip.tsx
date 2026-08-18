@@ -1,8 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { dayAlignmentForPhase } from './activity';
 import type { CalendarItem } from './calendar';
-import { markForDate, phaseOnDate, type StoredData } from './cycle';
+import { markForDate, type StoredData } from './cycle';
 import { parseISODate, weekDaysFromMonday, weekdayShort, type Language } from './dates';
 import type { Theme } from './theme';
 
@@ -31,20 +30,11 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
         const eventCount = Math.min(4, countByDay.get(iso) ?? 0);
-        const dayItems = showCalendarLoad ? items.filter((item) => item.day === iso) : [];
-        const phase = phaseOnDate(iso, data.periodStarts, data.settings);
-        const alignment = showCalendarLoad ? dayAlignmentForPhase(phase, dayItems) : 'fit';
         const period = mark === 'period' || mark === 'periodForecast';
         const ovulatory = data.settings.showOvulation && mark === 'ovulatory';
         const isToday = iso === today;
         const isSelected = iso === selectedDay;
         const dayNum = parseISODate(iso).getDate();
-        const alignmentColor =
-          alignment === 'over'
-            ? theme.accent
-            : alignment === 'under'
-              ? theme.teal
-              : 'transparent';
         return (
           <Pressable
             key={iso}
@@ -64,14 +54,6 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
             >
               {dayNum}
             </Text>
-            {alignment !== 'fit' ? (
-              <View
-                style={[
-                  styles.alignmentDot,
-                  { backgroundColor: alignmentColor },
-                ]}
-              />
-            ) : null}
             <View style={styles.bars}>
               {period ? (
                 <View
@@ -121,11 +103,6 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 15,
     fontWeight: '600',
-  },
-  alignmentDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 999,
   },
   bars: {
     gap: 3,

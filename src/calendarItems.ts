@@ -1,4 +1,4 @@
-import { addDays, toISODate, type Language } from './dates';
+import { toISODate, type Language } from './dates';
 
 export type ActivityKind = 'yoga' | 'massage' | 'swim' | 'gentle' | 'intense' | 'event';
 
@@ -49,7 +49,13 @@ function parseCalendarDate(value: Date | string): Date {
 }
 
 function calendarDayISO(date: Date, allDay: boolean): string {
-  if (allDay) {
+  if (!allDay) return toISODate(date);
+  const localMidnight =
+    date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0;
+  if (localMidnight) return toISODate(date);
+  const utcMidnight =
+    date.getUTCHours() === 0 && date.getUTCMinutes() === 0 && date.getUTCSeconds() === 0;
+  if (utcMidnight) {
     const y = date.getUTCFullYear();
     const m = String(date.getUTCMonth() + 1).padStart(2, '0');
     const d = String(date.getUTCDate()).padStart(2, '0');
@@ -65,33 +71,9 @@ export function daysSpannedByEvent(
 ): string[] {
   const allDay = Boolean(event.allDay);
   const start = parseCalendarDate(event.startDate);
-  const end = event.endDate != null ? parseCalendarDate(event.endDate) : new Date(start.getTime());
-  let first = calendarDayISO(start, allDay);
-  let last = calendarDayISO(end, allDay);
-
-  if (allDay && last > first) {
-    last = addDays(last, -1);
-  } else if (
-    !allDay &&
-    last > first &&
-    end.getHours() === 0 &&
-    end.getMinutes() === 0 &&
-    end.getSeconds() === 0 &&
-    end.getMilliseconds() === 0
-  ) {
-    last = addDays(last, -1);
-  }
-  if (last < first) last = first;
-
-  const from = first < rangeStart ? rangeStart : first;
-  const to = last > rangeEnd ? rangeEnd : last;
-  if (from > to) return [];
-
-  const days: string[] = [];
-  for (let cursor = from; cursor <= to; cursor = addDays(cursor, 1)) {
-    days.push(cursor);
-  }
-  return days;
+  const first = calendarDayISO(start, allDay);
+  if (first < rangeStart || first > rangeEnd) return [];
+  return [first];
 }
 
 export function itemsFromCalendarEvents(

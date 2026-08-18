@@ -33,7 +33,7 @@ describe('daysSpannedByEvent', () => {
     assert.deepEqual(days, ['2024-06-23']);
   });
 
-  it('repeats a weekend event on each day it covers', () => {
+  it('keeps a weekend event on its start day', () => {
     const days = daysSpannedByEvent(
       {
         id: '3',
@@ -44,7 +44,7 @@ describe('daysSpannedByEvent', () => {
       '2024-06-17',
       '2024-06-23',
     );
-    assert.deepEqual(days, ['2024-06-22', '2024-06-23']);
+    assert.deepEqual(days, ['2024-06-22']);
   });
 });
 

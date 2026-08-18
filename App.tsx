@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -45,6 +45,7 @@ export default function App() {
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
+  const switchesReady = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,6 +56,14 @@ export default function App() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!data || switchesReady.current) return;
+    const timer = setTimeout(() => {
+      switchesReady.current = true;
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [data]);
 
   const persist = useCallback((next: StoredData) => {
     setData(next);
@@ -167,7 +176,6 @@ export default function App() {
 
         <View style={styles.header}>
           <Text style={[styles.brand, { color: theme.accent }]}>Rhythma</Text>
-          <View style={[styles.avatar, { borderColor: theme.accent }]} />
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -277,18 +285,6 @@ export default function App() {
                     <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
                   )}
                 </View>
-              ) : !hasCalendarSync ? (
-                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                  <View style={styles.settingText}>
-                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
-                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                      {t(language, 'calendarSyncLocked')}
-                    </Text>
-                  </View>
-                  <View style={[styles.lockPill, { borderColor: theme.border }]}>
-                    <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
-                  </View>
-                </View>
               ) : null}
 
               {visibleAdvice ? (
@@ -328,34 +324,6 @@ export default function App() {
                     <Text style={[styles.lockPillText, { color: theme.muted }]}>PRO</Text>
                   </View>
                 </View>
-              ) : null}
-
-              {hasCalendarSync ? (
-              <View style={[styles.calendarRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.syncText, { color: theme.ink }]}>
-                    {t(language, 'syncCalendar')}
-                  </Text>
-                  <Text style={[styles.settingMeta, { color: calendarPermissionDenied ? theme.accent : theme.muted }]}>
-                  {data.settings.calendarSync
-                    ? calendarPermissionDenied
-                      ? t(language, 'calendarPermissionHint')
-                      : calendarItems.length
-                        ? t(language, 'eventsOnWeek', { count: calendarItems.length })
-                        : calendarError ?? t(language, 'readingEvents')
-                    : t(language, 'syncPhone')}
-                </Text>
-                </View>
-                <Switch
-                  value={data.settings.calendarSync}
-                  onValueChange={(calendarSync) => {
-                    persist({ ...data, settings: { ...data.settings, calendarSync } });
-                    refreshCalendar(calendarSync);
-                  }}
-                  trackColor={{ false: theme.border, true: theme.accentSoft }}
-                  thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
-                />
-              </View>
               ) : null}
 
               {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
@@ -459,18 +427,22 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasCalendarSync ? t(language, 'calendarDesc') : t(language, 'calendarSyncLocked')}
+                    {hasCalendarSync
+                      ? calendarPermissionDenied
+                        ? t(language, 'calendarPermissionHint')
+                        : t(language, 'calendarDesc')
+                      : t(language, 'calendarSyncLocked')}
                   </Text>
                 </View>
                 {hasCalendarSync ? (
-                  <Switch
+                  <BrightSwitch
                     value={data.settings.calendarSync}
+                    theme={theme}
+                    readyRef={switchesReady}
                     onValueChange={(calendarSync) => {
                       persist({ ...data, settings: { ...data.settings, calendarSync } });
                       refreshCalendar(calendarSync);
                     }}
-                    trackColor={{ false: theme.border, true: theme.accentSoft }}
-                    thumbColor={data.settings.calendarSync ? theme.accent : theme.faint}
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
@@ -486,13 +458,13 @@ export default function App() {
                   </Text>
                 </View>
                 {hasEventLoadAdvice ? (
-                  <Switch
+                  <BrightSwitch
                     value={data.settings.showEventAdvice}
+                    theme={theme}
+                    readyRef={switchesReady}
                     onValueChange={(showEventAdvice) =>
                       persist({ ...data, settings: { ...data.settings, showEventAdvice } })
                     }
-                    trackColor={{ false: theme.border, true: theme.accentSoft }}
-                    thumbColor={data.settings.showEventAdvice ? theme.accent : theme.faint}
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
@@ -508,13 +480,13 @@ export default function App() {
                   </Text>
                 </View>
                 {hasPhasePlanningLists ? (
-                  <Switch
+                  <BrightSwitch
                     value={data.settings.showPhaseLists}
+                    theme={theme}
+                    readyRef={switchesReady}
                     onValueChange={(showPhaseListsValue) =>
                       persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
                     }
-                    trackColor={{ false: theme.border, true: theme.accentSoft }}
-                    thumbColor={data.settings.showPhaseLists ? theme.accent : theme.faint}
                   />
                 ) : (
                   <View style={[styles.lockPill, { borderColor: theme.border }]}>
@@ -529,13 +501,13 @@ export default function App() {
                     {t(language, 'forecastDesc')}
                   </Text>
                 </View>
-                <Switch
+                <BrightSwitch
                   value={data.settings.showForecast}
+                  theme={theme}
+                  readyRef={switchesReady}
                   onValueChange={(showForecast) =>
                     persist({ ...data, settings: { ...data.settings, showForecast } })
                   }
-                  trackColor={{ false: theme.border, true: theme.accentSoft }}
-                  thumbColor={data.settings.showForecast ? theme.accent : theme.faint}
                 />
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
@@ -545,29 +517,29 @@ export default function App() {
                     {t(language, 'ovulationDesc')}
                   </Text>
                 </View>
-                <Switch
+                <BrightSwitch
                   value={data.settings.showOvulation}
+                  theme={theme}
+                  readyRef={switchesReady}
                   onValueChange={(showOvulation) =>
                     persist({ ...data, settings: { ...data.settings, showOvulation } })
                   }
-                  trackColor={{ false: theme.border, true: theme.accentSoft }}
-                  thumbColor={data.settings.showOvulation ? theme.accent : theme.faint}
                 />
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'darkTheme')}</Text>
                 </View>
-                <Switch
+                <BrightSwitch
                   value={data.settings.themeMode === 'dark'}
+                  theme={theme}
+                  readyRef={switchesReady}
                   onValueChange={(dark) =>
                     persist({
                       ...data,
                       settings: { ...data.settings, themeMode: dark ? 'dark' : 'light' },
                     })
                   }
-                  trackColor={{ false: theme.border, true: theme.accentSoft }}
-                  thumbColor={data.settings.themeMode === 'dark' ? theme.accent : theme.faint}
                 />
               </View>
             </>
@@ -658,6 +630,32 @@ function ChipGroup({
   );
 }
 
+function BrightSwitch({
+  value,
+  onValueChange,
+  theme,
+  readyRef,
+}: {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  theme: Theme;
+  readyRef: MutableRefObject<boolean>;
+}) {
+  return (
+    <Switch
+      value={value}
+      onValueChange={(next) => {
+        if (!readyRef.current) return;
+        if (next === value) return;
+        onValueChange(next);
+      }}
+      trackColor={{ false: theme.faint, true: theme.accent }}
+      thumbColor="#FFFFFF"
+      ios_backgroundColor={theme.faint}
+    />
+  );
+}
+
 function MenuIcon({ color }: { color: string }) {
   return (
     <View style={styles.menuIcon}>
@@ -708,12 +706,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     letterSpacing: -0.3,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
   },
   content: {
     paddingHorizontal: 20,
@@ -866,17 +858,6 @@ const styles = StyleSheet.create({
   insightCounts: {
     fontSize: 13,
     marginTop: 4,
-  },
-  calendarRow: {
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  syncText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
   yearNav: {
     flexDirection: 'row',
