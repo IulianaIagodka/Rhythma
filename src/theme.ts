@@ -1,22 +1,59 @@
-export const colors = {
-  background: '#0D0012',
-  ink: '#FFE8FC',
-  muted: '#D16BC8',
-  faint: '#3A0536',
-  neon: '#FF10F0',
-  neonSoft: '#FF6BF5',
-  period: '#FF10F0',
-  periodForecast: '#4A0A45',
-  follicular: '#2A0028',
-  ovulatory: '#FF4AF5',
-  luteal: '#8A1480',
-  today: '#FF10F0',
+export type Theme = {
+  background: string;
+  card: string;
+  ink: string;
+  muted: string;
+  faint: string;
+  accent: string;
+  accentSoft: string;
+  border: string;
+  teal: string;
+  tabBar: string;
+  period: string;
+  periodForecast: string;
+  follicular: string;
+  ovulatory: string;
+  luteal: string;
 };
 
-export const glow = {
-  shadowColor: '#FF10F0',
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.95,
-  shadowRadius: 18,
-  elevation: 14,
+export const lightTheme: Theme = {
+  background: '#FFFFFF',
+  card: '#F4F4F6',
+  ink: '#1A1A1A',
+  muted: '#8E8E93',
+  faint: '#C7C7CC',
+  accent: '#E91E8C',
+  accentSoft: '#FCE4F1',
+  border: '#E5E5EA',
+  teal: '#5ECAD6',
+  tabBar: '#FFFFFF',
+  period: '#E91E8C',
+  periodForecast: '#F5A8D0',
+  follicular: '#B8E8EE',
+  ovulatory: '#5ECAD6',
+  luteal: '#D4D4D8',
 };
+
+export const darkTheme: Theme = {
+  background: '#0A0A0A',
+  card: '#1C1C1E',
+  ink: '#FFFFFF',
+  muted: '#98989D',
+  faint: '#48484A',
+  accent: '#FF10F0',
+  accentSoft: '#3A1530',
+  border: '#2C2C2E',
+  teal: '#5ECAD6',
+  tabBar: '#0A0A0A',
+  period: '#FF10F0',
+  periodForecast: '#8A1480',
+  follicular: '#2A4050',
+  ovulatory: '#5ECAD6',
+  luteal: '#3A3A3C',
+};
+
+export type ThemeMode = 'light' | 'dark';
+
+export function themeFor(mode: ThemeMode): Theme {
+  return mode === 'dark' ? darkTheme : lightTheme;
+}

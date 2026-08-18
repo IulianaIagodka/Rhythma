@@ -11,6 +11,7 @@ export type Settings = {
   showForecast: boolean;
   periodLength: number;
   lutealLength: number;
+  themeMode: 'light' | 'dark';
 };
 
 export type StoredData = {
@@ -35,10 +36,26 @@ export type CycleStatus = {
 
 export function defaultSettings(): Settings {
   return {
-    showForecast: false,
+    showForecast: true,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
+    themeMode: 'light',
   };
+}
+
+export function markForDate(
+  iso: string,
+  starts: string[],
+  settings: Settings,
+): DayMark | null {
+  const year = Number(iso.slice(0, 4));
+  return marksForYear(year, starts, settings).get(iso) ?? null;
+}
+
+export function daysUntilNextPeriod(today: string, nextPeriod: string | null): number | null {
+  if (!nextPeriod) return null;
+  const days = diffDays(today, nextPeriod);
+  return days >= 0 ? days : null;
 }
 
 export function sortedUnique(dates: string[]): string[] {

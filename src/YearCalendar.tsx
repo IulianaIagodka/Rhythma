@@ -2,21 +2,14 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, MONTHS_UK } from './dates';
-import { colors } from './theme';
+import type { Theme } from './theme';
 
 type YearCalendarProps = {
   year: number;
   today: string;
   marks: Map<string, DayMark>;
+  theme: Theme;
   onToggleDay: (iso: string) => void;
-};
-
-const MARK_COLORS: Record<DayMark, string> = {
-  period: colors.period,
-  periodForecast: colors.periodForecast,
-  follicular: colors.follicular,
-  ovulatory: colors.ovulatory,
-  luteal: colors.luteal,
 };
 
 function monthISO(year: number, monthIndex: number, day: number): string {
@@ -25,11 +18,20 @@ function monthISO(year: number, monthIndex: number, day: number): string {
   return `${year}-${m}-${d}`;
 }
 
+const MARK_COLORS = (theme: Theme): Record<DayMark, string> => ({
+  period: theme.period,
+  periodForecast: theme.periodForecast,
+  follicular: theme.follicular,
+  ovulatory: theme.ovulatory,
+  luteal: theme.luteal,
+});
+
 function MonthGrid({
   year,
   monthIndex,
   today,
   marks,
+  theme,
   onToggleDay,
 }: YearCalendarProps & { monthIndex: number }) {
   const leading = mondayIndex(year, monthIndex, 1);
@@ -39,10 +41,11 @@ function MonthGrid({
     ...Array.from({ length: count }, (_, i) => i + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
+  const colors = MARK_COLORS(theme);
 
   return (
     <View style={styles.month}>
-      <Text style={styles.monthTitle}>{MONTHS_UK[monthIndex]}</Text>
+      <Text style={[styles.monthTitle, { color: theme.muted }]}>{MONTHS_UK[monthIndex]}</Text>
       <View style={styles.days}>
         {cells.map((day, index) => {
           if (day == null) {
@@ -53,24 +56,20 @@ function MonthGrid({
           const isToday = iso === today;
           const isPeriod = mark === 'period';
           return (
-            <Pressable
-              key={iso}
-              onPress={() => onToggleDay(iso)}
-              style={styles.dayCell}
-              accessibilityLabel={`${day} ${MONTHS_UK[monthIndex]}`}
-            >
+            <Pressable key={iso} onPress={() => onToggleDay(iso)} style={styles.dayCell}>
               <View
                 style={[
                   styles.dayFill,
-                  mark ? { backgroundColor: MARK_COLORS[mark] } : null,
-                  isToday && styles.today,
+                  mark ? { backgroundColor: colors[mark] } : null,
+                  isToday && { borderColor: theme.accent, borderWidth: 1.5 },
                 ]}
               >
                 <Text
                   style={[
                     styles.dayText,
+                    { color: theme.muted },
                     isPeriod && styles.dayPeriod,
-                    isToday && styles.dayToday,
+                    isToday && { color: theme.accent, fontWeight: '700' },
                   ]}
                 >
                   {day}
@@ -99,16 +98,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: 22,
+    rowGap: 20,
   },
   month: {
     width: '48%',
   },
   monthTitle: {
-    fontSize: 11,
-    color: colors.neonSoft,
+    fontSize: 12,
+    fontWeight: '600',
     marginBottom: 8,
-    letterSpacing: 0.6,
+    textTransform: 'capitalize',
   },
   days: {
     flexDirection: 'row',
@@ -121,30 +120,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayFill: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayText: {
     fontSize: 9,
-    color: colors.muted,
+    fontWeight: '500',
   },
   dayPeriod: {
-    color: '#0D0012',
+    color: '#FFFFFF',
     fontWeight: '700',
-  },
-  dayToday: {
-    color: colors.neon,
-    fontWeight: '700',
-  },
-  today: {
-    borderWidth: 1,
-    borderColor: colors.neon,
-    shadowColor: colors.neon,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.85,
-    shadowRadius: 6,
   },
 });

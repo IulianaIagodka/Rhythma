@@ -72,3 +72,21 @@ export function formatDayUk(iso: string): string {
   const date = parseISODate(iso);
   return `${date.getDate()} ${MONTHS_GENITIVE_UK[date.getMonth()]}`;
 }
+
+export function weekDaysFromMonday(anchor: string): string[] {
+  const date = parseISODate(anchor);
+  const offset = (date.getDay() + 6) % 7;
+  const monday = addDays(anchor, -offset);
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+}
+
+export function weekdayShortUk(iso: string): string {
+  const day = parseISODate(iso).getDay();
+  const index = (day + 6) % 7;
+  return WEEKDAYS_UK[index];
+}
+
+export function weekdayNameUk(iso: string): string {
+  const names = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця", 'субота'];
+  return names[parseISODate(iso).getDay()];
+}
