@@ -52,4 +52,5 @@ Cycle data is stored locally with AsyncStorage. Calendar access is read-only and
 ## iOS
 
 Bundle ID: `app.rhythma.cycle`  
-App Store Connect: `6802549751`
+App Store Connect: `6802549751`  
+iPhone only (iPad is off for now)
