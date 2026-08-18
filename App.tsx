@@ -38,6 +38,7 @@ export default function App() {
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [data, setData] = useState<StoredData | null>(null);
   const [items, setItems] = useState<CalendarItem[]>([]);
+  const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
 
@@ -123,8 +124,9 @@ export default function App() {
 
   const todayIsStart = data.periodStarts.includes(today);
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
-  const workoutsToday = items.filter((item) => item.day === today && item.kind === 'workout');
-  const eventsToday = items.filter((item) => item.day === today && item.kind === 'event');
+  const selectedItems = items.filter((item) => item.day === selectedDay);
+  const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
+  const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
 
   return (
     <SafeAreaProvider>
@@ -190,8 +192,38 @@ export default function App() {
                   theme={theme}
                   language={language}
                   items={items}
-                  onSelectDay={onToggleDay}
+                  onSelectDay={setSelectedDay}
                 />
+              </View>
+
+
+              <View style={[styles.card, { backgroundColor: theme.card }]}>
+                <View style={styles.cardHeader}>
+                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
+                  <Text style={[styles.sectionTag, { color: theme.teal }]}>{selectedDay}</Text>
+                </View>
+                {selectedItems.length ? (
+                  <View style={styles.dayList}>
+                    {selectedItems.map((item) => (
+                      <View key={item.id} style={styles.dayRow}>
+                        <View
+                          style={[
+                            styles.dayBullet,
+                            { backgroundColor: item.kind === 'workout' ? theme.teal : theme.accent },
+                          ]}
+                        />
+                        <View style={styles.dayTextWrap}>
+                          <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
+                          <Text style={[styles.dayMeta, { color: theme.muted }]}>
+                            {item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events')}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
+                )}
               </View>
 
               <View style={[styles.insight, { backgroundColor: theme.card }]}>
@@ -213,7 +245,7 @@ export default function App() {
                   <Text style={[styles.insightMeta, { color: theme.muted }]}>{advice.note}</Text>
                   {data.settings.calendarSync && items.length ? (
                     <Text style={[styles.insightCounts, { color: theme.muted }]}>
-                      {t(language, 'eventsToday', { events: eventsToday.length, workouts: workoutsToday.length })}
+                      {t(language, 'eventsToday', { events: selectedEvents.length, workouts: selectedWorkouts.length })}
                     </Text>
                   ) : null}
                 </View>
@@ -452,6 +484,30 @@ const styles = StyleSheet.create({
   sectionTag: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  dayList: {
+    gap: 12,
+  },
+  dayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dayBullet: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  dayTextWrap: {
+    flex: 1,
+  },
+  dayTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  dayMeta: {
+    fontSize: 12,
+    marginTop: 2,
   },
   insight: {
     borderRadius: 20,

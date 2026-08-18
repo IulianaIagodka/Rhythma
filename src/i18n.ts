@@ -44,6 +44,10 @@ export const copy = {
     noCalendars: 'Не знайдено жодного календаря на телефоні.',
     noPermission: 'Немає дозволу — відкрийте Налаштування → Rhythma → Календар → Повний доступ.',
     eventFallback: 'Подія',
+    selectedDay: 'Обраний день',
+    noEventsForDay: 'На цей день подій або тренувань немає.',
+    workouts: 'Тренування',
+    events: 'Події',
   },
   en: {
     appName: 'Rhythma',
@@ -80,6 +84,10 @@ export const copy = {
     noCalendars: 'No calendars were found on this phone.',
     noPermission: 'No permission — open Settings → Rhythma → Calendars → Full Access.',
     eventFallback: 'Event',
+    selectedDay: 'Selected day',
+    noEventsForDay: 'No events or workouts found for this day.',
+    workouts: 'Workouts',
+    events: 'Events',
   },
 } as const;
 
