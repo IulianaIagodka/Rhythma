@@ -28,13 +28,12 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Plus
 
-Paid features. They stay locked until Plus is purchased. There is no in-app purchase in the current App Store build; Plus will unlock after purchase is available.
+One-time purchase, lifetime access. Buy in Settings → Rhythma Plus.
 
-- Calendar sync for events and workouts
-- Load recommendations (can be hidden)
-- Day highlighting when the schedule is too heavy or too light for the phase
-- Phase tips: what may support you now, and what to go easier on
-- Cycle rhythm: a compact four-phase sparkline next to cycle day
+- **Calendar sync** — events and workouts from your iPhone calendar alongside your cycle
+- **Recommendations** — advice on whether the week's schedule fits your current phase
+- **Phase tips** — what may support you now, and what to take it easy with
+- **Energy curve** — a compact four-phase energy map next to cycle day
 
 ---
 
@@ -126,13 +125,12 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Plus
 
-Платні функції. Вони заблоковані, доки Plus не оплачено. У поточному білді App Store ще немає покупки в додатку; Plus відкриється, коли оплата з’явиться.
+Одноразова оплата, доступ назавжди. Купити: Налаштування → Rhythma Plus.
 
-- Синхронізація календаря для подій і тренувань
-- Поради щодо навантаження (можна сховати)
-- Підсвітка днів, коли розклад занадто важкий або занадто легкий для фази
-- Підказки фази: що може підтримати зараз і з чим краще полегшити
-- Cycle rhythm: компактний графік чотирьох фаз біля дня циклу
+- **Синхронізація календаря** — події й тренування з календаря iPhone поруч із циклом
+- **Рекомендації** — поради, чи розклад тижня відповідає поточній фазі
+- **Підказки фази** — що може підтримати зараз і з чим полегше
+- **Energy curve** — компактна карта енергії чотирьох фаз біля дня циклу
 
 ## Як користуватись
 

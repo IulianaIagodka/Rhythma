@@ -2,33 +2,39 @@
 
 ## Promo Text
 
-Your cycle is part of your daily rhythm. Log your period, sync your calendar, and plan work, rest, and training around your cycle.
+Track your cycle. Plan your week. Know when to push and when to rest.
 
 ## Description
 
 Your cycle affects your energy, focus, and performance every day. Rhythma helps you track it and plan around it — simply, privately, and without noise.
 
-Connect your iPhone calendar and see how your scheduled events, meetings, and workouts land across your cycle. Use that context to plan smarter: go harder when your body is ready, ease off when it needs rest.
+Log your period in one tap. See your cycle day and phase on Today. Connect your iPhone calendar and see how your events and workouts land across your cycle.
 
 ### LOG YOUR PERIOD IN ONE TAP
-Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm before it is saved.
-
-### SYNC YOUR CALENDAR
-Connect your iPhone calendar to see events and workouts alongside your cycle. Rhythma reads your schedule and tells you whether the week's load matches where you are in your cycle.
-
-### PLAN TRAINING AND EVENTS AROUND YOUR CYCLE
-See your current cycle day at a glance. Use it as context when scheduling workouts, work sprints, travel, social events, and rest days.
+Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm.
 
 ### YOUR WHOLE YEAR AT A GLANCE
-View a clear annual calendar showing your recorded periods and predicted cycle days so you can plan weeks and months ahead.
+A clear annual calendar showing your recorded periods and predicted cycle days so you can plan weeks and months ahead.
 
 ### PRIVATE BY DESIGN
-Your data stays on your iPhone. No account required. Rhythma never uploads your cycle data anywhere.
+Your data stays on your iPhone. No account required. No cloud sync. Rhythma never uploads your cycle data anywhere.
+
+### RHYTHMA PLUS — ONE-TIME PURCHASE, LIFETIME ACCESS
+Upgrade once, unlock everything:
+
+- **Calendar sync** — see your events and workouts from iPhone Calendar alongside your cycle
+- **Recommendations** — advice on whether this week's schedule fits your phase
+- **Phase tips** — what may support you now, and what to take it easy with
+- **Energy curve** — a compact four-phase energy map next to your cycle day
+
+Purchase in Settings → Rhythma Plus.
 
 ### PERSONALISE YOUR EXPERIENCE
 Choose light, dark, or system appearance. Available in English and Ukrainian.
 
 Rhythma provides cycle estimates only. Its predictions are not medical advice and should not be used as contraception.
+
+---
 
 ## ASO version
 
@@ -38,18 +44,12 @@ Track your period, sync your calendar, and plan workouts and events around your 
 
 ### Description
 
-Rhythma is a cycle tracker built around your daily life — not the other way around.
+Rhythma is a cycle tracker built around your daily life.
 
 Log your period, connect your iPhone calendar, and see how your energy and capacity align with what you have planned. Use your cycle as a planning tool for work, training, rest, and social life.
 
 #### LOG YOUR PERIOD IN ONE TAP
 Record the first day of your period instantly from Today, or tap another date on the year calendar and confirm.
-
-#### CYCLE + CALENDAR INTEGRATION
-Connect your iPhone calendar to see your events and workouts alongside your cycle. Rhythma tells you whether this week's schedule matches your cycle phase.
-
-#### TRAINING AND ACTIVITY PLANNING
-Use your current cycle day as context when planning exercise intensity, rest days, work deadlines, travel, and events.
 
 #### ANNUAL CYCLE CALENDAR
 View a full year of your recorded and predicted cycle days in one clear calendar.
@@ -57,40 +57,38 @@ View a full year of your recorded and predicted cycle days in one clear calendar
 #### PRIVATE PERIOD TRACKER
 All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complexity.
 
+#### RHYTHMA PLUS — LIFETIME ACCESS
+One-time purchase. Unlocks calendar sync, recommendations, phase tips, and energy curve.
+
 #### LIGHT, DARK, OR SYSTEM MODE
 Personalise your appearance. Available in English and Ukrainian.
 
 Rhythma provides estimates only. It does not offer medical advice and should not be used as contraception.
 
+---
+
 ## Suggested keywords
 
 period tracker, cycle tracker, cycle calendar, period log, cycle planner, workout cycle, menstrual cycle, women health app, cycle planning, period calendar
+
+---
+
+## In-App Purchase
+
+- **Type:** Non-Consumable (one-time purchase)
+- **Product ID:** `app.rhythma.cycle.plus`
+- **Reference Name:** Rhythma Plus
+- **Display Name:** Rhythma Plus
+- **Description:** Unlock Calendar sync, Recommendations, Phase tips, and Energy curve. One-time purchase, lifetime access.
+- **Price:** Set to the tier closest to 39.99 PLN in App Store Connect
+
+---
 
 ## Notes
 
 - Current App Store Connect app ID: `6802549751`
 - Bundle ID: `app.rhythma.cycle`
-- No fertility or ovulation focus — the product is about integrating the cycle into daily planning (calendar, workouts, events).
+- Support URL: `https://iulianalagodka.github.io/Rhythma/`
+- Privacy Policy URL: `https://iulianalagodka.github.io/Rhythma/privacy.html`
+- No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - Copyright: © 2026 Iuliana Iagodka
-
-## App Store URLs
-
-Paste these in App Store Connect after GitHub Pages is live:
-
-### Support URL
-
-https://iulianaiagodka.github.io/Rhythma/
-
-Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/support.md
-
-### Privacy Policy URL
-
-https://iulianaiagodka.github.io/Rhythma/privacy.html
-
-Markdown copy: https://github.com/IulianaIagodka/Rhythma/blob/main/docs/privacy.md
-
-## Screenshots
-
-App Store Connect → iPhone **6.9" Display** (`1320 × 2868`).
-
-Files: `docs/screenshots/iphone-6.9/`
