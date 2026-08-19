@@ -547,7 +547,6 @@ export default function App() {
                 </>
               ) : null}
 
-              <Text style={[styles.sectionLabel, { color: theme.muted }]}>{t(language, 'paywallFreeSettings').toUpperCase()}</Text>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'periodForecast')}</Text>
