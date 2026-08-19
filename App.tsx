@@ -48,7 +48,6 @@ export default function App() {
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
-  const [paywallVisible, setPaywallVisible] = useState(false);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -172,7 +171,6 @@ export default function App() {
     onUnlock: useCallback(() => {
       persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
       if (data.settings.calendarSync) refreshCalendar(true);
-      setPaywallVisible(false);
     }, [data, persist, refreshCalendar]),
   });
 
@@ -461,22 +459,52 @@ export default function App() {
                   </View>
                 </View>
               ) : (
-                /* Free user — show paywall card */
-                <Pressable
-                  style={[styles.paywallCard, { backgroundColor: theme.card }]}
-                  onPress={() => setPaywallVisible(true)}
-                >
-                  <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.paywallIconStar, { color: theme.accent }]}>✦</Text>
+                /* Free user — inline Plus card in Settings */
+                <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
+                  <View style={styles.paywallInlineHeader}>
+                    <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
+                      <Text style={[styles.paywallIconStar, { color: theme.accent }]}>✦</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
+                      <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
+                    </View>
                   </View>
-                  <View style={styles.paywallCardBody}>
-                    <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
-                    <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
+                  <View style={styles.paywallInlineFeatures}>
+                    {(['paywallFeatureCalendar', 'paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const).map((key) => (
+                      <View key={key} style={styles.paywallInlineFeatureRow}>
+                        <Text style={[styles.paywallInlineCheck, { color: theme.accent }]}>✓</Text>
+                        <Text style={[styles.paywallInlineFeatureLabel, { color: theme.ink }]}>{t(language, key)}</Text>
+                      </View>
+                    ))}
                   </View>
-                  <View style={[styles.paywallArrow, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.paywallArrowText, { color: theme.accent }]}>›</Text>
-                  </View>
-                </Pressable>
+                  {iap.status === 'error' && iap.error ? (
+                    <Text style={[styles.paywallInlineError, { color: theme.accent }]}>{iap.error}</Text>
+                  ) : null}
+                  <Pressable
+                    style={[styles.paywallInlineBtn, { backgroundColor: theme.accent }, (iap.status === 'purchasing' || iap.status === 'restoring') && { opacity: 0.7 }]}
+                    onPress={iap.purchase}
+                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                  >
+                    <Text style={styles.paywallInlineBtnText}>
+                      {iap.status === 'purchasing'
+                        ? t(language, 'purchasingPlus')
+                        : iap.price
+                          ? `${t(language, 'getPlus')} · ${iap.price}`
+                          : t(language, 'getPlus')}
+                    </Text>
+                  </Pressable>
+                  <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallLifetime')}</Text>
+                  <Pressable
+                    onPress={iap.restore}
+                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                    hitSlop={12}
+                  >
+                    <Text style={[styles.paywallInlineRestore, { color: theme.muted }]}>
+                      {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
+                    </Text>
+                  </Pressable>
+                </View>
               )}
 
               {/* Plus feature rows — only shown when unlocked */}
@@ -645,17 +673,6 @@ export default function App() {
           onToggleDay(periodPrompt.iso);
           setPeriodPrompt(null);
         }}
-      />
-      <Paywall
-        visible={paywallVisible}
-        theme={theme}
-        language={language}
-        status={iap.status}
-        price={iap.price}
-        error={iap.error}
-        onPurchase={iap.purchase}
-        onRestore={iap.restore}
-        onClose={() => setPaywallVisible(false)}
       />
     </SafeAreaProvider>
   );
@@ -1012,13 +1029,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  paywallCard: {
+  paywallInline: {
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 8,
+    gap: 12,
+  },
+  paywallInlineHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 14,
-    padding: 14,
     gap: 12,
-    marginBottom: 8,
   },
   paywallIconWrap: {
     width: 44,
@@ -1030,9 +1050,6 @@ const styles = StyleSheet.create({
   paywallIconStar: {
     fontSize: 20,
   },
-  paywallCardBody: {
-    flex: 1,
-  },
   paywallCardTitle: {
     fontSize: 15,
     fontWeight: '700',
@@ -1041,17 +1058,49 @@ const styles = StyleSheet.create({
   paywallCardSub: {
     fontSize: 12,
   },
-  paywallArrow: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+  paywallInlineFeatures: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
-  paywallArrowText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: -1,
+  paywallInlineFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(233,30,140,0.08)',
+  },
+  paywallInlineCheck: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  paywallInlineFeatureLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  paywallInlineError: {
+    fontSize: 12,
+  },
+  paywallInlineBtn: {
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: 'center',
+  },
+  paywallInlineBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  paywallInlineLifetime: {
+    fontSize: 11,
+    textAlign: 'center',
+  },
+  paywallInlineRestore: {
+    fontSize: 12,
+    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   sectionLabel: {
     fontSize: 11,
