@@ -14,6 +14,12 @@
     "production": {
       "autoIncrement": true
     },
+    "testflight": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_PLAN_SWITCH": "1"
+      }
+    },
     "plus": {
       "extends": "production",
       "env": {
@@ -48,6 +54,12 @@
       }
     },
     "preview": {
+      "ios": {
+        "ascAppId": "6802549751",
+        "appleTeamId": "F8M552HN2V"
+      }
+    },
+    "testflight": {
       "ios": {
         "ascAppId": "6802549751",
         "appleTeamId": "F8M552HN2V"

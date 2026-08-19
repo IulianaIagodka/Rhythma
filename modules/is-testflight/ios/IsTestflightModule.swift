@@ -8,9 +8,11 @@ public class IsTestflightModule: Module {
       #if targetEnvironment(simulator)
       return false
       #else
-      let isSandboxReceipt = Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
-      let hasEmbeddedProvision = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil
-      return isSandboxReceipt && !hasEmbeddedProvision
+      guard let path = Bundle.main.appStoreReceiptURL?.path else {
+        return false
+      }
+      // TestFlight installs use a sandbox receipt path.
+      return path.contains("sandboxReceipt")
       #endif
     }
   }
