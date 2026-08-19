@@ -16,11 +16,11 @@ describe('access', () => {
     assert.equal(defaultSettings().accessTier, 'free');
   });
 
-  it('keeps calendar sync, event advice, and phase lists behind pro', () => {
+  it('keeps event advice and phase lists behind pro; calendar sync is free', () => {
     assert.equal(previewUnlockSource(), 'off');
     assert.equal(isPreviewUnlockEnabled(), false);
     assert.equal(canSwitchPlan(), false);
-    assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
+    assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
     assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
     assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
     assert.equal(hasFeatureAccess('free', 'phasePlanningLists'), false);
@@ -42,7 +42,7 @@ describe('access', () => {
       assert.equal(previewUnlockSource(), 'off');
       assert.equal(isPreviewUnlockEnabled(), false);
       assert.equal(effectiveAccessTier('free'), 'free');
-      assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
+      assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
       assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
     } finally {
       if (previousSwitch == null) delete process.env.EXPO_PUBLIC_PLAN_SWITCH;
@@ -59,7 +59,7 @@ describe('access', () => {
       assert.equal(previewUnlockSource(), 'off');
       assert.equal(isPreviewUnlockEnabled(), false);
       assert.equal(effectiveAccessTier('free'), 'free');
-      assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
+      assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
       assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
     } finally {
       setTestFlightOverrideForTests(null);

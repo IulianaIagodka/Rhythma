@@ -17,6 +17,7 @@
     "expo": "~57.0.14",
     "expo-calendar": "~57.0.2",
     "expo-haptics": "~57.0.1",
+    "expo-iap": "^5.3.1",
     "expo-localization": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "is-testflight": "file:./modules/is-testflight",

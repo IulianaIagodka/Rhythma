@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -162,6 +163,8 @@ export default function App() {
   const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
+
+
   const planLabel =
     unlockSource === 'dev'
       ? t(language, 'devPlan')
@@ -331,16 +334,6 @@ export default function App() {
                     ) : null}
                   </View>
                 </View>
-              ) : !hasEventLoadAdvice ? (
-                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                  <View style={styles.settingText}>
-                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
-                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                      {t(language, 'eventAdviceLocked')}
-                    </Text>
-                  </View>
-                  <PlusBadge theme={theme} language={language} />
-                </View>
               ) : null}
 
               {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
@@ -423,20 +416,14 @@ export default function App() {
           {tab === 'settings' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'settings')}</Text>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {planSwitcher
-                      ? t(language, 'planSwitchHint')
-                      : unlockSource === 'dev'
-                        ? t(language, 'devUnlockHint')
-                        : unlockSource === 'plus'
-                          ? t(language, 'plusUnlockHint')
-                          : t(language, 'proReadyHint')}
-                  </Text>
-                </View>
-                {planSwitcher ? (
+
+              {/* Plus paywall card — shown to free users; dev/switcher show normal plan row */}
+              {planSwitcher ? (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'planSwitchHint')}</Text>
+                  </View>
                   <PlanSwitch
                     value={storedTier}
                     theme={theme}
@@ -447,52 +434,77 @@ export default function App() {
                       else refreshCalendar(false);
                     }}
                   />
-                ) : (
+                </View>
+              ) : storedTier === 'pro' || unlockSource !== 'off' ? (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {unlockSource === 'dev' ? t(language, 'devUnlockHint') : unlockSource === 'plus' ? t(language, 'plusUnlockHint') : t(language, 'proReadyHint')}
+                    </Text>
+                  </View>
                   <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
                     <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
                   </View>
-                )}
-              </View>
+                </View>
+              ) : (
+                /* Free user — Coming soon card */
+                <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
+                  <View style={styles.paywallInlineHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
+                      <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.paywallInlineFeatures}>
+                    {(['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const).map((key) => (
+                      <View key={key} style={styles.paywallInlineFeatureRow}>
+                        <Text style={[styles.paywallInlineCheck, { color: theme.accent }]}>✓</Text>
+                        <Text style={[styles.paywallInlineFeatureLabel, { color: theme.ink }]}>{t(language, key)}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Calendar sync — free for everyone */}
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasCalendarSync
-                      ? calendarPermissionDenied
-                        ? t(language, 'calendarPermissionHint')
-                        : t(language, 'calendarDesc')
-                      : t(language, 'calendarSyncLocked')}
+                    {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
                   </Text>
                   {hasCalendarSync && !calendarPermissionDenied ? (
                     <Text style={[styles.settingMeta, { color: theme.muted }]}>
                       {t(language, 'calendarGoogleHint')}
                     </Text>
                   ) : null}
+                  <Pressable onPress={() => Linking.openURL('https://iulianaiagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
+                    <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
+                  </Pressable>
                 </View>
-                <View style={styles.settingControl}>
-                  {hasCalendarSync ? (
-                    <BrightSwitch
-                      value={data.settings.calendarSync}
-                      theme={theme}
-                      readyRef={switchesReady}
-                      onValueChange={(calendarSync) => {
-                        persist({ ...data, settings: { ...data.settings, calendarSync } });
-                        refreshCalendar(calendarSync);
-                      }}
-                    />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
+                <BrightSwitch
+                  value={data.settings.calendarSync}
+                  theme={theme}
+                  readyRef={switchesReady}
+                  onValueChange={(calendarSync) => {
+                    persist({ ...data, settings: { ...data.settings, calendarSync } });
+                    refreshCalendar(calendarSync);
+                  }}
+                />
               </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasEventLoadAdvice ? t(language, 'eventAdviceDesc') : t(language, 'eventAdviceLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasEventLoadAdvice ? (
+
+              {/* Plus feature rows — only shown when unlocked */}
+              {storedTier === 'pro' || unlockSource !== 'off' ? (
+                <>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'eventAdviceDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showEventAdvice}
                       theme={theme}
@@ -501,19 +513,12 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showEventAdvice } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhasePlanningLists ? t(language, 'phaseListsDesc') : t(language, 'proFeatureLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasPhasePlanningLists ? (
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'phaseListsDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showPhaseLists}
                       theme={theme}
@@ -522,19 +527,12 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasCycleRhythm ? t(language, 'cycleRhythmDesc') : t(language, 'cycleRhythmLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasCycleRhythm ? (
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'cycleRhythmDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showCycleRhythm}
                       theme={theme}
@@ -543,10 +541,10 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
+                  </View>
+                </>
+              ) : null}
+
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'periodForecast')}</Text>
@@ -960,6 +958,7 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
+  settingLink: { fontSize: 12, marginTop: 6 },
   planPill: {
     minWidth: 56,
     paddingHorizontal: 12,
@@ -971,6 +970,97 @@ const styles = StyleSheet.create({
   planPillText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  paywallInline: {
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 8,
+    gap: 12,
+  },
+  paywallInlineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  paywallIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paywallIconStar: {
+    fontSize: 20,
+  },
+  paywallCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  paywallCardSub: {
+    fontSize: 12,
+  },
+  paywallInlineFeatures: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  paywallInlineFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(233,30,140,0.08)',
+  },
+  paywallInlineCheck: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  paywallInlineFeatureLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  paywallInlineError: {
+    fontSize: 12,
+  },
+  paywallInlineBtn: {
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: 'center',
+  },
+  paywallInlineBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  paywallInlineLifetime: {
+    fontSize: 11,
+    textAlign: 'center',
+  },
+  paywallInlineRestore: {
+    fontSize: 12,
+    textDecorationLine: 'underline',
+    textAlign: 'center',
+  },
+  paywallComingSoonBadge: {
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  paywallComingSoonText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginTop: 8,
+    marginBottom: 4,
+    paddingHorizontal: 4,
   },
   planSwitch: {
     flexDirection: 'row',

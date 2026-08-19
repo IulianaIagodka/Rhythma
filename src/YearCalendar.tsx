@@ -63,22 +63,24 @@ function MonthGrid({
           const isPeriod = mark === 'period' || mark === 'periodForecast';
           const isOvulatory = mark === 'ovulatory';
           const fill = mark ? colors[mark] : undefined;
+          const todayNoMark = isToday && !mark;
           return (
             <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
               <View
                 style={[
                   styles.dayFill,
                   mark && fill ? { backgroundColor: fill } : null,
-                  isToday && { borderColor: theme.accent, borderWidth: 1.5 },
+                  todayNoMark ? { backgroundColor: theme.accent } : null,
+                  isToday && mark ? { borderColor: theme.accent, borderWidth: 1.5 } : null,
                 ]}
               >
                 <Text
                   style={[
                     styles.dayText,
                     { color: theme.muted },
-                    isPeriod && mark === 'period' && styles.dayPeriod,
-                    isOvulatory && styles.dayPeriod,
-                    isToday && { color: theme.accent, fontWeight: '700' },
+                    (isPeriod || isOvulatory) && styles.dayPeriod,
+                    todayNoMark && styles.dayPeriod,
+                    isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
                   ]}
                 >
                   {day}
