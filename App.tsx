@@ -13,6 +13,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
+import { useIAPPlus } from './src/useIAPPlus';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -164,6 +165,14 @@ export default function App() {
   const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
+
+  const iap = useIAPPlus({
+    onUnlock: useCallback(() => {
+      persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
+      if (data.settings.calendarSync) refreshCalendar(true);
+    }, [data, persist, refreshCalendar]),
+  });
+
   const planLabel =
     unlockSource === 'dev'
       ? t(language, 'devPlan')
@@ -427,7 +436,9 @@ export default function App() {
                         ? t(language, 'devUnlockHint')
                         : unlockSource === 'plus'
                           ? t(language, 'plusUnlockHint')
-                          : t(language, 'proReadyHint')}
+                          : iap.status === 'error' && iap.error
+                            ? iap.error
+                            : t(language, 'proReadyHint')}
                   </Text>
                 </View>
                 {planSwitcher ? (
@@ -441,9 +452,35 @@ export default function App() {
                       else refreshCalendar(false);
                     }}
                   />
-                ) : (
+                ) : storedTier === 'pro' || unlockSource !== 'off' ? (
                   <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
                     <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.iapButtons}>
+                    <Pressable
+                      style={[styles.iapBtn, { backgroundColor: theme.accent }]}
+                      onPress={iap.purchase}
+                      disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                    >
+                      <Text style={styles.iapBtnText}>
+                        {iap.status === 'purchasing'
+                          ? t(language, 'purchasingPlus')
+                          : iap.price
+                            ? `${t(language, 'getPlus')} · ${iap.price}`
+                            : t(language, 'getPlus')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={iap.restore}
+                      disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                    >
+                      <Text style={[styles.iapRestore, { color: theme.muted }]}>
+                        {iap.status === 'restoring'
+                          ? t(language, 'restoringPlus')
+                          : t(language, 'restorePurchase')}
+                      </Text>
+                    </Pressable>
                   </View>
                 )}
               </View>
@@ -991,6 +1028,25 @@ const styles = StyleSheet.create({
   planPillText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  iapButtons: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  iapBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    alignItems: 'center',
+  },
+  iapBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  iapRestore: {
+    fontSize: 11,
+    textDecorationLine: 'underline',
   },
   planSwitch: {
     flexDirection: 'row',

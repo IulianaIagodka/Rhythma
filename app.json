@@ -43,7 +43,8 @@
           "calendarPermission": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-iap"
     ],
     "extra": {
       "eas": {
