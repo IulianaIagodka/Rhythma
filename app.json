@@ -16,8 +16,8 @@
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCalendarsUsageDescription": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом.",
-        "NSCalendarsFullAccessUsageDescription": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом.",
+        "NSCalendarsUsageDescription": "Rhythma читає події з календаря, щоб звірити навантаження з циклом.",
+        "NSCalendarsFullAccessUsageDescription": "Rhythma читає події з календаря, щоб звірити навантаження з циклом.",
         "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma може додати позначку циклу в календар, якщо ви дозволите."
       }
     },
@@ -40,7 +40,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Rhythma читає події й тренування з календаря, щоб звірити навантаження з циклом."
+          "calendarPermission": "Rhythma читає події з календаря, щоб звірити навантаження з циклом."
         }
       ],
       "expo-localization"

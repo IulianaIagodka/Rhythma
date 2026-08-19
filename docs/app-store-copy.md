@@ -8,7 +8,7 @@ Track your cycle. Plan your week. Know when to push and when to rest.
 
 Your cycle affects your energy, focus, and performance every day. Rhythma helps you track it and plan around it — simply, privately, and without noise.
 
-Log your period in one tap. See your cycle day and phase on Today. Connect your iPhone calendar and see how your events and workouts land across your cycle.
+Log your period in one tap. See your cycle day and phase on Today. Connect your iPhone calendar and see how your events land across your cycle.
 
 ### LOG YOUR PERIOD IN ONE TAP
 Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm.
@@ -20,7 +20,7 @@ A clear annual calendar showing your recorded periods and predicted cycle days s
 Your data stays on your iPhone. No account required. No cloud sync. Rhythma never uploads your cycle data anywhere.
 
 ### SYNC YOUR CALENDAR — FREE
-Connect your iPhone calendar and see your events and workouts alongside your cycle. Turn it on in Settings and allow access when iOS asks.
+Connect your iPhone calendar and see your events alongside your cycle. Turn it on in Settings and allow access when iOS asks.
 
 ### RHYTHMA PLUS — COMING SOON
 Recommendations, phase tips, and energy curve. In-app purchase will be available in a future update.
@@ -36,7 +36,7 @@ Rhythma provides cycle estimates only. Its predictions are not medical advice an
 
 ### Promo Text
 
-Track your period, sync your calendar, and plan workouts and events around your cycle — simply and privately.
+Track your period, sync your calendar, and plan events around your cycle — simply and privately.
 
 ### Description
 
@@ -54,7 +54,7 @@ View a full year of your recorded and predicted cycle days in one clear calendar
 All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complexity.
 
 #### CALENDAR SYNC — FREE
-Connect your iPhone calendar to see events and workouts alongside your cycle.
+Connect your iPhone calendar to see events alongside your cycle.
 
 #### RHYTHMA PLUS — COMING SOON
 Recommendations, phase tips, and energy curve. Available in a future update.

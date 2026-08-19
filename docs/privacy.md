@@ -14,7 +14,7 @@ Period days, settings, and related cycle data are stored **on this iPhone only**
 
 ## Calendar
 
-If you turn on Plus calendar sync and grant permission, Rhythma reads calendar events and workouts on the device so they can be shown next to your cycle. That data stays on the iPhone. Rhythma does not send it to a server.
+If you turn on Plus calendar sync and grant permission, Rhythma reads calendar events on the device so they can be shown next to your cycle. That data stays on the iPhone. Rhythma does not send it to a server.
 
 ## Analytics and ads
 
@@ -46,7 +46,7 @@ Rhythma **не** створює акаунт і **не** надсилає дан
 
 ## Календар
 
-Якщо увімкнути синхронізацію календаря Plus і дати дозвіл, Rhythma читає події й тренування на пристрої, щоб показати їх поруч із циклом. Ці дані залишаються на iPhone. На сервер вони не відправляються.
+Якщо увімкнути синхронізацію календаря Plus і дати дозвіл, Rhythma читає події на пристрої, щоб показати їх поруч із циклом. Ці дані залишаються на iPhone. На сервер вони не відправляються.
 
 ## Аналітика й реклама
 

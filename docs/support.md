@@ -1,6 +1,6 @@
 # Rhythma Support
 
-Rhythma is a private cycle tracker for iPhone. Log your period, see it on week and year calendars, and sync your iPhone calendar to see events and workouts alongside your cycle.
+Rhythma is a private cycle tracker for iPhone. Log your period, see it on week and year calendars, and sync your iPhone calendar to see events alongside your cycle.
 
 It is **not** a fertility, ovulation, or medical app. Predictions are estimates only and must not be used as contraception.
 
@@ -22,7 +22,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 - Log the first day of your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days
 - Phase name on Today: Rest & release, Renew & rise, Peak & powerful, Turn inward
-- **Calendar sync** — connect your iPhone calendar to see events and workouts alongside your cycle
+- **Calendar sync** — connect your iPhone calendar to see events alongside your cycle
 - Optional ovulation marks on the calendars (off by default)
 - Light or dark appearance
 - English and Ukrainian, based on the iPhone language
@@ -76,7 +76,7 @@ Cycle data lives only on this iPhone. Deleting the app deletes that data. There 
 
 Your cycle data stays on this iPhone. Rhythma does not create an account and does not upload cycle data to a server.
 
-Calendar access is used only when you turn on Plus calendar sync. Rhythma reads events and workouts to show them next to your cycle. It does not send calendar data off the device.
+Calendar access is used only when you turn on Plus calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
 
 Full policy: [Privacy](privacy.md) · [HTML](privacy.html)
 
@@ -115,7 +115,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 - Позначити перший день місячних на Today або підтвердити дату в річному календарі
 - Тижневий і річний календарі для записаних і прогнозованих днів
 - Назва фази на Today: Rest & release, Renew & rise, Peak & powerful, Turn inward
-- **Синхронізація календаря** — підключіть календар iPhone, щоб бачити події й тренування поруч із циклом
+- **Синхронізація календаря** — підключіть календар iPhone, щоб бачити події поруч із циклом
 - За бажанням — позначки овуляції на календарях (за замовчуванням вимкнені)
 - Світла або темна тема
 - Англійська та українська — за мовою iPhone
@@ -163,7 +163,7 @@ Rhythma бере мову з iPhone (англійська або українс�
 
 Дані циклу залишаються на цьому iPhone. Rhythma не створює акаунт і не надсилає цикл на сервер.
 
-Доступ до календаря потрібен лише якщо увімкнути синхронізацію Plus. Rhythma читає події й тренування, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
+Доступ до календаря потрібен лише якщо увімкнути синхронізацію Plus. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
 
 Повна політика: [Privacy](privacy.md) · [HTML](privacy.html)
 

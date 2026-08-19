@@ -155,8 +155,6 @@ export default function App() {
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
-  const selectedWorkouts = selectedItems.filter((item) => item.kind === 'workout');
-  const selectedEvents = selectedItems.filter((item) => item.kind === 'event');
   const visibleAdvice = showAdvice
     ? adviseLoad(status.phase, calendarItems, language)
     : null;
@@ -292,7 +290,7 @@ export default function App() {
                               ]}
                             >
                               {[
-                                item.kind === 'workout' ? t(language, 'workouts') : t(language, 'events'),
+                                t(language, 'events'),
                                 activityFitLabel(status.phase, item.activity, language),
                               ]
                                 .filter(Boolean)
@@ -328,7 +326,7 @@ export default function App() {
                     <Text style={[styles.insightMeta, { color: theme.muted }]}>{visibleAdvice.note}</Text>
                     {calendarEnabled && calendarItems.length ? (
                       <Text style={[styles.insightCounts, { color: theme.muted }]}>
-                        {t(language, 'eventsToday', { events: selectedEvents.length, workouts: selectedWorkouts.length })}
+                        {t(language, 'eventsToday', { count: selectedItems.length })}
                       </Text>
                     ) : null}
                   </View>

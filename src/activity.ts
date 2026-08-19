@@ -10,7 +10,6 @@ export type LoadAdvice = {
   fit: Fit;
   busiestDay: string | null;
   events: number;
-  workouts: number;
 };
 
 export type Capacity = {
@@ -164,9 +163,8 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
 
 export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: Language): LoadAdvice {
   const capacity = capacityForPhase(phase, lang);
-  const workouts = items.filter((item) => item.activity !== 'event').length;
-  const intense = items.filter((item) => item.activity === 'intense').length;
   const events = items.length;
+  const intense = items.filter((item) => item.activity === 'intense').length;
   const byDay = new Map<string, number>();
   for (const item of items) {
     byDay.set(item.day, (byDay.get(item.day) ?? 0) + activityLoad(item.activity));
@@ -187,7 +185,6 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
       fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
       events: 0,
-      workouts: 0,
     };
   }
 
@@ -197,8 +194,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
 
   const counts =
     lang === 'uk'
-      ? `На цьому тижні ${events} под. / ${workouts} трен.`
-      : `This week has ${events} events / ${workouts} workouts`;
+      ? `На цьому тижні ${events} под.`
+      : `This week has ${events} events`;
 
   const note =
     fit === 'high'
@@ -219,7 +216,6 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     fit,
     busiestDay,
     events,
-    workouts,
   };
 }
 
