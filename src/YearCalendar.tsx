@@ -78,10 +78,9 @@ function MonthGrid({
                   style={[
                     styles.dayText,
                     { color: theme.muted },
-                    isPeriod && mark === 'period' && styles.dayPeriod,
-                    isOvulatory && styles.dayPeriod,
+                    (isPeriod || isOvulatory) && styles.dayPeriod,
                     todayNoMark && styles.dayPeriod,
-                    isToday && mark ? { color: theme.accent, fontWeight: '700' } : null,
+                    isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
                   ]}
                 >
                   {day}
