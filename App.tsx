@@ -484,7 +484,7 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
                   </Text>
-                  <Pressable onPress={() => Linking.openURL('https://iulianalagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
+                  <Pressable onPress={() => Linking.openURL('https://iulianaiagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
                     <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
                   </Pressable>
                 </View>
