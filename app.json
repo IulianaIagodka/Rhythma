@@ -12,7 +12,7 @@
       "backgroundColor": "#0D0012"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
