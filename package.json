@@ -19,6 +19,7 @@
     "expo-haptics": "~57.0.1",
     "expo-localization": "~57.0.1",
     "expo-status-bar": "~57.0.1",
+    "is-testflight": "file:./modules/is-testflight",
     "react": "19.2.3",
     "react-native": "0.86.2",
     "react-native-safe-area-context": "~5.7.0",
