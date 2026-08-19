@@ -95,7 +95,7 @@ export const copy = {
     phaseRecommendations: 'Рекомендації фази',
     phaseRecommendationsHint: 'Поради щодо сну, руху та планування',
     bestForPhase: 'Може підтримати зараз',
-    avoidThisPhase: 'Краще полегшити',
+    avoidThisPhase: 'Полегше з',
     featureOn: 'Увімкнено',
     periodStartTitle: 'Початок місячних',
     confirmAddPeriod: 'Додати початок місячних на {date}?',
