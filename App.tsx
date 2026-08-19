@@ -455,9 +455,6 @@ export default function App() {
                 /* Free user — Coming soon card */
                 <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
                   <View style={styles.paywallInlineHeader}>
-                    <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
-                      <Text style={[styles.paywallIconStar, { color: theme.accent }]}>✦</Text>
-                    </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
                       <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
