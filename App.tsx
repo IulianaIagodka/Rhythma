@@ -14,7 +14,6 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
-import { useIAPPlus } from './src/useIAPPlus';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -167,12 +166,6 @@ export default function App() {
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
-  const iap = useIAPPlus({
-    onUnlock: useCallback(() => {
-      persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
-      if (data.settings.calendarSync) refreshCalendar(true);
-    }, [data, persist, refreshCalendar]),
-  });
 
   const planLabel =
     unlockSource === 'dev'
