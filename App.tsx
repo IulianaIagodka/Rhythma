@@ -14,6 +14,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { useIAPPlus } from './src/useIAPPlus';
+import { Paywall } from './src/Paywall';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -47,6 +48,7 @@ export default function App() {
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
+  const [paywallVisible, setPaywallVisible] = useState(false);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -170,6 +172,7 @@ export default function App() {
     onUnlock: useCallback(() => {
       persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
       if (data.settings.calendarSync) refreshCalendar(true);
+      setPaywallVisible(false);
     }, [data, persist, refreshCalendar]),
   });
 
@@ -426,22 +429,14 @@ export default function App() {
           {tab === 'settings' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'settings')}</Text>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {planSwitcher
-                      ? t(language, 'planSwitchHint')
-                      : unlockSource === 'dev'
-                        ? t(language, 'devUnlockHint')
-                        : unlockSource === 'plus'
-                          ? t(language, 'plusUnlockHint')
-                          : iap.status === 'error' && iap.error
-                            ? iap.error
-                            : t(language, 'proReadyHint')}
-                  </Text>
-                </View>
-                {planSwitcher ? (
+
+              {/* Plus paywall card — shown to free users; dev/switcher show normal plan row */}
+              {planSwitcher ? (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'planSwitchHint')}</Text>
+                  </View>
                   <PlanSwitch
                     value={storedTier}
                     theme={theme}
@@ -452,51 +447,48 @@ export default function App() {
                       else refreshCalendar(false);
                     }}
                   />
-                ) : storedTier === 'pro' || unlockSource !== 'off' ? (
+                </View>
+              ) : storedTier === 'pro' || unlockSource !== 'off' ? (
+                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={styles.settingText}>
+                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'plan')}</Text>
+                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      {unlockSource === 'dev' ? t(language, 'devUnlockHint') : unlockSource === 'plus' ? t(language, 'plusUnlockHint') : t(language, 'proReadyHint')}
+                    </Text>
+                  </View>
                   <View style={[styles.planPill, { backgroundColor: theme.accentSoft }]}>
                     <Text style={[styles.planPillText, { color: theme.accent }]}>{planLabel}</Text>
                   </View>
-                ) : (
-                  <View style={styles.iapButtons}>
-                    <Pressable
-                      style={[styles.iapBtn, { backgroundColor: theme.accent }]}
-                      onPress={iap.purchase}
-                      disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
-                    >
-                      <Text style={styles.iapBtnText}>
-                        {iap.status === 'purchasing'
-                          ? t(language, 'purchasingPlus')
-                          : iap.price
-                            ? `${t(language, 'getPlus')} · ${iap.price}`
-                            : t(language, 'getPlus')}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={iap.restore}
-                      disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
-                    >
-                      <Text style={[styles.iapRestore, { color: theme.muted }]}>
-                        {iap.status === 'restoring'
-                          ? t(language, 'restoringPlus')
-                          : t(language, 'restorePurchase')}
-                      </Text>
-                    </Pressable>
-                  </View>
-                )}
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasCalendarSync
-                      ? calendarPermissionDenied
-                        ? t(language, 'calendarPermissionHint')
-                        : t(language, 'calendarDesc')
-                      : t(language, 'calendarSyncLocked')}
-                  </Text>
                 </View>
-                <View style={styles.settingControl}>
-                  {hasCalendarSync ? (
+              ) : (
+                /* Free user — show paywall card */
+                <Pressable
+                  style={[styles.paywallCard, { backgroundColor: theme.card }]}
+                  onPress={() => setPaywallVisible(true)}
+                >
+                  <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.paywallIconStar, { color: theme.accent }]}>✦</Text>
+                  </View>
+                  <View style={styles.paywallCardBody}>
+                    <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
+                    <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
+                  </View>
+                  <View style={[styles.paywallArrow, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.paywallArrowText, { color: theme.accent }]}>›</Text>
+                  </View>
+                </Pressable>
+              )}
+
+              {/* Plus feature rows — only shown when unlocked */}
+              {storedTier === 'pro' || unlockSource !== 'off' ? (
+                <>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                        {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
+                      </Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.calendarSync}
                       theme={theme}
@@ -506,19 +498,12 @@ export default function App() {
                         refreshCalendar(calendarSync);
                       }}
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasEventLoadAdvice ? t(language, 'eventAdviceDesc') : t(language, 'eventAdviceLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasEventLoadAdvice ? (
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'eventAdviceDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showEventAdvice}
                       theme={theme}
@@ -527,19 +512,12 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showEventAdvice } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasPhasePlanningLists ? t(language, 'phaseListsDesc') : t(language, 'proFeatureLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasPhasePlanningLists ? (
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'phaseListsDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showPhaseLists}
                       theme={theme}
@@ -548,19 +526,12 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
-              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {hasCycleRhythm ? t(language, 'cycleRhythmDesc') : t(language, 'cycleRhythmLocked')}
-                  </Text>
-                </View>
-                <View style={styles.settingControl}>
-                  {hasCycleRhythm ? (
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'cycleRhythm')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'cycleRhythmDesc')}</Text>
+                    </View>
                     <BrightSwitch
                       value={data.settings.showCycleRhythm}
                       theme={theme}
@@ -569,10 +540,11 @@ export default function App() {
                         persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
                       }
                     />
-                  ) : null}
-                  <PlusBadge theme={theme} language={language} />
-                </View>
-              </View>
+                  </View>
+                </>
+              ) : null}
+
+              <Text style={[styles.sectionLabel, { color: theme.muted }]}>{t(language, 'paywallFreeSettings').toUpperCase()}</Text>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'periodForecast')}</Text>
@@ -673,6 +645,17 @@ export default function App() {
           onToggleDay(periodPrompt.iso);
           setPeriodPrompt(null);
         }}
+      />
+      <Paywall
+        visible={paywallVisible}
+        theme={theme}
+        language={language}
+        status={iap.status}
+        price={iap.price}
+        error={iap.error}
+        onPurchase={iap.purchase}
+        onRestore={iap.restore}
+        onClose={() => setPaywallVisible(false)}
       />
     </SafeAreaProvider>
   );
@@ -1029,24 +1012,54 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  iapButtons: {
-    alignItems: 'flex-end',
-    gap: 6,
-  },
-  iapBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
+  paywallCard: {
+    flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+    marginBottom: 8,
   },
-  iapBtnText: {
-    fontSize: 13,
+  paywallIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paywallIconStar: {
+    fontSize: 20,
+  },
+  paywallCardBody: {
+    flex: 1,
+  },
+  paywallCardTitle: {
+    fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    marginBottom: 2,
   },
-  iapRestore: {
+  paywallCardSub: {
+    fontSize: 12,
+  },
+  paywallArrow: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paywallArrowText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: -1,
+  },
+  sectionLabel: {
     fontSize: 11,
-    textDecorationLine: 'underline',
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginTop: 8,
+    marginBottom: 4,
+    paddingHorizontal: 4,
   },
   planSwitch: {
     flexDirection: 'row',
