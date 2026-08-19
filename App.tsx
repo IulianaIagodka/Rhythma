@@ -459,7 +459,7 @@ export default function App() {
                   </View>
                 </View>
               ) : (
-                /* Free user — Coming soon card */
+                /* Free user — full IAP purchase card */
                 <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
                   <View style={styles.paywallInlineHeader}>
                     <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
@@ -478,9 +478,32 @@ export default function App() {
                       </View>
                     ))}
                   </View>
-                  <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
-                  </View>
+                  {iap.status === 'error' && iap.error ? (
+                    <Text style={[styles.paywallInlineError, { color: theme.accent }]}>{iap.error}</Text>
+                  ) : null}
+                  <Pressable
+                    style={[styles.paywallInlineBtn, { backgroundColor: theme.accent }, (iap.status === 'purchasing' || iap.status === 'restoring') && { opacity: 0.7 }]}
+                    onPress={iap.purchase}
+                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                  >
+                    <Text style={styles.paywallInlineBtnText}>
+                      {iap.status === 'purchasing'
+                        ? t(language, 'purchasingPlus')
+                        : iap.price
+                          ? `${t(language, 'getPlus')} · ${iap.price}`
+                          : t(language, 'getPlus')}
+                    </Text>
+                  </Pressable>
+                  <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallLifetime')}</Text>
+                  <Pressable
+                    onPress={iap.restore}
+                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+                    hitSlop={12}
+                  >
+                    <Text style={[styles.paywallInlineRestore, { color: theme.muted }]}>
+                      {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
+                    </Text>
+                  </Pressable>
                 </View>
               )}
 
