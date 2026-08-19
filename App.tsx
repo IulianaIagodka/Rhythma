@@ -333,16 +333,6 @@ export default function App() {
                     ) : null}
                   </View>
                 </View>
-              ) : !hasEventLoadAdvice ? (
-                <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                  <View style={styles.settingText}>
-                    <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
-                    <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                      {t(language, 'eventAdviceLocked')}
-                    </Text>
-                  </View>
-                  <PlusBadge theme={theme} language={language} />
-                </View>
               ) : null}
 
               {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
