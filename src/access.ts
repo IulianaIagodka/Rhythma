@@ -1,3 +1,5 @@
+import { isTestFlightRuntime } from './testflight';
+
 export type AccessTier = 'free' | 'pro';
 
 export type PreviewUnlockSource = 'off' | 'dev' | 'plus';
@@ -34,7 +36,7 @@ function isDevRuntime(): boolean {
 }
 
 export function canSwitchPlan(): boolean {
-  return hasPlanSwitchEnv() || isDevRuntime();
+  return hasPlanSwitchEnv() || isDevRuntime() || isTestFlightRuntime();
 }
 
 export function previewUnlockSource(): PreviewUnlockSource {

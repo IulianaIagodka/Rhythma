@@ -9,6 +9,7 @@ import {
   previewUnlockSource,
 } from './access';
 import { defaultSettings } from './cycle';
+import { setTestFlightOverrideForTests } from './testflight';
 
 describe('access', () => {
   it('defaults new users to the free tier', () => {
@@ -48,6 +49,20 @@ describe('access', () => {
       else process.env.EXPO_PUBLIC_PLAN_SWITCH = previousSwitch;
       if (previousUnlock == null) delete process.env.EXPO_PUBLIC_UNLOCK_PRO;
       else process.env.EXPO_PUBLIC_UNLOCK_PRO = previousUnlock;
+    }
+  });
+
+  it('enables plan switch on TestFlight builds', () => {
+    setTestFlightOverrideForTests(true);
+    try {
+      assert.equal(canSwitchPlan(), true);
+      assert.equal(previewUnlockSource(), 'off');
+      assert.equal(isPreviewUnlockEnabled(), false);
+      assert.equal(effectiveAccessTier('free'), 'free');
+      assert.equal(hasFeatureAccess('free', 'calendarSync'), false);
+      assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
+    } finally {
+      setTestFlightOverrideForTests(null);
     }
   });
 

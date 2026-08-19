@@ -23,9 +23,9 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Builds
 
-- `production` — Free TestFlight / App Store. Plus features stay locked.
+- `production` — TestFlight / App Store. TestFlight installs get a Free / Plus switch in Settings; App Store builds stay on Free until Plus is purchased.
 - `plus` — TestFlight preview with Plus unlocked.
-- `preview` — TestFlight build with a Free / Plus switch in Settings.
+- `preview` — internal build with an explicit Free / Plus switch (same toggle as TestFlight, via env).
 - `internal` — installable from a phone link, without TestFlight. Register the iPhone first with `eas device:create`.
 - Local Expo (`__DEV__`) also shows the Free / Plus switch.
 
