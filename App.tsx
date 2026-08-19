@@ -15,7 +15,6 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { useIAPPlus } from './src/useIAPPlus';
-import { Paywall } from './src/Paywall';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -460,7 +459,7 @@ export default function App() {
                   </View>
                 </View>
               ) : (
-                /* Free user — inline Plus card in Settings */
+                /* Free user — Coming soon card */
                 <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
                   <View style={styles.paywallInlineHeader}>
                     <View style={[styles.paywallIconWrap, { backgroundColor: theme.accentSoft }]}>
@@ -472,65 +471,44 @@ export default function App() {
                     </View>
                   </View>
                   <View style={styles.paywallInlineFeatures}>
-                    {(['paywallFeatureCalendar', 'paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const).map((key) => (
+                    {(['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const).map((key) => (
                       <View key={key} style={styles.paywallInlineFeatureRow}>
                         <Text style={[styles.paywallInlineCheck, { color: theme.accent }]}>✓</Text>
                         <Text style={[styles.paywallInlineFeatureLabel, { color: theme.ink }]}>{t(language, key)}</Text>
                       </View>
                     ))}
                   </View>
-                  {iap.status === 'error' && iap.error ? (
-                    <Text style={[styles.paywallInlineError, { color: theme.accent }]}>{iap.error}</Text>
-                  ) : null}
-                  <Pressable
-                    style={[styles.paywallInlineBtn, { backgroundColor: theme.accent }, (iap.status === 'purchasing' || iap.status === 'restoring') && { opacity: 0.7 }]}
-                    onPress={iap.purchase}
-                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
-                  >
-                    <Text style={styles.paywallInlineBtnText}>
-                      {iap.status === 'purchasing'
-                        ? t(language, 'purchasingPlus')
-                        : iap.price
-                          ? `${t(language, 'getPlus')} · ${iap.price}`
-                          : t(language, 'getPlus')}
-                    </Text>
-                  </Pressable>
-                  <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallLifetime')}</Text>
-                  <Pressable
-                    onPress={iap.restore}
-                    disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
-                    hitSlop={12}
-                  >
-                    <Text style={[styles.paywallInlineRestore, { color: theme.muted }]}>
-                      {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
-                    </Text>
-                  </Pressable>
+                  <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
+                    <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
+                  </View>
                 </View>
               )}
+
+              {/* Calendar sync — free for everyone */}
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
+                  </Text>
+                  <Pressable onPress={() => Linking.openURL('https://iulianalagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
+                    <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
+                  </Pressable>
+                </View>
+                <BrightSwitch
+                  value={data.settings.calendarSync}
+                  theme={theme}
+                  readyRef={switchesReady}
+                  onValueChange={(calendarSync) => {
+                    persist({ ...data, settings: { ...data.settings, calendarSync } });
+                    refreshCalendar(calendarSync);
+                  }}
+                />
+              </View>
 
               {/* Plus feature rows — only shown when unlocked */}
               {storedTier === 'pro' || unlockSource !== 'off' ? (
                 <>
-                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                    <View style={styles.settingText}>
-                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
-                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                        {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
-                      </Text>
-                      <Pressable onPress={() => Linking.openURL('https://iulianalagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
-                        <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
-                      </Pressable>
-                    </View>
-                    <BrightSwitch
-                      value={data.settings.calendarSync}
-                      theme={theme}
-                      readyRef={switchesReady}
-                      onValueChange={(calendarSync) => {
-                        persist({ ...data, settings: { ...data.settings, calendarSync } });
-                        refreshCalendar(calendarSync);
-                      }}
-                    />
-                  </View>
                   <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                     <View style={styles.settingText}>
                       <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
@@ -1106,6 +1084,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textDecorationLine: 'underline',
     textAlign: 'center',
+  },
+  paywallComingSoonBadge: {
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  paywallComingSoonText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   sectionLabel: {
     fontSize: 11,
