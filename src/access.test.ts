@@ -5,6 +5,7 @@ import {
   canSwitchPlan,
   effectiveAccessTier,
   hasFeatureAccess,
+  isIapPlusEnabled,
   isPreviewUnlockEnabled,
   previewUnlockSource,
 } from './access';
@@ -63,6 +64,17 @@ describe('access', () => {
       assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
     } finally {
       setTestFlightOverrideForTests(null);
+    }
+  });
+
+  it('enables Plus purchase UI when the IAP feature flag is on', () => {
+    const previous = process.env.EXPO_PUBLIC_IAP_PLUS;
+    process.env.EXPO_PUBLIC_IAP_PLUS = '1';
+    try {
+      assert.equal(isIapPlusEnabled(), true);
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_IAP_PLUS;
+      else process.env.EXPO_PUBLIC_IAP_PLUS = previous;
     }
   });
 

@@ -17,7 +17,7 @@
     "plus": {
       "extends": "production",
       "env": {
-        "EXPO_PUBLIC_UNLOCK_PRO": "1"
+        "EXPO_PUBLIC_IAP_PLUS": "1"
       }
     },
     "preview": {

@@ -14,6 +14,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
+import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
@@ -448,26 +449,14 @@ export default function App() {
                   </View>
                 </View>
               ) : (
-                /* Free user — Coming soon card */
-                <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
-                  <View style={styles.paywallInlineHeader}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
-                      <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.paywallInlineFeatures}>
-                    {(['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const).map((key) => (
-                      <View key={key} style={styles.paywallInlineFeatureRow}>
-                        <Text style={[styles.paywallInlineCheck, { color: theme.accent }]}>✓</Text>
-                        <Text style={[styles.paywallInlineFeatureLabel, { color: theme.ink }]}>{t(language, key)}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
-                    <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
-                  </View>
-                </View>
+                <PlusFreeCard
+                  theme={theme}
+                  language={language}
+                  onUnlock={() => {
+                    persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
+                    if (data.settings.calendarSync) refreshCalendar(true);
+                  }}
+                />
               )}
 
               {/* Calendar sync — free for everyone */}

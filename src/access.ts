@@ -31,6 +31,10 @@ function hasUnlockEnv(): boolean {
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_UNLOCK_PRO === '1';
 }
 
+function hasIapPlusEnv(): boolean {
+  return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_IAP_PLUS === '1';
+}
+
 function isDevRuntime(): boolean {
   return (globalThis as { __DEV__?: boolean }).__DEV__ === true;
 }
@@ -47,6 +51,10 @@ export function previewUnlockSource(): PreviewUnlockSource {
 
 export function isPreviewUnlockEnabled(): boolean {
   return previewUnlockSource() !== 'off';
+}
+
+export function isIapPlusEnabled(): boolean {
+  return hasIapPlusEnv();
 }
 
 export function effectiveAccessTier(stored: AccessTier): AccessTier {
