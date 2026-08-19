@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -516,6 +517,9 @@ export default function App() {
                       <Text style={[styles.settingMeta, { color: theme.muted }]}>
                         {calendarPermissionDenied ? t(language, 'calendarPermissionHint') : t(language, 'calendarDesc')}
                       </Text>
+                      <Pressable onPress={() => Linking.openURL('https://iulianalagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
+                        <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
+                      </Pressable>
                     </View>
                     <BrightSwitch
                       value={data.settings.calendarSync}
@@ -1017,6 +1021,7 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
+  settingLink: { fontSize: 12, marginTop: 6 },
   planPill: {
     minWidth: 56,
     paddingHorizontal: 12,
