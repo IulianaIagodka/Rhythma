@@ -19,15 +19,11 @@ A clear annual calendar showing your recorded periods and predicted cycle days s
 ### PRIVATE BY DESIGN
 Your data stays on your iPhone. No account required. No cloud sync. Rhythma never uploads your cycle data anywhere.
 
-### RHYTHMA PLUS — ONE-TIME PURCHASE, LIFETIME ACCESS
-Upgrade once, unlock everything:
+### SYNC YOUR CALENDAR — FREE
+Connect your iPhone calendar and see your events and workouts alongside your cycle. Turn it on in Settings and allow access when iOS asks.
 
-- **Calendar sync** — see your events and workouts from iPhone Calendar alongside your cycle
-- **Recommendations** — advice on whether this week's schedule fits your phase
-- **Phase tips** — what may support you now, and what to take it easy with
-- **Energy curve** — a compact four-phase energy map next to your cycle day
-
-Purchase in Settings → Rhythma Plus.
+### RHYTHMA PLUS — COMING SOON
+Recommendations, phase tips, and energy curve. In-app purchase will be available in a future update.
 
 ### PERSONALISE YOUR EXPERIENCE
 Choose light, dark, or system appearance. Available in English and Ukrainian.
@@ -57,8 +53,11 @@ View a full year of your recorded and predicted cycle days in one clear calendar
 #### PRIVATE PERIOD TRACKER
 All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complexity.
 
-#### RHYTHMA PLUS — LIFETIME ACCESS
-One-time purchase. Unlocks calendar sync, recommendations, phase tips, and energy curve.
+#### CALENDAR SYNC — FREE
+Connect your iPhone calendar to see events and workouts alongside your cycle.
+
+#### RHYTHMA PLUS — COMING SOON
+Recommendations, phase tips, and energy curve. Available in a future update.
 
 #### LIGHT, DARK, OR SYSTEM MODE
 Personalise your appearance. Available in English and Ukrainian.
