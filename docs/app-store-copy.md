@@ -87,7 +87,7 @@ period tracker, cycle tracker, cycle calendar, period log, cycle planner, workou
 
 - Current App Store Connect app ID: `6802549751`
 - Bundle ID: `app.rhythma.cycle`
-- Support URL: `https://iulianalagodka.github.io/Rhythma/`
-- Privacy Policy URL: `https://iulianalagodka.github.io/Rhythma/privacy.html`
+- Support URL: `https://iulianaiagodka.github.io/Rhythma/`
+- Privacy Policy URL: `https://iulianaiagodka.github.io/Rhythma/privacy.html`
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - Copyright: © 2026 Iuliana Iagodka
