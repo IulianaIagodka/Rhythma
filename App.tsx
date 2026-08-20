@@ -435,12 +435,9 @@ export default function App() {
                     </Text>
                   </Pressable>
                   {data.settings.phaseListsExpanded ? (
-                    <TipGroup
-                      title={t(language, 'bestForPhase')}
-                      items={phasePlan.best}
-                      titleColor={theme.ink}
-                      textColor={theme.muted}
-                    />
+                    <Text style={[styles.tipGroupItems, { color: theme.muted }]}>
+                      {phasePlan.best.join(' · ')}
+                    </Text>
                   ) : null}
                 </View>
               ) : null}
@@ -666,26 +663,6 @@ export default function App() {
         }}
       />
     </SafeAreaProvider>
-  );
-}
-
-function TipGroup({
-  title,
-  items,
-  titleColor,
-  textColor,
-}: {
-  title: string;
-  items: string[];
-  titleColor: string;
-  textColor: string;
-}) {
-  if (!items.length) return null;
-  return (
-    <View style={styles.tipGroup}>
-      <Text style={[styles.tipGroupTitle, { color: titleColor }]}>{title}</Text>
-      <Text style={[styles.tipGroupItems, { color: textColor }]}>{items.join(' · ')}</Text>
-    </View>
   );
 }
 
@@ -924,13 +901,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     lineHeight: 22,
-  },
-  tipGroup: {
-    gap: 6,
-  },
-  tipGroupTitle: {
-    fontSize: 15,
-    fontWeight: '600',
   },
   tipGroupItems: {
     fontSize: 14,
