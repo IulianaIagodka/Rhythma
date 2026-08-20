@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
   averageCycleLength,
+  cycleDayOnDate,
   cycleStatus,
   DEFAULT_CYCLE_LENGTH,
   defaultSettings,
@@ -32,6 +33,7 @@ describe('defaultSettings', () => {
     assert.equal(settings.showPhaseLists, true);
     assert.equal(settings.phaseListsExpanded, false);
     assert.equal(settings.showCycleRhythm, true);
+    assert.equal(settings.showCalendarEvents, true);
     assert.equal(settings.themeMode, 'dark');
   });
 });
@@ -117,6 +119,17 @@ describe('cycleStatus', () => {
     const status = cycleStatus('2026-08-03', ['2026-08-01'], defaultSettings());
     assert.equal(status.inPeriod, true);
     assert.equal(status.phase, 'menstrual');
+  });
+});
+
+describe('cycleDayOnDate', () => {
+  it('returns the cycle day for an arbitrary date', () => {
+    assert.equal(cycleDayOnDate('2026-08-10', ['2026-08-01'], defaultSettings()), 10);
+    assert.equal(cycleDayOnDate('2026-07-20', ['2026-08-01'], defaultSettings()), null);
+  });
+
+  it('wraps past the cycle length when forecast is on', () => {
+    assert.equal(cycleDayOnDate('2026-09-05', ['2026-08-01'], defaultSettings()), 8);
   });
 });
 

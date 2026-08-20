@@ -25,9 +25,9 @@ async function ensurePermission(): Promise<PermissionResponse> {
   return requestCalendarPermissions();
 }
 
-export async function loadWeekItems(
-  weekStart: string,
-  weekEnd: string,
+export async function loadCalendarItems(
+  rangeStart: string,
+  rangeEnd: string,
   lang: Language,
 ): Promise<CalendarLoadResult> {
   try {
@@ -50,15 +50,19 @@ export async function loadWeekItems(
       };
     }
 
-    const start = new Date(`${weekStart}T00:00:00`);
-    const end = new Date(`${weekEnd}T23:59:59`);
+    const start = new Date(`${rangeStart}T00:00:00`);
+    const end = new Date(`${rangeEnd}T23:59:59`);
     const events = await listEvents(calendars, start, end);
 
-    const items = itemsFromCalendarEvents(events, weekStart, weekEnd, lang);
+    const items = itemsFromCalendarEvents(events, rangeStart, rangeEnd, lang);
 
     return {
       items,
-      error: items.length ? null : (lang === 'uk' ? 'Подій на цьому тижні немає.' : 'No events found this week.'),
+      error: items.length
+        ? null
+        : lang === 'uk'
+          ? 'Подій у цьому діапазоні немає.'
+          : 'No events found in this range.',
       permissionDenied: false,
     };
   } catch (err) {
@@ -69,4 +73,12 @@ export async function loadWeekItems(
       permissionDenied: false,
     };
   }
+}
+
+export async function loadWeekItems(
+  weekStart: string,
+  weekEnd: string,
+  lang: Language,
+): Promise<CalendarLoadResult> {
+  return loadCalendarItems(weekStart, weekEnd, lang);
 }

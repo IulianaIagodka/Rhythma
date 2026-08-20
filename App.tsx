@@ -16,8 +16,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel, planningForPhase } from './src/activity';
-import { loadWeekItems, type CalendarItem } from './src/calendar';
+import { loadCalendarItems, loadWeekItems, type CalendarItem } from './src/calendar';
 import {
+  cycleDayOnDate,
   cycleStatus,
   daysUntilNextPeriod,
   marksForYear,
@@ -31,6 +32,7 @@ import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
+import { DayDetailSheet } from './src/DayDetailSheet';
 import { detectLanguage, t, type Language } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
@@ -44,10 +46,12 @@ export default function App() {
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [data, setData] = useState<StoredData | null>(null);
   const [items, setItems] = useState<CalendarItem[]>([]);
+  const [yearItems, setYearItems] = useState<CalendarItem[]>([]);
   const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
+  const [inspectedDay, setInspectedDay] = useState<string | null>(null);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -76,6 +80,7 @@ export default function App() {
   const refreshCalendar = useCallback(async (enabled: boolean) => {
     if (!enabled) {
       setItems([]);
+      setYearItems([]);
       setCalendarError(null);
       setCalendarPermissionDenied(false);
       return;
@@ -85,12 +90,30 @@ export default function App() {
     setItems(result.items);
     setCalendarError(result.error);
     setCalendarPermissionDenied(result.permissionDenied);
-  }, []);
+  }, [language]);
+
+  const refreshYearEvents = useCallback(async (enabled: boolean, targetYear: number) => {
+    if (!enabled) {
+      setYearItems([]);
+      return;
+    }
+    const result = await loadCalendarItems(`${targetYear}-01-01`, `${targetYear}-12-31`, language);
+    setYearItems(result.items);
+    if (result.permissionDenied) setCalendarPermissionDenied(true);
+  }, [language]);
 
   useEffect(() => {
     const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
     refreshCalendar(Boolean(canSync && data?.settings.calendarSync));
   }, [data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar]);
+
+  useEffect(() => {
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (tab === 'year' && enabled) {
+      refreshYearEvents(true, year);
+    }
+  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshYearEvents]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -104,13 +127,10 @@ export default function App() {
     [data, persist],
   );
 
-  const onCalendarDayPress = useCallback(
-    (iso: string) => {
-      if (!data) return;
-      setPeriodPrompt({ iso, kind: periodPromptForDate(data.periodStarts, iso) });
-    },
-    [data],
-  );
+  const onCalendarDayPress = useCallback((iso: string) => {
+    Haptics.selectionAsync().catch(() => {});
+    setInspectedDay(iso);
+  }, []);
 
   const onFirstDay = useCallback(() => {
     if (!data) return;
@@ -153,10 +173,23 @@ export default function App() {
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
+  const showCalendarEvents = calendarEnabled && data.settings.showCalendarEvents;
   const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
+  const yearEventDays = showCalendarEvents
+    ? new Set(yearItems.map((item) => item.day))
+    : undefined;
+  const inspectedItems = inspectedDay
+    ? yearItems.filter((item) => item.day === inspectedDay)
+    : [];
+  const inspectedCycleDay = inspectedDay
+    ? cycleDayOnDate(inspectedDay, data.periodStarts, data.settings)
+    : null;
+  const inspectedPeriodKind = inspectedDay
+    ? periodPromptForDate(data.periodStarts, inspectedDay)
+    : 'add';
   const visibleAdvice = showAdvice
     ? calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
@@ -198,10 +231,34 @@ export default function App() {
                 <Text style={[styles.yearNavBtn, { color: theme.muted }]}>›</Text>
               </Pressable>
             </View>
+            {calendarEnabled ? (
+              <View style={[styles.yearEventsToggle, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'showCalendarEvents')}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'showCalendarEventsDesc')}
+                  </Text>
+                </View>
+                <BrightSwitch
+                  value={data.settings.showCalendarEvents}
+                  theme={theme}
+                  readyRef={switchesReady}
+                  onValueChange={(showCalendarEventsValue) =>
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, showCalendarEvents: showCalendarEventsValue },
+                    })
+                  }
+                />
+              </View>
+            ) : null}
             <YearCalendar
               year={year}
               today={today}
               marks={marks}
+              eventDays={yearEventDays}
               theme={theme}
               language={language}
               onPressDay={onCalendarDayPress}
@@ -303,7 +360,7 @@ export default function App() {
                   language={language}
                   items={calendarItems}
                   selectedDay={selectedDay}
-                  showCalendarLoad={calendarEnabled}
+                  showCalendarLoad={showCalendarEvents}
                   onSelectDay={setSelectedDay}
                 />
               </View>
@@ -609,6 +666,34 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <DayDetailSheet
+        visible={inspectedDay != null}
+        theme={theme}
+        title={inspectedDay ? formatSelectedDayTitle(inspectedDay, language) : ''}
+        cycleLine={
+          inspectedCycleDay != null
+            ? t(language, 'dayDetailCycleDay', { day: String(inspectedCycleDay) })
+            : t(language, 'dayDetailNoCycle')
+        }
+        eventsLabel={t(language, 'dayDetailEvents')}
+        events={calendarEnabled ? inspectedItems : []}
+        emptyEventsLabel={
+          calendarEnabled ? t(language, 'dayDetailNoEvents') : t(language, 'dayDetailEnableSync')
+        }
+        periodActionLabel={
+          inspectedPeriodKind === 'remove'
+            ? t(language, 'removePeriodStart')
+            : t(language, 'markPeriodStart')
+        }
+        closeLabel={t(language, 'rhythmClose')}
+        onClose={() => setInspectedDay(null)}
+        onPeriodAction={() => {
+          if (!inspectedDay) return;
+          const iso = inspectedDay;
+          setInspectedDay(null);
+          setPeriodPrompt({ iso, kind: periodPromptForDate(data.periodStarts, iso) });
+        }}
+      />
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
@@ -936,6 +1021,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 24,
     marginBottom: 8,
+  },
+  yearEventsToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 10,
   },
   yearNavBtn: { fontSize: 28, fontWeight: '300' },
   yearLabel: { fontSize: 18, fontWeight: '600' },

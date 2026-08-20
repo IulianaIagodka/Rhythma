@@ -16,6 +16,7 @@ export type Settings = {
   showPhaseLists: boolean;
   phaseListsExpanded: boolean;
   showCycleRhythm: boolean;
+  showCalendarEvents: boolean;
   periodLength: number;
   lutealLength: number;
   themeMode: 'light' | 'dark';
@@ -51,6 +52,7 @@ export function defaultSettings(): Settings {
     showPhaseLists: true,
     phaseListsExpanded: false,
     showCycleRhythm: true,
+    showCalendarEvents: true,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'dark',
@@ -280,7 +282,7 @@ export function phaseIdForCycleDay(
   return 'luteal';
 }
 
-export function phaseOnDate(iso: string, starts: string[], settings: Settings): PhaseId | null {
+export function cycleDayOnDate(iso: string, starts: string[], settings: Settings): number | null {
   const sorted = sortedUnique(starts);
   if (!sorted.length || iso < sorted[0]) return null;
   const startIndex = sorted.reduce((found, value, index) => (value <= iso ? index : found), -1);
@@ -289,9 +291,17 @@ export function phaseOnDate(iso: string, starts: string[], settings: Settings): 
   const nextLogged = sorted[startIndex + 1];
   const cycleLength = averageCycleLength(sorted);
   let cycleDay = diffDays(start, iso) + 1;
+  if (cycleDay < 1) return null;
   if (settings.showForecast && nextLogged == null && cycleDay > cycleLength) {
     cycleDay = ((cycleDay - 1) % cycleLength) + 1;
   }
+  return cycleDay;
+}
+
+export function phaseOnDate(iso: string, starts: string[], settings: Settings): PhaseId | null {
+  const cycleDay = cycleDayOnDate(iso, starts, settings);
+  if (cycleDay == null) return null;
+  const cycleLength = averageCycleLength(starts);
   return phaseIdForCycleDay(cycleDay, cycleLength, settings);
 }
 

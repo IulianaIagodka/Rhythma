@@ -22,6 +22,7 @@ type YearCalendarProps = {
   year: number;
   today: string;
   marks: Map<string, DayMark>;
+  eventDays?: Set<string>;
   theme: Theme;
   language: Language;
   onPressDay: (iso: string) => void;
@@ -53,6 +54,7 @@ function MonthGrid({
   monthIndex,
   today,
   marks,
+  eventDays,
   theme,
   language,
   onPressDay,
@@ -81,6 +83,7 @@ function MonthGrid({
             }
             const iso = monthISO(year, monthIndex, day);
             const mark = marks.get(iso);
+            const hasEvent = Boolean(eventDays?.has(iso));
             const isToday = iso === today;
             const isPeriod = mark === 'period' || mark === 'periodForecast';
             const isOvulatory = mark === 'ovulatory';
@@ -112,6 +115,16 @@ function MonthGrid({
                   >
                     {day}
                   </Text>
+                  {hasEvent ? (
+                    <View
+                      style={[
+                        styles.eventDot,
+                        {
+                          backgroundColor: isPeriod || isOvulatory || todayNoMark ? '#FFFFFF' : theme.teal,
+                        },
+                      ]}
+                    />
+                  ) : null}
                 </View>
               </Pressable>
             );
@@ -212,6 +225,13 @@ const styles = StyleSheet.create({
   dayFill: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  eventDot: {
+    position: 'absolute',
+    bottom: 3,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   dayText: {
     fontWeight: '600',
