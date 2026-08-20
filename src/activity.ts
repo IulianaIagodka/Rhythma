@@ -208,8 +208,14 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
 
   return {
-    title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : capacity.label,
-    note: busiestDay ? '' : joinAdviceParts([capacity.hint, capacity.calendarHint]),
+    title: busiestDay
+      ? lang === 'uk'
+        ? `${capitalize(busiestDay)} — ваш найнасиченіший день`
+        : `${capitalize(busiestDay)} is your busiest day`
+      : capacity.label,
+    note: busiestDay
+      ? reviewBusiestDayNote(busiestDay, lang)
+      : joinAdviceParts([capacity.hint, capacity.calendarHint]),
     fit,
     busiestDay,
     busiestDayISO,

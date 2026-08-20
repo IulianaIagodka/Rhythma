@@ -64,7 +64,7 @@ describe('adviseLoad', () => {
       item('3', 'HIIT', '2026-08-20', 'intense'),
     ], 'uk');
     assert.equal(heavy.fit, 'high');
-    assert.match(heavy.title, /Перегляньте плани/);
+    assert.match(heavy.note, /Перегляньте плани/);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -72,7 +72,7 @@ describe('adviseLoad', () => {
       item('3', 'Плавання', '2026-08-20', 'swim'),
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
-    assert.match(gentle.title, /Перегляньте плани/);
+    assert.match(gentle.note, /Перегляньте плани/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
@@ -87,8 +87,8 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
-    assert.equal(advice.title, "Review your Sunday's plans");
-    assert.equal(advice.note, '');
+    assert.equal(advice.title, 'Sunday is your busiest day');
+    assert.equal(advice.note, "Review your Sunday's plans");
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 
@@ -97,8 +97,8 @@ describe('adviseLoad', () => {
       item('1', 'Масаж', '2026-08-23', 'massage'),
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
-    assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.equal(advice.note, '');
+    assert.equal(advice.title, 'Неділя — ваш найнасиченіший день');
+    assert.equal(advice.note, 'Перегляньте плани на неділю');
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 });
