@@ -298,7 +298,6 @@ export function CycleRhythm({
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setExpanded(false)} />
           <View style={[styles.sheet, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <View style={[styles.sheetMark, { backgroundColor: theme.accent }]} />
             <Text style={[styles.sheetTitle, { color: theme.ink }]}>
               {t(language, 'rhythmExpandedTitle')}
             </Text>
@@ -380,12 +379,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 16,
     gap: 10,
-  },
-  sheetMark: {
-    width: 28,
-    height: 4,
-    borderRadius: 2,
-    marginBottom: 2,
   },
   sheetTitle: {
     fontSize: 22,
