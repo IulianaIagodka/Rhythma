@@ -229,7 +229,7 @@ function ExpandedChart({
         <Path
           d={smoothPath(estrogenPoints)}
           stroke={theme.period}
-          strokeWidth={2.2}
+          strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
@@ -238,7 +238,7 @@ function ExpandedChart({
         <Path
           d={smoothPath(progesteronePoints)}
           stroke={theme.rhythmLuteal}
-          strokeWidth={2.2}
+          strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
@@ -247,7 +247,7 @@ function ExpandedChart({
         <Path
           d={smoothPath(energyPoints)}
           stroke={theme.teal}
-          strokeWidth={2.8}
+          strokeWidth={3.4}
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
