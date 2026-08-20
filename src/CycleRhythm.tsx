@@ -28,8 +28,8 @@ const PAD_Y = 16;
 const EXPANDED_HEIGHT = 188;
 const EXPANDED_PAD_X = 14;
 const EXPANDED_PAD_Y = 22;
-/** Extra samples between cycle days — denser path = smoother spline. */
-const SAMPLES_PER_DAY = 4;
+/** Extra samples between cycle days — denser path reads as a smooth curve. */
+const SAMPLES_PER_DAY = 8;
 
 type Point = { x: number; y: number; day: number; phase: PhaseId };
 
@@ -76,29 +76,22 @@ function curvePoints(
   return points;
 }
 
-/** Catmull-Rom → cubic Bezier; draws only [start..end], using neighbors for tangents. */
-function smoothPathRange(points: Point[], start: number, end: number, tension = 0.35): string {
+/**
+ * Dense polyline through samples. Avoids Catmull-Rom overshoot spikes that made
+ * the hormone chart look jagged on plateaus and soft peaks.
+ */
+function smoothPathRange(points: Point[], start: number, end: number): string {
   if (end <= start || points.length < 2) return '';
   let d = `M ${points[start].x.toFixed(2)} ${points[start].y.toFixed(2)}`;
-  for (let i = start; i < end; i += 1) {
-    const p0 = points[i - 1] ?? points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] ?? p2;
-    if (!p2) break;
-    const t = tension;
-    const c1x = p1.x + (p2.x - p0.x) * t;
-    const c1y = p1.y + (p2.y - p0.y) * t;
-    const c2x = p2.x - (p3.x - p1.x) * t;
-    const c2y = p2.y - (p3.y - p1.y) * t;
-    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+  for (let i = start + 1; i <= end; i += 1) {
+    d += ` L ${points[i].x.toFixed(2)} ${points[i].y.toFixed(2)}`;
   }
   return d;
 }
 
-function smoothPath(points: Point[], tension = 0.35): string {
+function smoothPath(points: Point[]): string {
   if (points.length < 2) return '';
-  return smoothPathRange(points, 0, points.length - 1, tension);
+  return smoothPathRange(points, 0, points.length - 1);
 }
 
 function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {

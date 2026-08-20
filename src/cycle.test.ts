@@ -190,6 +190,33 @@ describe('hormone curves', () => {
     const lateLuteal = progesteroneAtCycleDay(27, 28, settings);
     assert.ok(midLuteal > lateLuteal);
   });
+
+  it('keeps estrogen and energy free of post-ovulation notches', () => {
+    const settings = defaultSettings();
+    const length = 28;
+    const steps = (length - 1) * 8 + 1;
+    let estrogenNotches = 0;
+    let energyNotches = 0;
+    let prevEs = estrogenAtCycleDay(1, length, settings);
+    let prevE = energyAtCycleDay(1, length, settings);
+    let prevPrevEs = prevEs;
+    let prevPrevE = prevE;
+    for (let i = 1; i < steps; i += 1) {
+      const day = 1 + (i / (steps - 1)) * (length - 1);
+      const es = estrogenAtCycleDay(day, length, settings);
+      const e = energyAtCycleDay(day, length, settings);
+      if (i >= 2) {
+        if (prevEs - prevPrevEs < -0.02 && es - prevEs > 0.02) estrogenNotches += 1;
+        if (prevE - prevPrevE < -0.015 && e - prevE > 0.015) energyNotches += 1;
+      }
+      prevPrevEs = prevEs;
+      prevPrevE = prevE;
+      prevEs = es;
+      prevE = e;
+    }
+    assert.equal(estrogenNotches, 0);
+    assert.equal(energyNotches, 0);
+  });
 });
 
 describe('wrappedCycleDay', () => {

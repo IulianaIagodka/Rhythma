@@ -220,22 +220,22 @@ export function estrogenAtCycleDay(
 ): number {
   const day = wrappedCycleDay(cycleDay, cycleLength);
   const ovulation = ovulationDayForCycle(cycleLength, settings);
-  const primaryWidth = Math.max(cycleLength * 0.07, 1.6);
-  const primary = Math.exp(-0.5 * ((day - ovulation) / primaryWidth) ** 2);
-  const follicularStart = settings.periodLength + 1;
-  const follicularSpan = Math.max(1, ovulation - follicularStart);
-  const follicularRise =
-    day > follicularStart && day < ovulation
-      ? ((day - follicularStart) / follicularSpan) ** 1.15 * 0.5
-      : 0;
+  // Broad peri-ovulatory peak (wider left shoulder for the follicular climb)
+  const leftWidth = Math.max(cycleLength * 0.16, 3.2);
+  const rightWidth = Math.max(cycleLength * 0.1, 2.2);
+  const width = day <= ovulation ? leftWidth : rightWidth;
+  const primary = Math.exp(-0.5 * ((day - ovulation) / width) ** 2);
+  // Soft secondary luteal bump — ease in after ovulation instead of a step
   const lutealMid = ovulation + Math.max(3, Math.round((cycleLength - ovulation) * 0.42));
-  const lutealWidth = Math.max(cycleLength * 0.11, 2.4);
-  const lutealBump =
-    day > ovulation + 1
-      ? Math.exp(-0.5 * ((day - lutealMid) / lutealWidth) ** 2) * 0.42
-      : 0;
-  const floor = day <= settings.periodLength ? 0.08 : 0.12;
-  return Math.max(0, Math.min(1, floor + follicularRise + primary * 0.88 + lutealBump));
+  const lutealWidth = Math.max(cycleLength * 0.12, 2.6);
+  const lutealRaw = Math.exp(-0.5 * ((day - lutealMid) / lutealWidth) ** 2) * 0.34;
+  let lutealBump = 0;
+  if (day > ovulation) {
+    const t = Math.max(0, Math.min(1, (day - ovulation) / 2.5));
+    lutealBump = lutealRaw * (t * t * (3 - 2 * t));
+  }
+  const floor = day <= settings.periodLength ? 0.06 : 0.1;
+  return Math.max(0, Math.min(1, floor + primary * 0.9 + lutealBump));
 }
 
 /** Illustrative relative progesterone pattern — not a lab value. */
@@ -246,14 +246,17 @@ export function progesteroneAtCycleDay(
 ): number {
   const day = wrappedCycleDay(cycleDay, cycleLength);
   const ovulation = ovulationDayForCycle(cycleLength, settings);
-  if (day <= ovulation) {
-    return 0.08 + (day / Math.max(1, ovulation)) * 0.04;
+  const baseline = 0.08 + ((day - 1) / Math.max(1, cycleLength - 1)) * 0.03;
+  // Luteal dome centered after ovulation, with a soft lead-in (no corner)
+  const peakDay = ovulation + Math.max(4, Math.round((cycleLength - ovulation) * 0.45));
+  const width = Math.max(cycleLength * 0.16, 3.5);
+  const dome = Math.exp(-0.5 * ((day - peakDay) / width) ** 2);
+  let gate = 0;
+  if (day > ovulation - 2) {
+    const t = Math.max(0, Math.min(1, (day - (ovulation - 2)) / 4));
+    gate = t * t * (3 - 2 * t);
   }
-  const lutealLength = Math.max(1, cycleLength - ovulation);
-  const progress = (day - ovulation) / lutealLength;
-  const rise = Math.sin(Math.min(1, progress) * Math.PI);
-  const lateDrop = progress > 0.72 ? ((progress - 0.72) / 0.28) * 0.28 : 0;
-  return Math.max(0.08, Math.min(1, 0.12 + rise * 0.8 - lateDrop));
+  return Math.max(0.08, Math.min(1, baseline + dome * 0.82 * gate));
 }
 
 export type RhythmEnergyKind = 'low' | 'rising' | 'peak' | 'easing';
