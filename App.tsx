@@ -182,9 +182,11 @@ export default function App() {
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
-  const selectedDayIsPeriod =
-    selectedDayMark === 'period' || selectedDayMark === 'periodForecast';
-  const selectedDayTitleColor = selectedDayIsPeriod
+  const selectedDayIsCycle =
+    selectedDayMark === 'period' ||
+    selectedDayMark === 'periodForecast' ||
+    selectedDayMark === 'ovulatory';
+  const selectedDayTitleColor = selectedDayIsCycle
     ? theme.accent
     : selectedItems.length
       ? theme.teal
@@ -284,7 +286,7 @@ export default function App() {
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardBlock}>
-                  <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
                     {t(language, 'cycleSection')}
                   </Text>
                   {status.cycleDay == null ? (
@@ -339,7 +341,7 @@ export default function App() {
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.textLink, { color: theme.teal }]}>
+                  <Text style={[styles.textLink, { color: theme.accent }]}>
                     {t(language, 'chooseOtherDate')}
                   </Text>
                 </Pressable>
@@ -364,7 +366,7 @@ export default function App() {
               {calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                    <Text style={[styles.sectionLabel, { color: selectedDayTitleColor }]}>
                       {formatSelectedDayTitle(selectedDay, language)}
                     </Text>
                     {selectedItems.length ? (
@@ -416,7 +418,15 @@ export default function App() {
               {visibleAdvice ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                    <Text
+                      style={[
+                        styles.sectionLabel,
+                        {
+                          color:
+                            adviceLabelKey === 'scheduleInsight' ? theme.teal : theme.accent,
+                        },
+                      ]}
+                    >
                       {t(language, adviceLabelKey)}
                     </Text>
                     <Text
