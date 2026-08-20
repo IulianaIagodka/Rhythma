@@ -467,7 +467,7 @@ export default function App() {
               {showPhaseLists && phasePlan.best.length ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.primaryLine, { color: theme.ink }]}>
+                    <Text style={[styles.sectionLabel, { color: theme.ink }]}>
                       {t(language, 'phaseRecommendationsHint')}
                     </Text>
                     <Text style={[styles.tipGroupItems, { color: theme.muted }]}>
