@@ -6,29 +6,27 @@ Plan around your cycle, not against it. Sync Rhythma with your calendar and make
 
 ## Description
 
-Your cycle affects your energy, focus, and performance every day. Rhythma helps you track it and plan around it — simply, privately, and without noise.
+Your cycle doesn’t happen separately from your life. Rhythma brings your cycle and calendar together, helping you plan with your body—not against it.
 
-Log your period in one tap. See your cycle day and phase on Today. Connect your iPhone calendar and see how your events land across your cycle.
+Log the first day of your period in one tap, see where you are in your cycle, and get predictions for your next period and optional ovulation window.
 
-### LOG YOUR PERIOD IN ONE TAP
-Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm.
+Connect your iPhone calendar to view upcoming events alongside your cycle. Rhythma helps you notice busy days, create space for recovery, and choose better moments for demanding work, workouts, meetings, and rest.
 
-### YOUR WHOLE YEAR AT A GLANCE
-A clear annual calendar showing your recorded periods and predicted cycle days so you can plan weeks and months ahead. Nine months are visible at once; scroll for the rest.
+With Rhythma, you can:
 
-### PRIVATE BY DESIGN
-Your data stays on your iPhone. No account required. No cloud sync. Rhythma never uploads your cycle data anywhere.
+• Log your period quickly
+• See your current cycle day and phase
+• View predicted periods across the year
+• Optionally estimate ovulation and fertile days
+• Sync with Apple Calendar
+• See events and workouts alongside your cycle
+• Receive phase-aware planning suggestions
+• Switch between light and dark themes
+• Use the app in English or Ukrainian
 
-### SYNC YOUR CALENDAR — FREE
-Connect your iPhone calendar and see your events alongside your cycle. Turn it on in Settings and allow access when iOS asks. For Google Calendar, add Google in iPhone Calendar accounts first — details on the support page.
+Your calendar shows what you have planned. Rhythma adds the context of how you may feel.
 
-### RHYTHMA PLUS — COMING SOON
-Recommendations, Phase tips, and Energy curve. In-app purchase will be available in a future update.
-
-### PERSONALISE YOUR EXPERIENCE
-Switch Light or Dark theme. Available in English and Ukrainian.
-
-Rhythma provides cycle estimates only. Its predictions are not medical advice and should not be used as contraception.
+Cycle and ovulation predictions are estimates for informational and wellness purposes only. Rhythma is not a medical device and should not be used for diagnosis or contraception
 
 ---
 
