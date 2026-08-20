@@ -38,18 +38,11 @@ Paste into App Store Connect → TestFlight → Test Information.
 
 ### Beta App Description
 
-Private cycle tracker for iPhone. Log your period, see it on week and year calendars, and sync events from the iPhone Calendar. No account required — cycle data stays on the device.
+Rhythma brings your menstrual cycle into your calendar.
 
-What’s new in this build
-• Calendar sync is free for everyone
-• Year calendar shows 9 months at once; scroll for the rest
-• Theme switch: Light / Dark
-• Phase tips (Yes / No) and smoother Energy curve (Plus — coming soon)
-• In TestFlight: Free / Plus switch in Settings for QA
+Instead of tracking your cycle separately from the rest of your life, Rhythma lets you see your cycle alongside your actual plans and events — helping you understand how upcoming days may align with your energy, focus, workload, and social plans.
 
-Not a fertility or medical app. Predictions are estimates only and must not be used as contraception.
-
-Support: https://iulianaiagodka.github.io/Rhythma/
+Track your cycle, view upcoming phases, and use your calendar to plan with your rhythm in mind.
 
 ### Feedback Email
 
