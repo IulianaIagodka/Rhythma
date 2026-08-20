@@ -355,7 +355,7 @@ export default function App() {
                   language={language}
                   items={calendarItems}
                   selectedDay={selectedDay}
-                  showCalendarLoad={showCalendarEvents}
+                  showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
               </View>
