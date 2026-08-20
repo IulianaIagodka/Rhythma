@@ -2,7 +2,7 @@
 
 ## Promo Text
 
-Track your cycle. Plan your week. Know when to push and when to rest.
+Plan around your cycle, not against it. Sync Rhythma with your calendar and make your plans with your rhythm in mind.
 
 ## Description
 
