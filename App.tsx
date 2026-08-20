@@ -295,15 +295,17 @@ export default function App() {
                             { color: theme.ink },
                           ]}
                         >
+                          {t(language, 'cycleDay')} {status.cycleDay}
+                        </Text>
+                        <Text style={[styles.phaseName, { color: theme.accent }]}>
+                          {phaseStatusLabel(status.phase, language)}
+                        </Text>
+                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
                           {daysLeft == null
                             ? t(language, 'nextAfterRecords')
                             : daysLeft === 0
                               ? t(language, 'nextToday')
                               : t(language, 'nextIn', { days: daysLeft })}
-                        </Text>
-                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                          {t(language, 'cycleDay')} {status.cycleDay}
-                          <Text style={{ color: theme.muted }}> · {phaseStatusLabel(status.phase, language)}</Text>
                         </Text>
                       </View>
                       {showCycleRhythm ? (
@@ -321,13 +323,9 @@ export default function App() {
 
                 <Pressable
                   onPress={onFirstDay}
-                  style={[
-                    styles.cta,
-                    styles.ctaQuiet,
-                    { backgroundColor: theme.accentSoft, borderColor: theme.border },
-                  ]}
+                  style={[styles.cta, { backgroundColor: theme.accent }]}
                 >
-                  <Text style={[styles.ctaText, styles.ctaQuietText, { color: theme.accent }]}>
+                  <Text style={styles.ctaText}>
                     {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
                   </Text>
                 </Pressable>
@@ -920,6 +918,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  phaseName: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
   tipGroupItems: {
     fontSize: 14,
     lineHeight: 20,
@@ -930,17 +932,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ctaQuiet: {
-    minHeight: 46,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
   ctaText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
-  },
-  ctaQuietText: {
-    fontSize: 15,
     fontWeight: '600',
   },
   textLink: {
