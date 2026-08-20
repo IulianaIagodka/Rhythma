@@ -30,7 +30,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Plus — Coming soon
 
-Schedule insight, For this phase (Yes / No), and Energy curve. More details to follow.
+Schedule insight (with Calendar sync on), Cycle insight (when sync is off), For this phase (Yes / No), and Energy curve. More details to follow.
 
 ---
 
@@ -124,7 +124,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Plus — Незабаром
 
-Підказка розкладу, Для цієї фази (Так / Ні) та Energy curve. Деталі з'являться пізніше.
+Підказка розкладу (коли синхронізація календаря увімкнена), Підказка циклу (коли вимкнена), Для цієї фази (Так / Ні) та Energy curve. Деталі з'являться пізніше.
 
 ## Як користуватись
 

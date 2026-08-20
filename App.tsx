@@ -15,7 +15,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, planningForPhase } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, cycleInsight, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
@@ -158,8 +158,11 @@ export default function App() {
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const visibleAdvice = showAdvice
-    ? adviseLoad(status.phase, calendarItems, language)
+    ? calendarEnabled
+      ? adviseLoad(status.phase, calendarItems, language)
+      : cycleInsight(status.phase, language)
     : null;
+  const adviceLabelKey = calendarEnabled ? 'scheduleInsight' : 'cycleInsight';
   const phaseCapacity = capacityForPhase(status.phase, language);
   const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
@@ -335,7 +338,7 @@ export default function App() {
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
                     <Text style={[styles.sectionLabel, { color: theme.muted }]}>
-                      {t(language, 'scheduleInsight')}
+                      {t(language, adviceLabelKey)}
                     </Text>
                     <Text
                       style={[
@@ -355,6 +358,28 @@ export default function App() {
                     <Text style={[styles.secondaryLine, { color: theme.muted }]}>{visibleAdvice.note}</Text>
                   </View>
                 </View>
+              ) : null}
+
+              {!calendarEnabled ? (
+                <Pressable
+                  onPress={() => {
+                    if (!hasCalendarSync) {
+                      setTab('settings');
+                      return;
+                    }
+                    persist({ ...data, settings: { ...data.settings, calendarSync: true } });
+                    refreshCalendar(true);
+                  }}
+                  style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
+                  accessibilityRole="button"
+                >
+                  <Text style={[styles.link, { color: theme.teal, textAlign: 'left' }]}>
+                    {t(language, 'connectCalendar')}
+                  </Text>
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                    {t(language, 'connectCalendarHint')}
+                  </Text>
+                </Pressable>
               ) : null}
 
               {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
@@ -858,6 +883,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     gap: 14,
+  },
+  connectCalendarCard: {
+    gap: 4,
+    paddingVertical: 16,
   },
   cycleHero: {
     flexDirection: 'row',

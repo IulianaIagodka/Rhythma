@@ -51,7 +51,7 @@ iuliana.iagodka@gmail.com
 • Log a period from Today and from the year calendar (confirm / remove)
 • Turn on Calendar sync; confirm events appear next to the cycle
 • Switch Light / Dark theme
-• Use the Free / Plus switch in Settings; check Schedule insight, For this phase, and Energy curve on Plus
+• Use the Free / Plus switch in Settings; check Schedule insight (sync on), Cycle insight (sync off), For this phase, and Energy curve on Plus
 • Confirm the app follows English or Ukrainian from the iPhone language
 
 No sign-in. Reviewers can open the app and use it immediately.

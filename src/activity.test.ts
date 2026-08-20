@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { adviseLoad, capacityForPhase, dayAlignmentForPhase, planningForPhase } from './activity';
+import { adviseLoad, capacityForPhase, cycleInsight, dayAlignmentForPhase, planningForPhase } from './activity';
 import { classifyActivity, classifyTitle, type CalendarItem } from './calendarItems';
 
 function item(
@@ -93,6 +93,25 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.match(advice.title, /Неділя — ваш найнасиченіший день/);
     assert.doesNotMatch(advice.note, /На цьому тижні/);
+  });
+});
+
+describe('cycleInsight', () => {
+  it('uses phase capacity only, without calendar copy', () => {
+    const insight = cycleInsight('menstrual', 'en');
+    assert.equal(insight.title, 'Rest & release');
+    assert.match(insight.note, /hormones are lowest/i);
+    assert.doesNotMatch(insight.note, /calendar/i);
+    assert.equal(insight.events, 0);
+    assert.equal(insight.busiestDay, null);
+  });
+
+  it('keeps Ukrainian phase-only wording', () => {
+    const insight = cycleInsight('ovulatory', 'uk');
+    assert.equal(insight.title, 'Peak & powerful');
+    assert.match(insight.note, /пік енергії/i);
+    assert.doesNotMatch(insight.note, /календар/i);
+    assert.equal(insight.fit, 'low');
   });
 });
 

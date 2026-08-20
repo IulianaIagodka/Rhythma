@@ -206,6 +206,18 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   };
 }
 
+/** Phase-only insight when calendar sync is off — no event or calendar copy. */
+export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice {
+  const capacity = capacityForPhase(phase, lang);
+  return {
+    title: capacity.label,
+    note: joinAdviceParts([capacity.hint]),
+    fit: phase === 'ovulatory' ? 'low' : 'ok',
+    busiestDay: null,
+    events: 0,
+  };
+}
+
 function joinAdviceParts(parts: string[]): string {
   const cleaned = parts.map((part) => part.trim()).filter(Boolean);
   if (!cleaned.length) return '';
