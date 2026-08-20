@@ -19,7 +19,7 @@ import {
   togglePeriodStart,
   wrappedCycleDay,
 } from './cycle';
-import { addDays, mondayIndex } from './dates';
+import { addDays, formatSelectedDayTitle, mondayIndex } from './dates';
 
 describe('defaultSettings', () => {
   it('shows forecast and lists, hides ovulation', () => {
@@ -206,5 +206,10 @@ describe('dates', () => {
 
   it('adds days across month bounds', () => {
     assert.equal(addDays('2026-08-30', 2), '2026-09-01');
+  });
+
+  it('formats the selected-day card title without an ISO date', () => {
+    assert.equal(formatSelectedDayTitle('2026-08-23', 'en'), 'Sunday, Aug 23');
+    assert.equal(formatSelectedDayTitle('2026-08-23', 'uk'), 'Неділя, 23 серпня');
   });
 });

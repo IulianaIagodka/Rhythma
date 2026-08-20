@@ -23,7 +23,7 @@ Your data stays on your iPhone. No account required. No cloud sync. Rhythma neve
 Connect your iPhone calendar and see your events alongside your cycle. Turn it on in Settings and allow access when iOS asks. For Google Calendar, add Google in iPhone Calendar accounts first — details on the support page.
 
 ### RHYTHMA PLUS — COMING SOON
-Recommendations, Phase tips, and Energy curve. In-app purchase will be available in a future update.
+Schedule insight, For this phase, and Energy curve. In-app purchase will be available in a future update.
 
 ### PERSONALISE YOUR EXPERIENCE
 Switch Light or Dark theme. Available in English and Ukrainian.
@@ -40,7 +40,8 @@ What’s new in this build
 • Calendar sync is free for everyone
 • Year calendar shows 9 months, then scroll
 • Theme switch: Light / Dark
-• Phase tips (Yes / No) and smoother Energy curve (Plus)
+• Today cards use a consistent hierarchy (Cycle, week, selected day, Schedule insight, For this phase)
+• For this phase (Yes / No) and smoother Energy curve (Plus)
 • In TestFlight: Free / Plus switch in Settings for QA
 
 Not a fertility or medical app. Data stays on your iPhone.
@@ -74,7 +75,7 @@ All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complex
 Connect your iPhone calendar to see events alongside your cycle.
 
 #### RHYTHMA PLUS — COMING SOON
-Recommendations, Phase tips, and Energy curve. Available in a future update.
+Schedule insight, For this phase, and Energy curve. Available in a future update.
 
 #### LIGHT OR DARK THEME
 Personalise your appearance. Available in English and Ukrainian.
@@ -95,7 +96,7 @@ period tracker, cycle tracker, cycle calendar, period log, cycle planner, menstr
 - **Product ID:** `app.rhythma.cycle.plus`
 - **Reference Name:** Rhythma Plus
 - **Display Name:** Rhythma Plus
-- **Description:** Unlock Recommendations, Phase tips, and Energy curve. One-time purchase, lifetime access.
+- **Description:** Unlock Schedule insight, For this phase, and Energy curve. One-time purchase, lifetime access.
 - **Price:** Set to the tier closest to 39.99 PLN in App Store Connect
 - **Note:** Not enabled in the first App Store release (Coming soon). Enable with `EXPO_PUBLIC_IAP_PLUS=1` / EAS profile `plus`.
 

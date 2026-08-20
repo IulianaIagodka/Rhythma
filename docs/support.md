@@ -21,6 +21,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 - Log the first day of your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days
+- Today cards: Cycle, This week, selected day, and phase context
 - Phase name on Today: Rest & release, Renew & rise, Peak & powerful, Turn inward
 - **Calendar sync** — connect your iPhone calendar to see events alongside your cycle
 - Optional ovulation marks on the calendars (off by default)
@@ -29,7 +30,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Plus — Coming soon
 
-Recommendations, Phase tips (Yes / No), and Energy curve. More details to follow.
+Schedule insight, For this phase (Yes / No), and Energy curve. More details to follow.
 
 ---
 
@@ -114,6 +115,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 - Позначити перший день місячних на Today або підтвердити дату в річному календарі
 - Тижневий і річний календарі для записаних і прогнозованих днів
+- Картки Today: Цикл, Цей тиждень, обраний день і контекст фази
 - Назва фази на Today: Rest & release, Renew & rise, Peak & powerful, Turn inward
 - **Синхронізація календаря** — підключіть календар iPhone, щоб бачити події поруч із циклом
 - За бажанням — позначки овуляції на календарях (за замовчуванням вимкнені)
@@ -122,7 +124,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Plus — Незабаром
 
-Рекомендації, Підказки фази (Так / Ні) та Energy curve. Деталі з'являться пізніше.
+Підказка розкладу, Для цієї фази (Так / Ні) та Energy curve. Деталі з'являться пізніше.
 
 ## Як користуватись
 

@@ -85,6 +85,15 @@ describe('adviseLoad', () => {
     assert.match(advice.note, /Consider moving hard training/);
     assert.match(advice.note, /progesterone rises/i);
   });
+
+  it('uses the Ukrainian busiest-day insight title', () => {
+    const advice = adviseLoad('luteal', [
+      item('1', 'Масаж', '2026-08-23', 'massage'),
+      item('2', 'Gym', '2026-08-23', 'intense'),
+    ], 'uk');
+    assert.match(advice.title, /Неділя — ваш найнасиченіший день/);
+    assert.doesNotMatch(advice.note, /На цьому тижні/);
+  });
 });
 
 describe('dayAlignmentForPhase', () => {
