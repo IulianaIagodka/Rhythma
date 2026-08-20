@@ -92,6 +92,13 @@ export function formatSelectedDayTitle(iso: string, lang: Language): string {
   return `${weekday}, ${monthsShort.en[date.getMonth()]} ${date.getDate()}`;
 }
 
+/** Seconds since Apple's reference date (2001-01-01 UTC) for calshow: deep links. */
+export function appleCalendarShowInterval(iso: string): number {
+  const day = parseISODate(iso);
+  const reference = Date.UTC(2001, 0, 1);
+  return Math.floor((day.getTime() - reference) / 1000);
+}
+
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }

@@ -9,6 +9,7 @@ export type LoadAdvice = {
   note: string;
   fit: Fit;
   busiestDay: string | null;
+  busiestDayISO: string | null;
   events: number;
 };
 
@@ -186,7 +187,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     byDay.set(item.day, (byDay.get(item.day) ?? 0) + activityLoad(item.activity));
   }
   const busiest = [...byDay.entries()].sort((a, b) => b[1] - a[1])[0];
-  const busiestDay = busiest ? weekdayName(busiest[0], lang) : null;
+  const busiestDayISO = busiest ? busiest[0] : null;
+  const busiestDay = busiestDayISO ? weekdayName(busiestDayISO, lang) : null;
 
   let fit: Fit = 'ok';
   if (!items.length) {
@@ -196,6 +198,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
       note: joinAdviceParts([...emptyChecks, capacity.hint, capacity.calendarHint]),
       fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
+      busiestDayISO: null,
       events: 0,
     };
   }
@@ -209,6 +212,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     note: busiestDay ? '' : joinAdviceParts([capacity.hint, capacity.calendarHint]),
     fit,
     busiestDay,
+    busiestDayISO,
     events,
   };
 }
@@ -221,6 +225,7 @@ export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice 
     note: joinAdviceParts([capacity.hint]),
     fit: phase === 'ovulatory' ? 'low' : 'ok',
     busiestDay: null,
+    busiestDayISO: null,
     events: 0,
   };
 }

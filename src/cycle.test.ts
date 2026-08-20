@@ -22,7 +22,7 @@ import {
   togglePeriodStart,
   wrappedCycleDay,
 } from './cycle';
-import { addDays, formatSelectedDayTitle, mondayIndex } from './dates';
+import { addDays, appleCalendarShowInterval, formatSelectedDayTitle, mondayIndex } from './dates';
 
 describe('defaultSettings', () => {
   it('shows forecast and lists, hides ovulation', () => {
@@ -271,5 +271,13 @@ describe('dates', () => {
   it('formats the selected-day card title without an ISO date', () => {
     assert.equal(formatSelectedDayTitle('2026-08-23', 'en'), 'Sunday, Aug 23');
     assert.equal(formatSelectedDayTitle('2026-08-23', 'uk'), 'Неділя, 23 серпня');
+  });
+
+  it('builds an Apple Calendar calshow interval for a day', () => {
+    const interval = appleCalendarShowInterval('2026-08-23');
+    assert.equal(typeof interval, 'number');
+    assert.ok(interval > 0);
+    // Same calendar day should be stable
+    assert.equal(appleCalendarShowInterval('2026-08-23'), interval);
   });
 });

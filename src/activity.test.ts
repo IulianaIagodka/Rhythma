@@ -89,6 +89,7 @@ describe('adviseLoad', () => {
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
     assert.equal(advice.note, '');
+    assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 
   it('uses the Ukrainian busiest-day insight title', () => {
@@ -98,6 +99,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
     assert.equal(advice.note, '');
+    assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 });
 

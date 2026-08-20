@@ -28,7 +28,7 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
+import { addDays, appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
@@ -426,21 +426,50 @@ export default function App() {
                     >
                       {t(language, adviceLabelKey)}
                     </Text>
-                    <Text
-                      style={[
-                        styles.sectionLabel,
-                        {
-                          color:
-                            visibleAdvice.fit === 'high'
-                              ? theme.accent
-                              : visibleAdvice.fit === 'low'
-                                ? theme.teal
-                                : theme.ink,
-                        },
-                      ]}
-                    >
-                      {visibleAdvice.title}
-                    </Text>
+                    {visibleAdvice.busiestDayISO ? (
+                      <Pressable
+                        onPress={() => {
+                          const interval = appleCalendarShowInterval(visibleAdvice.busiestDayISO!);
+                          Linking.openURL(`calshow:${interval}`).catch(() => {});
+                        }}
+                        accessibilityRole="link"
+                        hitSlop={8}
+                      >
+                        <Text
+                          style={[
+                            styles.sectionLabel,
+                            styles.textLink,
+                            {
+                              color:
+                                visibleAdvice.fit === 'high'
+                                  ? theme.accent
+                                  : visibleAdvice.fit === 'low'
+                                    ? theme.teal
+                                    : theme.ink,
+                              textAlign: 'left',
+                            },
+                          ]}
+                        >
+                          {visibleAdvice.title}
+                        </Text>
+                      </Pressable>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.sectionLabel,
+                          {
+                            color:
+                              visibleAdvice.fit === 'high'
+                                ? theme.accent
+                                : visibleAdvice.fit === 'low'
+                                  ? theme.teal
+                                  : theme.ink,
+                          },
+                        ]}
+                      >
+                        {visibleAdvice.title}
+                      </Text>
+                    )}
                     {visibleAdvice.note ? (
                       <Text style={[styles.secondaryLine, { color: theme.muted }]}>
                         {visibleAdvice.note}
