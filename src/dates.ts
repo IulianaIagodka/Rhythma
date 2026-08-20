@@ -79,3 +79,19 @@ export function weekdayShort(iso: string, lang: Language): string {
 export function weekdayName(iso: string, lang: Language): string {
   return weekdayNames[lang][parseISODate(iso).getDay()];
 }
+
+const monthsShort = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+} as const;
+
+/** Human title for the selected-day card, e.g. "Sunday, Aug 23" / "Неділя, 23 серпня". */
+export function formatSelectedDayTitle(iso: string, lang: Language): string {
+  const date = parseISODate(iso);
+  const weekday = capitalize(weekdayName(iso, lang));
+  if (lang === 'uk') return `${weekday}, ${date.getDate()} ${monthsGenitiveUk[date.getMonth()]}`;
+  return `${weekday}, ${monthsShort.en[date.getMonth()]} ${date.getDate()}`;
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}

@@ -51,7 +51,7 @@ iuliana.iagodka@gmail.com
 • Log a period from Today and from the year calendar (confirm / remove)
 • Turn on Calendar sync; confirm events appear next to the cycle
 • Switch Light / Dark theme
-• Use the Free / Plus switch in Settings; check Phase tips and Energy curve on Plus
+• Use the Free / Plus switch in Settings; check Schedule insight, For this phase, and Energy curve on Plus
 • Confirm the app follows English or Ukrainian from the iPhone language
 
 No sign-in. Reviewers can open the app and use it immediately.
@@ -83,7 +83,7 @@ All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complex
 Connect your iPhone calendar to see events alongside your cycle.
 
 #### RHYTHMA PLUS — COMING SOON
-Recommendations, Phase tips, and Energy curve. Available in a future update.
+Schedule insight, For this phase, and Energy curve. Available in a future update.
 
 #### LIGHT OR DARK THEME
 Personalise your appearance. Available in English and Ukrainian.
@@ -104,7 +104,7 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - **Product ID:** `app.rhythma.cycle.plus`
 - **Reference Name:** Rhythma Plus
 - **Display Name:** Rhythma Plus
-- **Description:** Unlock Recommendations, Phase tips, and Energy curve. One-time purchase, lifetime access.
+- **Description:** Unlock Schedule insight, For this phase, and Energy curve. One-time purchase, lifetime access.
 - **Price:** Set to the tier closest to 39.99 PLN in App Store Connect
 - **Note:** Not enabled in the first App Store release (Coming soon). Enable with `EXPO_PUBLIC_IAP_PLUS=1` / EAS profile `plus`.
 

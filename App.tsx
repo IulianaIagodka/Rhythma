@@ -26,7 +26,7 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, formatDay, todayISO } from './src/dates';
+import { addDays, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
@@ -190,45 +190,50 @@ export default function App() {
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'todayHeader')}</Text>
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
-                {status.cycleDay == null ? (
-                  <>
-                    <Text style={[styles.cardTitle, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
-                    <Text style={[styles.cardMeta, { color: theme.muted }]}>
-                      {t(language, 'logCycleSub')}
-                    </Text>
-                  </>
-                ) : (
-                  <View style={showCycleRhythm ? styles.cycleHero : undefined}>
-                    <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
-                      <Text
-                        style={[
-                          styles.cardTitle,
-                          showCycleRhythm ? styles.cardTitleWithChart : null,
-                          { color: theme.ink },
-                        ]}
-                      >
-                        {t(language, 'cycleDay')} {status.cycleDay}
+                <View style={styles.cardBlock}>
+                  <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                    {t(language, 'cycleSection')}
+                  </Text>
+                  {status.cycleDay == null ? (
+                    <>
+                      <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {t(language, 'logCycleSub')}
                       </Text>
-                      <Text style={[styles.phaseName, { color: theme.accent }]}>{phaseCapacity.label}</Text>
-                      <Text style={[styles.cardMeta, { color: theme.muted }]}>
-                        {daysLeft == null
-                          ? t(language, 'nextAfterRecords')
-                          : daysLeft === 0
-                            ? t(language, 'nextToday')
-                            : t(language, 'nextIn', { days: daysLeft })}
-                      </Text>
+                    </>
+                  ) : (
+                    <View style={showCycleRhythm ? styles.cycleHero : undefined}>
+                      <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
+                        <Text
+                          style={[
+                            styles.primaryLine,
+                            showCycleRhythm ? styles.primaryLineWithChart : null,
+                            { color: theme.ink },
+                          ]}
+                        >
+                          {daysLeft == null
+                            ? t(language, 'nextAfterRecords')
+                            : daysLeft === 0
+                              ? t(language, 'nextToday')
+                              : t(language, 'nextIn', { days: daysLeft })}
+                        </Text>
+                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                          {t(language, 'cycleDay')} {status.cycleDay}
+                          <Text style={{ color: theme.accent }}> · {phaseCapacity.label}</Text>
+                        </Text>
+                      </View>
+                      {showCycleRhythm ? (
+                        <CycleRhythm
+                          cycleDay={status.cycleDay}
+                          cycleLength={status.cycleLength}
+                          settings={data.settings}
+                          theme={theme}
+                          language={language}
+                        />
+                      ) : null}
                     </View>
-                    {showCycleRhythm ? (
-                      <CycleRhythm
-                        cycleDay={status.cycleDay}
-                        cycleLength={status.cycleLength}
-                        settings={data.settings}
-                        theme={theme}
-                        language={language}
-                      />
-                    ) : null}
-                  </View>
-                )}
+                  )}
+                </View>
 
                 <Pressable
                   onPress={onFirstDay}
@@ -245,7 +250,7 @@ export default function App() {
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
+                  <Text style={[styles.sectionLabel, { color: theme.muted }]}>{t(language, 'thisWeek')}</Text>
                   <Pressable onPress={() => setTab('year')} hitSlop={8}>
                     <Text
                       style={[
@@ -271,75 +276,78 @@ export default function App() {
 
               {calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <View style={styles.cardHeader}>
-                    <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'selectedDay')}</Text>
-                    <Text style={[styles.sectionTag, { color: theme.accent }]}>{selectedDay}</Text>
+                  <View style={styles.cardBlock}>
+                    <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                      {formatSelectedDayTitle(selectedDay, language)}
+                    </Text>
+                    {selectedItems.length ? (
+                      <View style={styles.dayList}>
+                        {selectedItems.map((item) => {
+                          const fit = activityFitForPhase(status.phase, item.activity);
+                          const fitLabel = activityFitLabel(status.phase, item.activity, language);
+                          return (
+                            <View key={item.id} style={styles.dayRow}>
+                              <View
+                                style={[
+                                  styles.dayBullet,
+                                  { backgroundColor: theme.teal },
+                                ]}
+                              />
+                              <View style={styles.dayTextWrap}>
+                                <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
+                                {fitLabel ? (
+                                  <Text
+                                    style={[
+                                      styles.dayMeta,
+                                      {
+                                        color:
+                                          fit === 'harder'
+                                            ? theme.accent
+                                            : fit === 'support'
+                                              ? theme.teal
+                                              : theme.muted,
+                                      },
+                                    ]}
+                                  >
+                                    {fitLabel}
+                                  </Text>
+                                ) : null}
+                              </View>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    ) : (
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {t(language, 'noEventsForDay')}
+                      </Text>
+                    )}
                   </View>
-                  {selectedItems.length ? (
-                    <View style={styles.dayList}>
-                      {selectedItems.map((item) => (
-                        <View key={item.id} style={styles.dayRow}>
-                          <View
-                            style={[
-                              styles.dayBullet,
-                              { backgroundColor: theme.teal },
-                            ]}
-                          />
-                          <View style={styles.dayTextWrap}>
-                            <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
-                            <Text
-                              style={[
-                                styles.dayMeta,
-                                {
-                                  color:
-                                    activityFitForPhase(status.phase, item.activity) === 'support'
-                                      ? theme.teal
-                                      : activityFitForPhase(status.phase, item.activity) === 'harder'
-                                        ? theme.accent
-                                        : theme.muted,
-                                },
-                              ]}
-                            >
-                              {[
-                                t(language, 'events'),
-                                activityFitLabel(status.phase, item.activity, language),
-                              ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                            </Text>
-                          </View>
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={[styles.insightMeta, { color: theme.muted }]}>{t(language, 'noEventsForDay')}</Text>
-                  )}
                 </View>
               ) : null}
 
               {visibleAdvice ? (
-                <View style={[styles.insight, { backgroundColor: theme.card }]}>
-                  <View
-                    style={[
-                      styles.fitDot,
-                      {
-                        backgroundColor:
-                          visibleAdvice.fit === 'high'
-                            ? theme.accent
-                            : visibleAdvice.fit === 'low'
-                              ? theme.teal
-                              : theme.faint,
-                      },
-                    ]}
-                  />
-                  <View style={styles.insightBody}>
-                    <Text style={[styles.insightTitle, { color: theme.ink }]}>{visibleAdvice.title}</Text>
-                    <Text style={[styles.insightMeta, { color: theme.muted }]}>{visibleAdvice.note}</Text>
-                    {calendarEnabled && calendarItems.length ? (
-                      <Text style={[styles.insightCounts, { color: theme.muted }]}>
-                        {t(language, 'eventsToday', { count: selectedItems.length })}
-                      </Text>
-                    ) : null}
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <View style={styles.cardBlock}>
+                    <Text style={[styles.sectionLabel, { color: theme.muted }]}>
+                      {t(language, 'scheduleInsight')}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.primaryLine,
+                        {
+                          color:
+                            visibleAdvice.fit === 'high'
+                              ? theme.accent
+                              : visibleAdvice.fit === 'low'
+                                ? theme.teal
+                                : theme.ink,
+                        },
+                      ]}
+                    >
+                      {visibleAdvice.title}
+                    </Text>
+                    <Text style={[styles.secondaryLine, { color: theme.muted }]}>{visibleAdvice.note}</Text>
                   </View>
                 </View>
               ) : null}
@@ -366,10 +374,10 @@ export default function App() {
                     style={styles.recommendHeader}
                   >
                     <View style={styles.settingText}>
-                      <Text style={[styles.sectionTitle, { color: theme.ink }]}>
+                      <Text style={[styles.sectionLabel, { color: theme.muted }]}>
                         {t(language, 'phaseRecommendations')}
                       </Text>
-                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
                         {t(language, 'phaseRecommendationsHint')}
                       </Text>
                     </View>
@@ -848,22 +856,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  cardTitle: {
-    fontSize: 26,
+  cardBlock: {
+    gap: 8,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  primaryLine: {
+    fontSize: 22,
     fontWeight: '700',
     letterSpacing: -0.4,
+    lineHeight: 28,
   },
-  cardTitleWithChart: {
-    fontSize: 22,
+  primaryLineWithChart: {
+    fontSize: 18,
+    lineHeight: 24,
   },
-  cardMeta: {
-    fontSize: 15,
-    marginTop: 4,
-  },
-  phaseName: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginTop: 4,
+  secondaryLine: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   recommendHeader: {
     flexDirection: 'row',
@@ -891,7 +904,6 @@ const styles = StyleSheet.create({
     minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
   },
   ctaText: {
     color: '#FFFFFF',
@@ -902,10 +914,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
   },
   sectionTag: {
     fontSize: 13,
@@ -939,32 +947,6 @@ const styles = StyleSheet.create({
   dayMeta: {
     fontSize: 12,
     marginTop: 2,
-  },
-  insight: {
-    borderRadius: 20,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  fitDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginTop: 6,
-  },
-  insightBody: { flex: 1, gap: 4 },
-  insightTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  insightMeta: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  insightCounts: {
-    fontSize: 13,
-    marginTop: 4,
   },
   yearNav: {
     flexDirection: 'row',
@@ -1085,14 +1067,6 @@ const styles = StyleSheet.create({
   paywallComingSoonText: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    marginTop: 8,
-    marginBottom: 4,
-    paddingHorizontal: 4,
   },
   planSwitch: {
     flexDirection: 'row',
