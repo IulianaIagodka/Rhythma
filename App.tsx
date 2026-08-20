@@ -574,15 +574,12 @@ export default function App() {
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'darkTheme')}</Text>
                 </View>
-                <BrightSwitch
-                  value={data.settings.themeMode === 'dark'}
+                <ThemeSwitch
+                  value={data.settings.themeMode}
                   theme={theme}
-                  readyRef={switchesReady}
-                  onValueChange={(dark) =>
-                    persist({
-                      ...data,
-                      settings: { ...data.settings, themeMode: dark ? 'dark' : 'light' },
-                    })
+                  language={language}
+                  onChange={(themeMode) =>
+                    persist({ ...data, settings: { ...data.settings, themeMode } })
                   }
                 />
               </View>
@@ -692,6 +689,41 @@ function PlanSwitch({
           >
             <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
               {tier === 'pro' ? t(language, 'proPlan') : t(language, 'freePlan')}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function ThemeSwitch({
+  value,
+  theme,
+  language,
+  onChange,
+}: {
+  value: 'light' | 'dark';
+  theme: Theme;
+  language: Language;
+  onChange: (mode: 'light' | 'dark') => void;
+}) {
+  return (
+    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
+      {(['light', 'dark'] as const).map((mode) => {
+        const active = value === mode;
+        return (
+          <Pressable
+            key={mode}
+            onPress={() => {
+              if (mode === value) return;
+              void Haptics.selectionAsync();
+              onChange(mode);
+            }}
+            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
+          >
+            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
+              {mode === 'dark' ? t(language, 'themeDark') : t(language, 'themeLight')}
             </Text>
           </Pressable>
         );
