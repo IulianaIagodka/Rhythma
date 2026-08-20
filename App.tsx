@@ -341,7 +341,7 @@ export default function App() {
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.textLink, { color: theme.accent }]}>
+                  <Text style={[styles.textLink, { color: theme.ink }]}>
                     {t(language, 'chooseOtherDate')}
                   </Text>
                 </Pressable>
