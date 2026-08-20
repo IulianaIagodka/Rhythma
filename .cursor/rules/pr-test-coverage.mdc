@@ -1,0 +1,13 @@
+---
+description: Before merging any PR, verify logic changes are covered by tests
+alwaysApply: true
+---
+
+# PR test coverage gate
+
+Before merging or pushing a PR into `main`:
+
+1. Run `npm test` and `npx tsc --noEmit` — both must pass.
+2. For every logic/behavior change in the PR, confirm there is matching coverage in `src/*.test.ts` (existing or new). Pure docs/copy/metadata-only PRs do not need new tests, but still must pass the suite.
+3. If behavior changed without tests, add or update tests first — do not merge until covered.
+4. In the merge summary, briefly note what was tested (or that the PR was docs-only).
