@@ -94,7 +94,7 @@ Rhythma provides estimates only. It does not offer medical advice and should not
 
 ## Suggested keywords
 
-period tracker, cycle tracker, cycle calendar, period log, cycle planner, menstrual cycle, women health app, cycle planning, period calendar
+period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,period log,women health
 
 ---
 
