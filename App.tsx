@@ -401,7 +401,7 @@ export default function App() {
                 </Pressable>
               ) : null}
 
-              {showPhaseLists && (phasePlan.best.length || phasePlan.avoid.length) ? (
+              {showPhaseLists && phasePlan.best.length ? (
                 <View
                   style={[
                     styles.card,
@@ -435,20 +435,12 @@ export default function App() {
                     </Text>
                   </Pressable>
                   {data.settings.phaseListsExpanded ? (
-                    <>
-                      <TipGroup
-                        title={t(language, 'bestForPhase')}
-                        items={phasePlan.best}
-                        titleColor={theme.ink}
-                        textColor={theme.muted}
-                      />
-                      <TipGroup
-                        title={t(language, 'avoidThisPhase')}
-                        items={phasePlan.avoid}
-                        titleColor={theme.ink}
-                        textColor={theme.muted}
-                      />
-                    </>
+                    <TipGroup
+                      title={t(language, 'bestForPhase')}
+                      items={phasePlan.best}
+                      titleColor={theme.ink}
+                      textColor={theme.muted}
+                    />
                   ) : null}
                 </View>
               ) : null}
