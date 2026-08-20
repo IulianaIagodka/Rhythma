@@ -10,11 +10,13 @@ import {
   loggedPeriodDays,
   marksForYear,
   energyAtCycleDay,
+  estrogenAtCycleDay,
   nextRhythmMarker,
   ovulationDayForCycle,
   phaseIdForCycleDay,
   phaseWindows,
   periodPromptForDate,
+  progesteroneAtCycleDay,
   rhythmEnergyKind,
   togglePeriodStart,
   wrappedCycleDay,
@@ -169,6 +171,24 @@ describe('energyAtCycleDay', () => {
     assert.equal(rhythmEnergyKind('follicular'), 'rising');
     assert.equal(rhythmEnergyKind('ovulatory'), 'peak');
     assert.equal(rhythmEnergyKind('luteal'), 'easing');
+  });
+});
+
+describe('hormone curves', () => {
+  it('peaks estrogen near ovulation and keeps progesterone low before it', () => {
+    const settings = defaultSettings();
+    const ovulation = ovulationDayForCycle(28, settings);
+    assert.ok(estrogenAtCycleDay(ovulation, 28, settings) > estrogenAtCycleDay(3, 28, settings));
+    assert.ok(estrogenAtCycleDay(ovulation, 28, settings) > estrogenAtCycleDay(22, 28, settings));
+    assert.ok(progesteroneAtCycleDay(3, 28, settings) < 0.2);
+    assert.ok(progesteroneAtCycleDay(ovulation + 6, 28, settings) > progesteroneAtCycleDay(ovulation, 28, settings));
+  });
+
+  it('drops progesterone toward the end of the cycle', () => {
+    const settings = defaultSettings();
+    const midLuteal = progesteroneAtCycleDay(21, 28, settings);
+    const lateLuteal = progesteroneAtCycleDay(27, 28, settings);
+    assert.ok(midLuteal > lateLuteal);
   });
 });
 
