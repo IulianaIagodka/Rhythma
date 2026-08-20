@@ -178,10 +178,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     const emptyChecks = activityChecks(phase, items, lang);
     return {
       title: capacity.label,
-      note:
-        lang === 'uk'
-          ? [capacity.hint, ...emptyChecks, capacity.calendarHint].filter(Boolean).join('. ') + '.'
-          : [capacity.hint, ...emptyChecks, capacity.calendarHint].filter(Boolean).join('. ') + '.',
+      note: joinAdviceParts([...emptyChecks, capacity.hint, capacity.calendarHint]),
       fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
       events: 0,
@@ -192,31 +189,28 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   else if (capacity.load === 'medium' && intense >= 4) fit = 'high';
   else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
 
-  const counts =
-    lang === 'uk'
-      ? `На цьому тижні ${events} под.`
-      : `This week has ${events} events`;
-
-  const note =
-    fit === 'high'
-      ? (lang === 'uk'
-          ? `${counts} — це більше, ніж фаза зараз комфортно тримає. ${checks.join('. ')}. ${capacity.calendarHint}.`
-          : `${counts} — more than this phase is likely to support comfortably. ${checks.join('. ')}. ${capacity.calendarHint}.`)
-      : fit === 'low'
-        ? (lang === 'uk'
-            ? `${checks.join('. ')}. ${capacity.calendarHint}.`
-            : `${checks.join('. ')}. ${capacity.calendarHint}.`)
-        : (lang === 'uk'
-            ? `${checks.join('. ') || `${counts} — навантаження відповідає фазі`}. ${capacity.hint}.`
-            : `${checks.join('. ') || `${counts} — the load fits this phase`}. ${capacity.hint}.`);
+  const note = joinAdviceParts(
+    checks.length ? [...checks, capacity.hint] : [capacity.hint, capacity.calendarHint],
+  );
 
   return {
-    title: busiestDay ? (lang === 'uk' ? `${capitalize(busiestDay)} — найнасиченіший день` : `${capitalize(busiestDay)} is the busiest day`) : capacity.label,
+    title: busiestDay
+      ? lang === 'uk'
+        ? `${capitalize(busiestDay)} — ваш найнасиченіший день`
+        : `${capitalize(busiestDay)} is your busiest day`
+      : capacity.label,
     note,
     fit,
     busiestDay,
     events,
   };
+}
+
+function joinAdviceParts(parts: string[]): string {
+  const cleaned = parts.map((part) => part.trim()).filter(Boolean);
+  if (!cleaned.length) return '';
+  const body = cleaned.join('. ').replace(/\.\s*\./g, '.');
+  return /[.!?]$/.test(body) ? body : `${body}.`;
 }
 
 export type DayAlignment = 'under' | 'fit' | 'over';
