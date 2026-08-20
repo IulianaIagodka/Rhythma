@@ -42,7 +42,7 @@ export function ConfirmDialog({
           <Text style={[styles.title, { color: theme.ink }]}>{title}</Text>
           <Text style={[styles.message, { color: theme.muted }]}>{message}</Text>
           {cycleLine ? (
-            <Text style={[styles.cycleLine, { color: theme.teal }]}>{cycleLine}</Text>
+            <Text style={[styles.cycleLine, { color: theme.accent }]}>{cycleLine}</Text>
           ) : null}
           {showEvents ? (
             <View style={styles.eventsBlock}>

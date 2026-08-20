@@ -123,18 +123,23 @@ export function cycleStatus(today: string, starts: string[], settings: Settings)
     return { cycleDay: null, nextPeriod: null, cycleLength, inPeriod: false, phase: null };
   }
   const last = sorted[sorted.length - 1];
-  const cycleDay = diffDays(last, today) + 1;
+  const rawCycleDay = diffDays(last, today) + 1;
+  if (rawCycleDay < 1) {
+    return { cycleDay: null, nextPeriod: null, cycleLength, inPeriod: false, phase: null };
+  }
+  const cycleDay =
+    rawCycleDay > cycleLength ? wrappedCycleDay(rawCycleDay, cycleLength) : rawCycleDay;
   let nextPeriod = addDays(last, cycleLength);
   while (nextPeriod <= today) {
     nextPeriod = addDays(nextPeriod, cycleLength);
   }
-  const inPeriod = cycleDay >= 1 && cycleDay <= settings.periodLength;
+  const inPeriod = rawCycleDay >= 1 && rawCycleDay <= settings.periodLength;
   return {
-    cycleDay: cycleDay > 0 ? cycleDay : null,
+    cycleDay,
     nextPeriod,
     cycleLength,
     inPeriod,
-    phase: cycleDay > 0 ? phaseIdForCycleDay(cycleDay, cycleLength, settings) : null,
+    phase: phaseIdForCycleDay(cycleDay, cycleLength, settings),
   };
 }
 
@@ -292,8 +297,10 @@ export function cycleDayOnDate(iso: string, starts: string[], settings: Settings
   const cycleLength = averageCycleLength(sorted);
   let cycleDay = diffDays(start, iso) + 1;
   if (cycleDay < 1) return null;
-  if (settings.showForecast && nextLogged == null && cycleDay > cycleLength) {
-    cycleDay = ((cycleDay - 1) % cycleLength) + 1;
+  // Past the last logged start with no following start: stay within 1..cycleLength.
+  // Cycle day 62+ is not a meaningful status — wrap onto the projected cycle.
+  if (nextLogged == null && cycleDay > cycleLength) {
+    cycleDay = wrappedCycleDay(cycleDay, cycleLength);
   }
   return cycleDay;
 }

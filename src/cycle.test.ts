@@ -128,8 +128,18 @@ describe('cycleDayOnDate', () => {
     assert.equal(cycleDayOnDate('2026-07-20', ['2026-08-01'], defaultSettings()), null);
   });
 
-  it('wraps past the cycle length when forecast is on', () => {
+  it('wraps past the cycle length even when forecast is off', () => {
+    const settings = { ...defaultSettings(), showForecast: false };
+    // Aug 7 → Oct 8 is day 63 raw; 28-day wrap → day 7
+    assert.equal(cycleDayOnDate('2026-10-08', ['2026-08-07'], settings), 7);
     assert.equal(cycleDayOnDate('2026-09-05', ['2026-08-01'], defaultSettings()), 8);
+  });
+
+  it('does not wrap inside a longer logged cycle between two starts', () => {
+    assert.equal(
+      cycleDayOnDate('2026-02-10', ['2026-01-01', '2026-03-01'], defaultSettings()),
+      41,
+    );
   });
 });
 
