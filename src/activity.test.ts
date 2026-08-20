@@ -64,7 +64,7 @@ describe('adviseLoad', () => {
       item('3', 'HIIT', '2026-08-20', 'intense'),
     ], 'uk');
     assert.equal(heavy.fit, 'high');
-    assert.match(heavy.note, /Перегляньте плани/);
+    assert.match(heavy.title, /Перегляньте плани/);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -72,7 +72,7 @@ describe('adviseLoad', () => {
       item('3', 'Плавання', '2026-08-20', 'swim'),
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
-    assert.match(gentle.note, /Перегляньте плани/);
+    assert.match(gentle.title, /Перегляньте плани/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
