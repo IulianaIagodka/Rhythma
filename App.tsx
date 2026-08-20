@@ -388,14 +388,7 @@ export default function App() {
 
               {!calendarEnabled ? (
                 <Pressable
-                  onPress={() => {
-                    if (!hasCalendarSync) {
-                      setTab('settings');
-                      return;
-                    }
-                    persist({ ...data, settings: { ...data.settings, calendarSync: true } });
-                    refreshCalendar(true);
-                  }}
+                  onPress={() => setTab('settings')}
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
                   accessibilityRole="button"
                 >
