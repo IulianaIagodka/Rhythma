@@ -399,10 +399,10 @@ export default function App() {
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
                   accessibilityRole="button"
                 >
-                  <Text style={[styles.link, { color: theme.teal, textAlign: 'left' }]}>
+                  <Text style={[styles.sectionLabel, { color: theme.teal }]}>
                     {t(language, 'connectCalendar')}
                   </Text>
-                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                  <Text style={[styles.connectCalendarHint, { color: theme.muted }]}>
                     {t(language, 'connectCalendarHint')}
                   </Text>
                 </Pressable>
@@ -888,6 +888,11 @@ const styles = StyleSheet.create({
   connectCalendarCard: {
     gap: 4,
     paddingVertical: 16,
+  },
+  connectCalendarHint: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '400',
   },
   cycleHero: {
     flexDirection: 'row',

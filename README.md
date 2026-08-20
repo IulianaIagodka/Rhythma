@@ -18,7 +18,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 ## Plus — Coming soon
 
 - Schedule insight when Calendar sync is on (cycle-aware load advice for the week)
-- Cycle insight when Calendar sync is off (phase-only guidance) plus a Connect calendar CTA
+- Cycle insight when Calendar sync is off (phase-only guidance) plus a Schedule insights CTA to connect the calendar
 - For this phase (Yes / No guidance for the current phase)
 - Energy curve (smooth sparkline; tap to open energy with estrogen and progesterone)
 
