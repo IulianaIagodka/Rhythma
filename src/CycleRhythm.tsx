@@ -228,7 +228,7 @@ function ExpandedChart({
       <Svg width={width} height={EXPANDED_HEIGHT}>
         <Path
           d={smoothPath(estrogenPoints)}
-          stroke={theme.estrogen}
+          stroke={theme.period}
           strokeWidth={2.2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -237,7 +237,7 @@ function ExpandedChart({
         />
         <Path
           d={smoothPath(progesteronePoints)}
-          stroke={theme.progesterone}
+          stroke={theme.rhythmLuteal}
           strokeWidth={2.2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -336,9 +336,9 @@ export function CycleRhythm({
 
             <View style={styles.legend}>
               <LegendDot color={theme.teal} label={t(language, 'rhythmEnergy')} ink={theme.ink} />
-              <LegendDot color={theme.estrogen} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
+              <LegendDot color={theme.period} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
               <LegendDot
-                color={theme.progesterone}
+                color={theme.rhythmLuteal}
                 label={t(language, 'rhythmProgesterone')}
                 ink={theme.ink}
               />
