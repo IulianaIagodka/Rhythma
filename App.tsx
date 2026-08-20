@@ -246,9 +246,16 @@ export default function App() {
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
                   <Text style={[styles.sectionTitle, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
-                  <Text style={[styles.sectionTag, { color: theme.accent }]}>
-                    {calendarEnabled ? t(language, 'calendarTag') : t(language, 'cycleTag')}
-                  </Text>
+                  <Pressable onPress={() => setTab('year')} hitSlop={8}>
+                    <Text
+                      style={[
+                        calendarEnabled ? styles.sectionLink : styles.sectionTag,
+                        { color: calendarEnabled ? theme.teal : theme.accent },
+                      ]}
+                    >
+                      {calendarEnabled ? t(language, 'calendarTag') : t(language, 'cycleTag')}
+                    </Text>
+                  </Pressable>
                 </View>
                 <WeekStrip
                   today={today}
@@ -583,29 +590,31 @@ export default function App() {
           ) : null}
         </ScrollView>
 
-        <View style={[styles.tabBar, { backgroundColor: theme.tabBar, borderTopColor: theme.border }]}>
-          <TabButton
-            label={t(language, 'todayTab')}
-            active={tab === 'today'}
-            theme={theme}
-            onPress={() => setTab('today')}
-            icon="●"
-          />
-          <TabButton
-            label={t(language, 'yearTab')}
-            active={tab === 'year'}
-            theme={theme}
-            onPress={() => setTab('year')}
-            icon="▦"
-          />
-          <TabButton
-            label={t(language, 'moreTab')}
-            active={tab === 'settings'}
-            theme={theme}
-            onPress={() => setTab('settings')}
-            icon="menu"
-          />
-        </View>
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: theme.tabBar }}>
+          <View style={[styles.tabBar, { borderTopColor: theme.border }]}>
+            <TabButton
+              label={t(language, 'todayTab')}
+              active={tab === 'today'}
+              theme={theme}
+              onPress={() => setTab('today')}
+              icon="●"
+            />
+            <TabButton
+              label={t(language, 'yearTab')}
+              active={tab === 'year'}
+              theme={theme}
+              onPress={() => setTab('year')}
+              icon="▦"
+            />
+            <TabButton
+              label={t(language, 'moreTab')}
+              active={tab === 'settings'}
+              theme={theme}
+              onPress={() => setTab('settings')}
+              icon="menu"
+            />
+          </View>
+        </SafeAreaView>
       </SafeAreaView>
       <ConfirmDialog
         visible={periodPrompt != null}
@@ -870,6 +879,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+  sectionLink: {
+    fontSize: 13,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
   dayList: {
     gap: 12,
   },
@@ -1082,7 +1096,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingTop: 8,
-    paddingBottom: 6,
+    paddingBottom: 4,
   },
   tabBtn: {
     flex: 1,
