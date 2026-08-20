@@ -943,29 +943,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  link: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
   textLink: {
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
-    textDecorationLine: 'underline',
-  },
-  secondaryAction: {
-    fontSize: 13,
-    textAlign: 'center',
-    fontWeight: '400',
-  },
-  sectionTag: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  sectionLink: {
-    fontSize: 13,
-    fontWeight: '600',
     textDecorationLine: 'underline',
   },
   dayList: {
