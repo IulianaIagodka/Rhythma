@@ -119,7 +119,6 @@ function CompactChart({
   cycleLength,
   settings,
   theme,
-  language,
 }: CycleRhythmProps) {
   const points = useMemo(
     () =>
@@ -155,9 +154,6 @@ function CompactChart({
           strokeWidth={2}
         />
       </Svg>
-      <Text style={[styles.compactTodayCaption, { color: theme.teal }]}>
-        {t(language, 'rhythmToday')}
-      </Text>
     </View>
   );
 }
@@ -346,14 +342,8 @@ export function CycleRhythm({
 const styles = StyleSheet.create({
   compactWrap: {
     width: CHART_WIDTH,
-    height: CHART_HEIGHT + 16,
+    height: CHART_HEIGHT,
     alignItems: 'center',
-  },
-  compactTodayCaption: {
-    marginTop: 2,
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.2,
   },
   todayLabel: {
     position: 'absolute',
