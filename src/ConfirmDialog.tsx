@@ -1,5 +1,6 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import type { CalendarItem } from './calendar';
 import type { Theme } from './theme';
 
 type ConfirmDialogProps = {
@@ -10,6 +11,10 @@ type ConfirmDialogProps = {
   cancelLabel: string;
   confirmLabel: string;
   destructive?: boolean;
+  cycleLine?: string;
+  eventsLabel?: string;
+  events?: CalendarItem[];
+  emptyEventsLabel?: string;
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -21,17 +26,40 @@ export function ConfirmDialog({
   message,
   cancelLabel,
   confirmLabel,
+  cycleLine,
+  eventsLabel,
+  events,
+  emptyEventsLabel,
   onCancel,
   onConfirm,
 }: ConfirmDialogProps) {
+  const showEvents = eventsLabel != null;
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.overlay}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <View style={[styles.mark, { backgroundColor: theme.accent }]} />
           <Text style={[styles.title, { color: theme.ink }]}>{title}</Text>
           <Text style={[styles.message, { color: theme.muted }]}>{message}</Text>
+          {cycleLine ? (
+            <Text style={[styles.cycleLine, { color: theme.teal }]}>{cycleLine}</Text>
+          ) : null}
+          {showEvents ? (
+            <View style={styles.eventsBlock}>
+              <Text style={[styles.sectionLabel, { color: theme.muted }]}>{eventsLabel}</Text>
+              {events?.length ? (
+                <View style={styles.eventList}>
+                  {events.map((item) => (
+                    <Text key={item.id} style={[styles.eventItem, { color: theme.ink }]}>
+                      {item.title}
+                    </Text>
+                  ))}
+                </View>
+              ) : (
+                <Text style={[styles.empty, { color: theme.muted }]}>{emptyEventsLabel}</Text>
+              )}
+            </View>
+          ) : null}
           <View style={styles.actions}>
             <Pressable
               onPress={onCancel}
@@ -76,18 +104,37 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
     gap: 10,
   },
-  mark: {
-    width: 28,
-    height: 4,
-    borderRadius: 2,
-    marginBottom: 6,
-  },
   title: {
     fontSize: 22,
     fontWeight: '700',
     letterSpacing: -0.4,
   },
   message: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  cycleLine: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  eventsBlock: {
+    gap: 6,
+    marginTop: 2,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  eventList: {
+    gap: 6,
+  },
+  eventItem: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  empty: {
     fontSize: 15,
     lineHeight: 22,
   },

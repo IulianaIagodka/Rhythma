@@ -32,7 +32,6 @@ import { loadData, saveData } from './src/storage';
 import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
-import { DayDetailSheet } from './src/DayDetailSheet';
 import { detectLanguage, t, type Language } from './src/i18n';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
@@ -51,7 +50,6 @@ export default function App() {
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
-  const [inspectedDay, setInspectedDay] = useState<string | null>(null);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -127,10 +125,14 @@ export default function App() {
     [data, persist],
   );
 
-  const onCalendarDayPress = useCallback((iso: string) => {
-    Haptics.selectionAsync().catch(() => {});
-    setInspectedDay(iso);
-  }, []);
+  const onCalendarDayPress = useCallback(
+    (iso: string) => {
+      if (!data) return;
+      Haptics.selectionAsync().catch(() => {});
+      setPeriodPrompt({ iso, kind: periodPromptForDate(data.periodStarts, iso) });
+    },
+    [data],
+  );
 
   const onFirstDay = useCallback(() => {
     if (!data) return;
@@ -181,15 +183,12 @@ export default function App() {
   const yearEventDays = showCalendarEvents
     ? new Set(yearItems.map((item) => item.day))
     : undefined;
-  const inspectedItems = inspectedDay
-    ? yearItems.filter((item) => item.day === inspectedDay)
+  const promptItems = periodPrompt
+    ? yearItems.filter((item) => item.day === periodPrompt.iso)
     : [];
-  const inspectedCycleDay = inspectedDay
-    ? cycleDayOnDate(inspectedDay, data.periodStarts, data.settings)
+  const promptCycleDay = periodPrompt
+    ? cycleDayOnDate(periodPrompt.iso, data.periodStarts, data.settings)
     : null;
-  const inspectedPeriodKind = inspectedDay
-    ? periodPromptForDate(data.periodStarts, inspectedDay)
-    : 'add';
   const visibleAdvice = showAdvice
     ? calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
@@ -666,34 +665,6 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
-      <DayDetailSheet
-        visible={inspectedDay != null}
-        theme={theme}
-        title={inspectedDay ? formatSelectedDayTitle(inspectedDay, language) : ''}
-        cycleLine={
-          inspectedCycleDay != null
-            ? t(language, 'dayDetailCycleDay', { day: String(inspectedCycleDay) })
-            : t(language, 'dayDetailNoCycle')
-        }
-        eventsLabel={t(language, 'dayDetailEvents')}
-        events={calendarEnabled ? inspectedItems : []}
-        emptyEventsLabel={
-          calendarEnabled ? t(language, 'dayDetailNoEvents') : t(language, 'dayDetailEnableSync')
-        }
-        periodActionLabel={
-          inspectedPeriodKind === 'remove'
-            ? t(language, 'removePeriodStart')
-            : t(language, 'markPeriodStart')
-        }
-        closeLabel={t(language, 'rhythmClose')}
-        onClose={() => setInspectedDay(null)}
-        onPeriodAction={() => {
-          if (!inspectedDay) return;
-          const iso = inspectedDay;
-          setInspectedDay(null);
-          setPeriodPrompt({ iso, kind: periodPromptForDate(data.periodStarts, iso) });
-        }}
-      />
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
@@ -706,6 +677,16 @@ export default function App() {
                 { date: formatDay(periodPrompt.iso, language) },
               )
             : ''
+        }
+        cycleLine={
+          promptCycleDay != null
+            ? t(language, 'dayDetailCycleDay', { day: String(promptCycleDay) })
+            : t(language, 'dayDetailNoCycle')
+        }
+        eventsLabel={t(language, 'dayDetailEvents')}
+        events={calendarEnabled ? promptItems : []}
+        emptyEventsLabel={
+          calendarEnabled ? t(language, 'dayDetailNoEvents') : t(language, 'dayDetailEnableSync')
         }
         cancelLabel={t(language, 'confirmCancel')}
         confirmLabel={
