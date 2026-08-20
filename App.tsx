@@ -184,7 +184,12 @@ export default function App() {
           <Text style={[styles.brand, { color: theme.accent }]}>Rhythma</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.mainScroll}
+          contentContainerStyle={[styles.content, tab === 'year' ? styles.yearContent : null]}
+          scrollEnabled={tab !== 'year'}
+          showsVerticalScrollIndicator={false}
+        >
           {tab === 'today' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'todayHeader')}</Text>
@@ -407,7 +412,7 @@ export default function App() {
           ) : null}
 
           {tab === 'year' ? (
-            <>
+            <View style={styles.yearScreen}>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'cycleCalendar')}</Text>
               <View style={styles.yearNav}>
                 <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
@@ -426,7 +431,7 @@ export default function App() {
                 language={language}
                 onPressDay={onCalendarDayPress}
               />
-            </>
+            </View>
           ) : null}
 
           {tab === 'settings' ? (
@@ -825,10 +830,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.3,
   },
+  mainScroll: {
+    flex: 1,
+  },
   content: {
     paddingHorizontal: 20,
     paddingBottom: 24,
     gap: 16,
+  },
+  yearContent: {
+    flexGrow: 1,
+    paddingBottom: 8,
+  },
+  yearScreen: {
+    flex: 1,
+    gap: 12,
+    minHeight: 0,
   },
   hero: {
     fontSize: 28,

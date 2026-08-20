@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
 import type { Theme } from './theme';
+import {
+  yearCalendarMetrics,
+  yearCalendarScrollOffset,
+  type YearCalendarMetrics,
+} from './yearCalendarLayout';
 
 type YearCalendarProps = {
   year: number;
@@ -13,14 +18,6 @@ type YearCalendarProps = {
   language: Language;
   onPressDay: (iso: string) => void;
 };
-
-const COLS = 3;
-const MONTH_HEIGHT = 118;
-const ROW_GAP = 16;
-const COL_GAP = 8;
-const VISIBLE_MONTHS = 9;
-const VISIBLE_ROWS = VISIBLE_MONTHS / COLS;
-const VIEWPORT_HEIGHT = MONTH_HEIGHT * VISIBLE_ROWS + ROW_GAP * (VISIBLE_ROWS - 1);
 
 function monthISO(year: number, monthIndex: number, day: number): string {
   const m = String(monthIndex + 1).padStart(2, '0');
@@ -42,7 +39,8 @@ function MonthGrid({
   theme,
   language,
   onPressDay,
-}: YearCalendarProps & { monthIndex: number }) {
+  metrics,
+}: YearCalendarProps & { monthIndex: number; metrics: YearCalendarMetrics }) {
   const leading = mondayIndex(year, monthIndex, 1);
   const count = daysInMonth(year, monthIndex);
   const cells: Array<number | null> = [
@@ -51,47 +49,57 @@ function MonthGrid({
   ];
   while (cells.length % 7 !== 0) cells.push(null);
   const colors = MARK_COLORS(theme);
+  const { daySize, dayFontSize, monthTitleSize, monthHeight, monthWidth } = metrics;
 
   return (
-    <View style={styles.month}>
-      <Text style={[styles.monthTitle, { color: theme.muted }]}>{monthName(monthIndex, language)}</Text>
-      <View style={styles.days}>
-        {cells.map((day, index) => {
-          if (day == null) {
-            return <View key={`e-${index}`} style={styles.dayCell} />;
-          }
-          const iso = monthISO(year, monthIndex, day);
-          const mark = marks.get(iso);
-          const isToday = iso === today;
-          const isPeriod = mark === 'period' || mark === 'periodForecast';
-          const isOvulatory = mark === 'ovulatory';
-          const fill = mark ? colors[mark] : undefined;
-          const todayNoMark = isToday && !mark;
-          return (
-            <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
-              <View
-                style={[
-                  styles.dayFill,
-                  mark && fill ? { backgroundColor: fill } : null,
-                  todayNoMark ? { backgroundColor: theme.accent } : null,
-                  isToday && mark ? { borderColor: theme.accent, borderWidth: 1.5 } : null,
-                ]}
-              >
-                <Text
+    <View style={[styles.month, { width: monthWidth, height: monthHeight }]}>
+      <Text style={[styles.monthTitle, { color: theme.muted, fontSize: monthTitleSize }]}>
+        {monthName(monthIndex, language)}
+      </Text>
+      <View style={styles.daysWrap}>
+        <View style={styles.days}>
+          {cells.map((day, index) => {
+            if (day == null) {
+              return <View key={`e-${index}`} style={styles.dayCell} />;
+            }
+            const iso = monthISO(year, monthIndex, day);
+            const mark = marks.get(iso);
+            const isToday = iso === today;
+            const isPeriod = mark === 'period' || mark === 'periodForecast';
+            const isOvulatory = mark === 'ovulatory';
+            const fill = mark ? colors[mark] : undefined;
+            const todayNoMark = isToday && !mark;
+            return (
+              <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
+                <View
                   style={[
-                    styles.dayText,
-                    { color: theme.muted },
-                    (isPeriod || isOvulatory) && styles.dayPeriod,
-                    todayNoMark && styles.dayPeriod,
-                    isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
+                    styles.dayFill,
+                    {
+                      width: daySize,
+                      height: daySize,
+                      borderRadius: daySize / 2,
+                    },
+                    mark && fill ? { backgroundColor: fill } : null,
+                    todayNoMark ? { backgroundColor: theme.accent } : null,
+                    isToday && mark ? { borderColor: theme.accent, borderWidth: 1.5 } : null,
                   ]}
                 >
-                  {day}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
+                  <Text
+                    style={[
+                      styles.dayText,
+                      { color: theme.muted, fontSize: dayFontSize },
+                      (isPeriod || isOvulatory) && styles.dayPeriod,
+                      todayNoMark && styles.dayPeriod,
+                      isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </View>
   );
@@ -99,27 +107,38 @@ function MonthGrid({
 
 export function YearCalendar(props: YearCalendarProps) {
   const scrollRef = useRef<ScrollView>(null);
+  const [metrics, setMetrics] = useState(() => yearCalendarMetrics(320, 420));
   const currentMonthIndex = useMemo(() => {
     const date = new Date();
     return date.getFullYear() === props.year ? date.getMonth() : 0;
   }, [props.year]);
 
+  const onViewportLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width <= 0 || height <= 0) return;
+    setMetrics(yearCalendarMetrics(width, height));
+  };
+
   useEffect(() => {
-    const rowIndex = Math.floor(currentMonthIndex / COLS);
-    const maxStartRow = Math.max(0, 12 / COLS - VISIBLE_ROWS);
-    const centeredRow = Math.min(maxStartRow, Math.max(0, rowIndex - 1));
-    const y = centeredRow * (MONTH_HEIGHT + ROW_GAP);
+    const y = yearCalendarScrollOffset(currentMonthIndex, metrics.monthHeight, metrics.rowGap);
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({ y, animated: false });
     }, 0);
     return () => clearTimeout(timer);
-  }, [currentMonthIndex, props.year]);
+  }, [currentMonthIndex, props.year, metrics.monthHeight, metrics.rowGap]);
 
   return (
-    <View style={styles.viewport}>
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.year}>
+    <View style={styles.viewport} onLayout={onViewportLayout}>
+      <ScrollView
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.year,
+          { rowGap: metrics.rowGap, columnGap: metrics.colGap },
+        ]}
+      >
         {Array.from({ length: 12 }, (_, monthIndex) => (
-          <MonthGrid key={monthIndex} monthIndex={monthIndex} {...props} />
+          <MonthGrid key={monthIndex} monthIndex={monthIndex} metrics={metrics} {...props} />
         ))}
       </ScrollView>
     </View>
@@ -128,46 +147,43 @@ export function YearCalendar(props: YearCalendarProps) {
 
 const styles = StyleSheet.create({
   viewport: {
-    height: VIEWPORT_HEIGHT,
+    flex: 1,
+    minHeight: 0,
   },
   year: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: ROW_GAP,
-    columnGap: COL_GAP,
+    justifyContent: 'flex-start',
     paddingBottom: 8,
   },
   month: {
-    width: '31%',
-    minHeight: MONTH_HEIGHT,
+    justifyContent: 'flex-start',
   },
   monthTitle: {
-    fontSize: 11,
     fontWeight: '600',
     marginBottom: 6,
     textTransform: 'capitalize',
+  },
+  daysWrap: {
+    flex: 1,
+    justifyContent: 'center',
   },
   days: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   dayCell: {
-    width: '14.28%',
+    width: `${100 / 7}%`,
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayFill: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayText: {
-    fontSize: 8,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   dayPeriod: {
     color: '#FFFFFF',
