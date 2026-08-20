@@ -2,50 +2,59 @@
 
 ## Promo Text
 
-Track your cycle. Plan your week. Know when to push and when to rest.
+Plan around your cycle, not against it. Sync Rhythma with your calendar and make your plans with your rhythm in mind.
 
 ## Description
 
-Your cycle affects your energy, focus, and performance every day. Rhythma helps you track it and plan around it — simply, privately, and without noise.
+Your cycle doesn’t happen separately from your life. Rhythma brings your cycle and calendar together, helping you plan with your body—not against it.
 
-Log your period in one tap. See your cycle day and phase on Today. Connect your iPhone calendar and see how your events land across your cycle.
+Log the first day of your period in one tap, see where you are in your cycle, and get predictions for your next period and optional ovulation window.
 
-### LOG YOUR PERIOD IN ONE TAP
-Record the first day of your period instantly from Today. To log another date, tap it on the year calendar and confirm.
+Connect your iPhone calendar to view upcoming events alongside your cycle. Rhythma helps you notice busy days, create space for recovery, and choose better moments for demanding work, workouts, meetings, and rest.
 
-### YOUR WHOLE YEAR AT A GLANCE
-A clear annual calendar showing your recorded periods and predicted cycle days so you can plan weeks and months ahead. Nine months are visible at once; scroll for the rest.
+With Rhythma, you can:
 
-### PRIVATE BY DESIGN
-Your data stays on your iPhone. No account required. No cloud sync. Rhythma never uploads your cycle data anywhere.
+• Log your period quickly
+• See your current cycle day and phase
+• View predicted periods across the year
+• Optionally estimate ovulation and fertile days
+• Sync with Apple Calendar
+• See events and workouts alongside your cycle
+• Receive phase-aware planning suggestions
+• Switch between light and dark themes
+• Use the app in English or Ukrainian
 
-### SYNC YOUR CALENDAR — FREE
-Connect your iPhone calendar and see your events alongside your cycle. Turn it on in Settings and allow access when iOS asks. For Google Calendar, add Google in iPhone Calendar accounts first — details on the support page.
+Your calendar shows what you have planned. Rhythma adds the context of how you may feel.
 
-### RHYTHMA PLUS — COMING SOON
-Recommendations, Phase tips, and Energy curve. In-app purchase will be available in a future update.
-
-### PERSONALISE YOUR EXPERIENCE
-Switch Light or Dark theme. Available in English and Ukrainian.
-
-Rhythma provides cycle estimates only. Its predictions are not medical advice and should not be used as contraception.
+Cycle and ovulation predictions are estimates for informational and wellness purposes only. Rhythma is not a medical device and should not be used for diagnosis or contraception
 
 ---
 
-## Beta App Description (TestFlight)
+## TestFlight Test Information
 
-Private cycle tracker for iPhone. Log your period, see it on week and year calendars, and sync events from the iPhone Calendar.
+Paste into App Store Connect → TestFlight → Test Information.
 
-What’s new in this build
-• Calendar sync is free for everyone
-• Year calendar shows 9 months, then scroll
-• Theme switch: Light / Dark
-• Phase tips (Yes / No) and smoother Energy curve (Plus)
-• In TestFlight: Free / Plus switch in Settings for QA
+### Beta App Description
 
-Not a fertility or medical app. Data stays on your iPhone.
+Rhythma brings your menstrual cycle into your calendar.
 
-Support: https://iulianaiagodka.github.io/Rhythma/
+Instead of tracking your cycle separately from the rest of your life, Rhythma lets you see your cycle alongside your actual plans and events — helping you understand how upcoming days may align with your energy, focus, workload, and social plans.
+
+Track your cycle, view upcoming phases, and use your calendar to plan with your rhythm in mind.
+
+### Feedback Email
+
+iuliana.iagodka@gmail.com
+
+### What to Test
+
+• Log a period from Today and from the year calendar (confirm / remove)
+• Turn on Calendar sync; confirm events appear next to the cycle
+• Switch Light / Dark theme
+• Use the Free / Plus switch in Settings; check Phase tips and Energy curve on Plus
+• Confirm the app follows English or Ukrainian from the iPhone language
+
+No sign-in. Reviewers can open the app and use it immediately.
 
 ---
 
@@ -85,7 +94,7 @@ Rhythma provides estimates only. It does not offer medical advice and should not
 
 ## Suggested keywords
 
-period tracker, cycle tracker, cycle calendar, period log, cycle planner, menstrual cycle, women health app, cycle planning, period calendar
+period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,period log,women health
 
 ---
 
