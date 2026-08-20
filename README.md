@@ -16,19 +16,11 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Plus — Coming soon
 
-<<<<<<< HEAD
 - Recommendations (load advice for the current phase)
 - Phase tips (Yes / No for this phase)
-- Energy curve (smooth four-phase sparkline with a today marker)
+- Energy curve (smooth sparkline; tap to open energy with estrogen and progesterone)
 
 Purchase will be available behind the `EXPO_PUBLIC_IAP_PLUS` flag (`eas` profile `plus`).
-=======
-- Calendar sync for events
-- Load recommendations, with a switch to hide them
-- Day highlighting when the schedule is too heavy or too light for the phase
-- Phase tips for what may support you now and what to go easier on, with a switch to hide them
-- Cycle rhythm: a compact four-phase sparkline to the right of cycle day; tap to open an expanded energy chart with estrogen and progesterone patterns
->>>>>>> origin/cursor/energy-hormones-chart-f8e3
 
 ## Builds
 
