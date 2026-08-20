@@ -7,12 +7,13 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import {
   energyAtCycleDay,
   estrogenAtCycleDay,
   phaseIdForCycleDay,
+  phaseWindows,
   progesteroneAtCycleDay,
   wrappedCycleDay,
   type PhaseId,
@@ -26,8 +27,17 @@ const CHART_HEIGHT = 64;
 const PAD_X = 10;
 const PAD_Y = 16;
 const EXPANDED_HEIGHT = 188;
-const EXPANDED_PAD_X = 14;
-const EXPANDED_PAD_Y = 22;
+const EXPANDED_PAD_X = 10;
+const EXPANDED_PAD_Y = 18;
+const EXPANDED_Y_LABEL_WIDTH = 36;
+const EXPANDED_X_LABEL_HEIGHT = 28;
+
+const PHASE_LABEL_KEY: Record<PhaseId, 'rhythmPhaseMenstrual' | 'rhythmPhaseFollicular' | 'rhythmPhaseOvulatory' | 'rhythmPhaseLuteal'> = {
+  menstrual: 'rhythmPhaseMenstrual',
+  follicular: 'rhythmPhaseFollicular',
+  ovulatory: 'rhythmPhaseOvulatory',
+  luteal: 'rhythmPhaseLuteal',
+};
 /** Extra samples between cycle days — denser path reads as a smooth curve. */
 const SAMPLES_PER_DAY = 8;
 
@@ -175,83 +185,144 @@ function ExpandedChart({
   language,
   width,
 }: CycleRhythmProps & { width: number }) {
+  const plotWidth = Math.max(160, width - EXPANDED_Y_LABEL_WIDTH);
   const energyPoints = useMemo(
     () =>
-      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+      curvePoints(cycleLength, settings, plotWidth, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
         energyAtCycleDay(day, cycleLength, settings),
       ),
-    [cycleLength, settings, width],
+    [cycleLength, settings, plotWidth],
   );
   const estrogenPoints = useMemo(
     () =>
-      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+      curvePoints(cycleLength, settings, plotWidth, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
         estrogenAtCycleDay(day, cycleLength, settings),
       ),
-    [cycleLength, settings, width],
+    [cycleLength, settings, plotWidth],
   );
   const progesteronePoints = useMemo(
     () =>
-      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+      curvePoints(cycleLength, settings, plotWidth, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
         progesteroneAtCycleDay(day, cycleLength, settings),
       ),
-    [cycleLength, settings, width],
+    [cycleLength, settings, plotWidth],
   );
-  const today = todayPoint(energyPoints, cycleDay, cycleLength, width, EXPANDED_PAD_X);
+  const today = todayPoint(energyPoints, cycleDay, cycleLength, plotWidth, EXPANDED_PAD_X);
   const labelWidth = language === 'uk' ? 72 : 44;
-  const labelLeft = Math.max(0, Math.min(width - labelWidth, today.x - labelWidth / 2));
+  const labelLeft = Math.max(
+    0,
+    Math.min(plotWidth - labelWidth, today.x - labelWidth / 2),
+  );
+  const windows = useMemo(() => phaseWindows(cycleLength, settings), [cycleLength, settings]);
+  const axisX = EXPANDED_PAD_X;
+  const axisYTop = EXPANDED_PAD_Y;
+  const axisYBottom = EXPANDED_HEIGHT - EXPANDED_PAD_Y;
+  const axisXEnd = plotWidth - EXPANDED_PAD_X;
+  const axisColor = theme.faint;
 
   return (
     <View style={[styles.expandedChartWrap, { width }]}>
-      <Svg width={width} height={EXPANDED_HEIGHT}>
-        <Path
-          d={smoothPath(estrogenPoints)}
-          stroke={theme.period}
-          strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-          opacity={0.95}
-        />
-        <Path
-          d={smoothPath(progesteronePoints)}
-          stroke={theme.rhythmLuteal}
-          strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-          opacity={0.95}
-        />
-        <Path
-          d={smoothPath(energyPoints)}
-          stroke={theme.teal}
-          strokeWidth={3.4}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        <Circle
-          cx={today.x}
-          cy={today.y}
-          r={6}
-          fill={theme.teal}
-          stroke="#FFFFFF"
-          strokeWidth={2}
-        />
-      </Svg>
-      <Text
+      <View style={styles.expandedPlotRow}>
+        <View style={[styles.yAxisLabels, { height: EXPANDED_HEIGHT }]}>
+          <Text style={[styles.axisLabel, { color: theme.muted }]}>
+            {t(language, 'rhythmAxisHigh')}
+          </Text>
+          <Text style={[styles.axisLabel, { color: theme.muted }]}>
+            {t(language, 'rhythmAxisLow')}
+          </Text>
+        </View>
+        <View style={{ width: plotWidth, height: EXPANDED_HEIGHT }}>
+          <Svg width={plotWidth} height={EXPANDED_HEIGHT}>
+            <Line
+              x1={axisX}
+              y1={axisYTop}
+              x2={axisX}
+              y2={axisYBottom}
+              stroke={axisColor}
+              strokeWidth={1}
+            />
+            <Line
+              x1={axisX}
+              y1={axisYBottom}
+              x2={axisXEnd}
+              y2={axisYBottom}
+              stroke={axisColor}
+              strokeWidth={1}
+            />
+            <Path
+              d={smoothPath(estrogenPoints)}
+              stroke={theme.period}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              opacity={0.95}
+            />
+            <Path
+              d={smoothPath(progesteronePoints)}
+              stroke={theme.rhythmLuteal}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              opacity={0.95}
+            />
+            <Path
+              d={smoothPath(energyPoints)}
+              stroke={theme.teal}
+              strokeWidth={3.4}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <Circle
+              cx={today.x}
+              cy={today.y}
+              r={6}
+              fill={theme.teal}
+              stroke="#FFFFFF"
+              strokeWidth={2}
+            />
+          </Svg>
+          <Text
+            style={[
+              styles.todayLabel,
+              styles.expandedTodayLabel,
+              {
+                color: theme.teal,
+                left: labelLeft,
+                top: Math.max(0, today.y - 20),
+                width: labelWidth,
+              },
+            ]}
+          >
+            {t(language, 'rhythmToday')}
+          </Text>
+        </View>
+      </View>
+      <View
         style={[
-          styles.todayLabel,
-          styles.expandedTodayLabel,
+          styles.xAxisLabels,
           {
-            color: theme.teal,
-            left: labelLeft,
-            top: Math.max(0, today.y - 20),
-            width: labelWidth,
+            marginLeft: EXPANDED_Y_LABEL_WIDTH + EXPANDED_PAD_X,
+            width: plotWidth - EXPANDED_PAD_X * 2,
           },
         ]}
       >
-        {t(language, 'rhythmToday')}
-      </Text>
+        {windows.map((window) => (
+          <View
+            key={`${window.phase}-${window.startDay}`}
+            style={[styles.xAxisLabelCell, { flex: window.endDay - window.startDay + 1 }]}
+          >
+            <Text
+              style={[styles.axisLabel, styles.xAxisLabelText, { color: theme.muted }]}
+              numberOfLines={1}
+            >
+              {t(language, PHASE_LABEL_KEY[window.phase])}
+            </Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -381,8 +452,37 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   expandedChartWrap: {
-    height: EXPANDED_HEIGHT,
     alignSelf: 'center',
+    gap: 4,
+  },
+  expandedPlotRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  yAxisLabels: {
+    width: EXPANDED_Y_LABEL_WIDTH,
+    justifyContent: 'space-between',
+    paddingTop: EXPANDED_PAD_Y - 2,
+    paddingBottom: EXPANDED_PAD_Y - 6,
+    paddingRight: 4,
+  },
+  xAxisLabels: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    minHeight: EXPANDED_X_LABEL_HEIGHT,
+  },
+  xAxisLabelCell: {
+    alignItems: 'center',
+    paddingHorizontal: 1,
+  },
+  xAxisLabelText: {
+    textAlign: 'center',
+    width: '100%',
+  },
+  axisLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.1,
   },
   legend: {
     flexDirection: 'row',
