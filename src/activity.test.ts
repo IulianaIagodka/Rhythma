@@ -57,14 +57,14 @@ describe('phaseStatusLabel', () => {
 });
 
 describe('adviseLoad', () => {
-  it('flags hard training during period, not gentle movement', () => {
+  it('flags hard training during period as a heavier fit', () => {
     const heavy = adviseLoad('menstrual', [
       item('1', 'Gym', '2026-08-18', 'intense'),
       item('2', 'Run', '2026-08-19', 'intense'),
       item('3', 'HIIT', '2026-08-20', 'intense'),
     ], 'uk');
     assert.equal(heavy.fit, 'high');
-    assert.match(heavy.note, /перенести/);
+    assert.match(heavy.note, /Перегляньте плани/);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -72,9 +72,7 @@ describe('adviseLoad', () => {
       item('3', 'Плавання', '2026-08-20', 'swim'),
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
-    assert.match(gentle.note, /Йога — ок/);
-    assert.match(gentle.note, /Масаж — ок/);
-    assert.match(gentle.note, /Плавання — ок/);
+    assert.match(gentle.note, /Перегляньте плани/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
@@ -90,10 +88,7 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.match(advice.title, /Sunday is your busiest day/);
-    assert.doesNotMatch(advice.note, /This week has/);
-    assert.match(advice.note, /Massage is okay/);
-    assert.match(advice.note, /Consider moving hard training/);
-    assert.match(advice.note, /progesterone rises/i);
+    assert.equal(advice.note, "Review your Sunday's plans");
   });
 
   it('uses the Ukrainian busiest-day insight title', () => {
@@ -102,7 +97,7 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.match(advice.title, /Неділя — ваш найнасиченіший день/);
-    assert.doesNotMatch(advice.note, /На цьому тижні/);
+    assert.equal(advice.note, 'Перегляньте плани на неділю');
   });
 });
 

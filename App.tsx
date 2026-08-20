@@ -431,7 +431,7 @@ export default function App() {
                     </Text>
                     <Text
                       style={[
-                        styles.primaryLine,
+                        styles.sectionLabel,
                         {
                           color:
                             visibleAdvice.fit === 'high'
