@@ -212,6 +212,50 @@ export function energyAtCycleDay(
   return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
 }
 
+/** Illustrative relative estrogen pattern — not a lab value. */
+export function estrogenAtCycleDay(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): number {
+  const day = wrappedCycleDay(cycleDay, cycleLength);
+  const ovulation = ovulationDayForCycle(cycleLength, settings);
+  const primaryWidth = Math.max(cycleLength * 0.07, 1.6);
+  const primary = Math.exp(-0.5 * ((day - ovulation) / primaryWidth) ** 2);
+  const follicularStart = settings.periodLength + 1;
+  const follicularSpan = Math.max(1, ovulation - follicularStart);
+  const follicularRise =
+    day > follicularStart && day < ovulation
+      ? ((day - follicularStart) / follicularSpan) ** 1.15 * 0.5
+      : 0;
+  const lutealMid = ovulation + Math.max(3, Math.round((cycleLength - ovulation) * 0.42));
+  const lutealWidth = Math.max(cycleLength * 0.11, 2.4);
+  const lutealBump =
+    day > ovulation + 1
+      ? Math.exp(-0.5 * ((day - lutealMid) / lutealWidth) ** 2) * 0.42
+      : 0;
+  const floor = day <= settings.periodLength ? 0.08 : 0.12;
+  return Math.max(0, Math.min(1, floor + follicularRise + primary * 0.88 + lutealBump));
+}
+
+/** Illustrative relative progesterone pattern — not a lab value. */
+export function progesteroneAtCycleDay(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): number {
+  const day = wrappedCycleDay(cycleDay, cycleLength);
+  const ovulation = ovulationDayForCycle(cycleLength, settings);
+  if (day <= ovulation) {
+    return 0.08 + (day / Math.max(1, ovulation)) * 0.04;
+  }
+  const lutealLength = Math.max(1, cycleLength - ovulation);
+  const progress = (day - ovulation) / lutealLength;
+  const rise = Math.sin(Math.min(1, progress) * Math.PI);
+  const lateDrop = progress > 0.72 ? ((progress - 0.72) / 0.28) * 0.28 : 0;
+  return Math.max(0.08, Math.min(1, 0.12 + rise * 0.8 - lateDrop));
+}
+
 export type RhythmEnergyKind = 'low' | 'rising' | 'peak' | 'easing';
 
 export function rhythmEnergyKind(phase: PhaseId): RhythmEnergyKind {

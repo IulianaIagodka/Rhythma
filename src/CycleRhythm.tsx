@@ -1,10 +1,19 @@
-import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import {
   energyAtCycleDay,
+  estrogenAtCycleDay,
   phaseIdForCycleDay,
+  progesteroneAtCycleDay,
   wrappedCycleDay,
   type PhaseId,
   type Settings,
@@ -16,6 +25,9 @@ const CHART_WIDTH = 132;
 const CHART_HEIGHT = 64;
 const PAD_X = 10;
 const PAD_Y = 16;
+const EXPANDED_HEIGHT = 188;
+const EXPANDED_PAD_X = 14;
+const EXPANDED_PAD_Y = 22;
 /** Extra samples between cycle days — denser path = smoother spline. */
 const SAMPLES_PER_DAY = 4;
 
@@ -36,21 +48,29 @@ function phaseColor(phase: PhaseId, theme: Theme): string {
   return theme.rhythmLuteal;
 }
 
-function curvePoints(cycleLength: number, settings: Settings): Point[] {
-  const innerWidth = CHART_WIDTH - PAD_X * 2;
-  const innerHeight = CHART_HEIGHT - PAD_Y * 2;
+function curvePoints(
+  cycleLength: number,
+  settings: Settings,
+  width: number,
+  height: number,
+  padX: number,
+  padY: number,
+  valueAtDay: (day: number) => number,
+): Point[] {
+  const innerWidth = width - padX * 2;
+  const innerHeight = height - padY * 2;
   const steps = Math.max(2, (cycleLength - 1) * SAMPLES_PER_DAY + 1);
   const points: Point[] = [];
 
   for (let i = 0; i < steps; i += 1) {
     const dayFloat = 1 + (i / (steps - 1)) * (cycleLength - 1);
     const dayFloor = Math.min(cycleLength, Math.max(1, Math.round(dayFloat)));
-    const energy = energyAtCycleDay(dayFloat, cycleLength, settings);
+    const value = valueAtDay(dayFloat);
     points.push({
       day: dayFloor,
       phase: phaseIdForCycleDay(dayFloor, cycleLength, settings),
-      x: PAD_X + ((dayFloat - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
-      y: PAD_Y + (1 - energy) * innerHeight,
+      x: padX + ((dayFloat - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
+      y: padY + (1 - value) * innerHeight,
     });
   }
   return points;
@@ -76,6 +96,11 @@ function smoothPathRange(points: Point[], start: number, end: number, tension = 
   return d;
 }
 
+function smoothPath(points: Point[], tension = 0.35): string {
+  if (points.length < 2) return '';
+  return smoothPathRange(points, 0, points.length - 1, tension);
+}
+
 function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {
   const segments: { phase: PhaseId; start: number; end: number }[] = [];
   for (let i = 0; i < points.length; i += 1) {
@@ -89,29 +114,35 @@ function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: n
   return segments.filter((segment) => segment.end > segment.start);
 }
 
-export function CycleRhythm({
+function todayPoint(points: Point[], cycleDay: number, cycleLength: number, width: number, padX: number): Point {
+  const todayDay = wrappedCycleDay(cycleDay, cycleLength);
+  const todayX = padX + ((todayDay - 1) / Math.max(1, cycleLength - 1)) * (width - padX * 2);
+  return points.reduce((best, point) =>
+    Math.abs(point.x - todayX) < Math.abs(best.x - todayX) ? point : best,
+  );
+}
+
+function CompactChart({
   cycleDay,
   cycleLength,
   settings,
   theme,
   language,
 }: CycleRhythmProps) {
-  const points = useMemo(() => curvePoints(cycleLength, settings), [cycleLength, settings]);
-  const todayDay = wrappedCycleDay(cycleDay, cycleLength);
-  const todayX =
-    PAD_X + ((todayDay - 1) / Math.max(1, cycleLength - 1)) * (CHART_WIDTH - PAD_X * 2);
-  const today = points.reduce((best, point) =>
-    Math.abs(point.x - todayX) < Math.abs(best.x - todayX) ? point : best,
+  const points = useMemo(
+    () =>
+      curvePoints(cycleLength, settings, CHART_WIDTH, CHART_HEIGHT, PAD_X, PAD_Y, (day) =>
+        energyAtCycleDay(day, cycleLength, settings),
+      ),
+    [cycleLength, settings],
   );
+  const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
   const segments = useMemo(() => phaseSegments(points), [points]);
   const labelWidth = language === 'uk' ? 72 : 44;
   const labelLeft = Math.max(0, Math.min(CHART_WIDTH - labelWidth, today.x - labelWidth / 2));
 
   return (
-    <View
-      style={styles.wrap}
-      accessibilityLabel={`${t(language, 'cycleRhythm')}. ${t(language, 'rhythmToday')}`}
-    >
+    <View style={styles.compactWrap}>
       <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
         {segments.map((segment) => (
           <Path
@@ -150,8 +181,190 @@ export function CycleRhythm({
   );
 }
 
+function LegendDot({ color, label, ink }: { color: string; label: string; ink: string }) {
+  return (
+    <View style={styles.legendItem}>
+      <View style={[styles.legendSwatch, { backgroundColor: color }]} />
+      <Text style={[styles.legendLabel, { color: ink }]}>{label}</Text>
+    </View>
+  );
+}
+
+function ExpandedChart({
+  cycleDay,
+  cycleLength,
+  settings,
+  theme,
+  language,
+  width,
+}: CycleRhythmProps & { width: number }) {
+  const energyPoints = useMemo(
+    () =>
+      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+        energyAtCycleDay(day, cycleLength, settings),
+      ),
+    [cycleLength, settings, width],
+  );
+  const estrogenPoints = useMemo(
+    () =>
+      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+        estrogenAtCycleDay(day, cycleLength, settings),
+      ),
+    [cycleLength, settings, width],
+  );
+  const progesteronePoints = useMemo(
+    () =>
+      curvePoints(cycleLength, settings, width, EXPANDED_HEIGHT, EXPANDED_PAD_X, EXPANDED_PAD_Y, (day) =>
+        progesteroneAtCycleDay(day, cycleLength, settings),
+      ),
+    [cycleLength, settings, width],
+  );
+  const today = todayPoint(energyPoints, cycleDay, cycleLength, width, EXPANDED_PAD_X);
+  const labelWidth = language === 'uk' ? 72 : 44;
+  const labelLeft = Math.max(0, Math.min(width - labelWidth, today.x - labelWidth / 2));
+
+  return (
+    <View style={[styles.expandedChartWrap, { width }]}>
+      <Svg width={width} height={EXPANDED_HEIGHT}>
+        <Path
+          d={smoothPath(estrogenPoints)}
+          stroke={theme.estrogen}
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity={0.95}
+        />
+        <Path
+          d={smoothPath(progesteronePoints)}
+          stroke={theme.progesterone}
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity={0.95}
+        />
+        <Path
+          d={smoothPath(energyPoints)}
+          stroke={theme.teal}
+          strokeWidth={2.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <Circle
+          cx={today.x}
+          cy={today.y}
+          r={6}
+          fill={theme.teal}
+          stroke="#FFFFFF"
+          strokeWidth={2}
+        />
+      </Svg>
+      <Text
+        style={[
+          styles.todayLabel,
+          styles.expandedTodayLabel,
+          {
+            color: theme.teal,
+            left: labelLeft,
+            top: Math.max(0, today.y - 20),
+            width: labelWidth,
+          },
+        ]}
+      >
+        {t(language, 'rhythmToday')}
+      </Text>
+    </View>
+  );
+}
+
+export function CycleRhythm({
+  cycleDay,
+  cycleLength,
+  settings,
+  theme,
+  language,
+}: CycleRhythmProps) {
+  const [expanded, setExpanded] = useState(false);
+  const { width: windowWidth } = useWindowDimensions();
+  const chartWidth = Math.max(240, windowWidth - 64);
+
+  return (
+    <>
+      <Pressable
+        onPress={() => setExpanded(true)}
+        accessibilityRole="button"
+        accessibilityLabel={`${t(language, 'cycleRhythm')}. ${t(language, 'rhythmToday')}`}
+        accessibilityHint={t(language, 'rhythmExpandHint')}
+        hitSlop={8}
+      >
+        <CompactChart
+          cycleDay={cycleDay}
+          cycleLength={cycleLength}
+          settings={settings}
+          theme={theme}
+          language={language}
+        />
+      </Pressable>
+
+      <Modal
+        visible={expanded}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setExpanded(false)}
+      >
+        <View style={styles.overlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setExpanded(false)} />
+          <View style={[styles.sheet, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <View style={[styles.sheetMark, { backgroundColor: theme.accent }]} />
+            <Text style={[styles.sheetTitle, { color: theme.ink }]}>
+              {t(language, 'rhythmExpandedTitle')}
+            </Text>
+            <Text style={[styles.sheetMeta, { color: theme.muted }]}>
+              {t(language, 'rhythmExpandedDesc')}
+            </Text>
+
+            <ExpandedChart
+              cycleDay={cycleDay}
+              cycleLength={cycleLength}
+              settings={settings}
+              theme={theme}
+              language={language}
+              width={chartWidth}
+            />
+
+            <View style={styles.legend}>
+              <LegendDot color={theme.teal} label={t(language, 'rhythmEnergy')} ink={theme.ink} />
+              <LegendDot color={theme.estrogen} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
+              <LegendDot
+                color={theme.progesterone}
+                label={t(language, 'rhythmProgesterone')}
+                ink={theme.ink}
+              />
+            </View>
+
+            <Text style={[styles.sheetNote, { color: theme.muted }]}>
+              {t(language, 'rhythmHormoneNote')}
+            </Text>
+
+            <Pressable
+              onPress={() => setExpanded(false)}
+              style={[styles.closeButton, { backgroundColor: theme.background, borderColor: theme.border }]}
+            >
+              <Text style={[styles.closeButtonText, { color: theme.ink }]}>
+                {t(language, 'rhythmClose')}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
-  wrap: {
+  compactWrap: {
     width: CHART_WIDTH,
     height: CHART_HEIGHT,
   },
@@ -160,5 +373,80 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  expandedTodayLabel: {
+    fontSize: 12,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.62)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  sheet: {
+    width: '100%',
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 16,
+    gap: 10,
+  },
+  sheetMark: {
+    width: 28,
+    height: 4,
+    borderRadius: 2,
+    marginBottom: 2,
+  },
+  sheetTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.4,
+  },
+  sheetMeta: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  expandedChartWrap: {
+    height: EXPANDED_HEIGHT,
+    alignSelf: 'center',
+  },
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 4,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendSwatch: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  sheetNote: {
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  closeButton: {
+    minHeight: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    marginTop: 4,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
