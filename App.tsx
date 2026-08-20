@@ -426,9 +426,6 @@ export default function App() {
                       <Text style={[styles.sectionLabel, { color: theme.muted }]}>
                         {t(language, 'phaseRecommendations')}
                       </Text>
-                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                        {t(language, 'phaseRecommendationsHint')}
-                      </Text>
                     </View>
                     <Text style={[styles.recommendChevron, { color: theme.muted }]}>
                       {data.settings.phaseListsExpanded ? '⌃' : '⌄'}
