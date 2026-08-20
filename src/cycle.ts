@@ -193,11 +193,23 @@ export function energyAtCycleDay(
 ): number {
   const day = wrappedCycleDay(cycleDay, cycleLength);
   const peak = ovulationDayForCycle(cycleLength, settings);
+  // Circular distance to ovulation peak
   const delta = Math.min(Math.abs(day - peak), cycleLength - Math.abs(day - peak));
-  const width = Math.max(cycleLength * 0.35, 6);
-  const bell = Math.cos(Math.min(1, delta / width) * Math.PI) * 0.5 + 0.5;
-  const menstrualDip = day <= settings.periodLength ? 0.18 : 0;
-  return Math.max(0.18, Math.min(1, 0.28 + 0.7 * bell - menstrualDip));
+  const width = Math.max(cycleLength * 0.38, 7);
+  const t = Math.min(1, delta / width);
+  // Smoothstep bell — softer shoulders than a hard cos kink
+  const smooth = t * t * (3 - 2 * t);
+  const bell = Math.cos(smooth * Math.PI) * 0.5 + 0.5;
+  // Soft menstrual dip that eases out after the period instead of a step
+  const periodEnd = settings.periodLength;
+  let menstrualDip = 0;
+  if (day <= periodEnd) {
+    menstrualDip = 0.16 * (1 - (day - 1) / Math.max(1, periodEnd));
+  } else if (day <= periodEnd + 3) {
+    const fade = (day - periodEnd) / 3;
+    menstrualDip = 0.04 * (1 - fade);
+  }
+  return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
 }
 
 export type RhythmEnergyKind = 'low' | 'rising' | 'peak' | 'easing';
