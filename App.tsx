@@ -402,40 +402,15 @@ export default function App() {
               ) : null}
 
               {showPhaseLists && phasePlan.best.length ? (
-                <View
-                  style={[
-                    styles.card,
-                    { backgroundColor: theme.card, gap: data.settings.phaseListsExpanded ? 14 : 6 },
-                  ]}
-                >
-                  <Pressable
-                    onPress={() =>
-                      persist({
-                        ...data,
-                        settings: {
-                          ...data.settings,
-                          phaseListsExpanded: !data.settings.phaseListsExpanded,
-                        },
-                      })
-                    }
-                    accessibilityRole="button"
-                    accessibilityState={{ expanded: data.settings.phaseListsExpanded }}
-                    style={styles.recommendHeader}
-                  >
-                    <View style={styles.settingText}>
-                      <Text style={[styles.sectionLabel, { color: theme.muted }]}>
-                        {t(language, 'phaseRecommendations')}
-                      </Text>
-                    </View>
-                    <Text style={[styles.recommendChevron, { color: theme.muted }]}>
-                      {data.settings.phaseListsExpanded ? '⌃' : '⌄'}
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <View style={styles.cardBlock}>
+                    <Text style={[styles.primaryLine, { color: theme.ink }]}>
+                      {t(language, 'phaseRecommendationsHint')}
                     </Text>
-                  </Pressable>
-                  {data.settings.phaseListsExpanded ? (
                     <Text style={[styles.tipGroupItems, { color: theme.muted }]}>
                       {phasePlan.best.join(' · ')}
                     </Text>
-                  ) : null}
+                  </View>
                 </View>
               ) : null}
             </>
@@ -888,16 +863,6 @@ const styles = StyleSheet.create({
   secondaryLine: {
     fontSize: 14,
     lineHeight: 20,
-  },
-  recommendHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  recommendChevron: {
-    fontSize: 18,
-    fontWeight: '500',
-    lineHeight: 22,
   },
   tipGroupItems: {
     fontSize: 14,
