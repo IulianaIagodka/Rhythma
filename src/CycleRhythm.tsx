@@ -149,10 +149,10 @@ function CompactChart({
         <Circle
           cx={today.x}
           cy={today.y}
-          r={3.5}
+          r={5.5}
           fill={theme.teal}
           stroke={theme.card}
-          strokeWidth={1.5}
+          strokeWidth={2}
         />
       </Svg>
       <Text style={[styles.compactTodayCaption, { color: theme.teal }]}>
