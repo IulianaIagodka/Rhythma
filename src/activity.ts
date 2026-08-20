@@ -187,7 +187,6 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   }
   const busiest = [...byDay.entries()].sort((a, b) => b[1] - a[1])[0];
   const busiestDay = busiest ? weekdayName(busiest[0], lang) : null;
-  const checks = activityChecks(phase, items, lang);
 
   let fit: Fit = 'ok';
   if (!items.length) {
@@ -205,17 +204,15 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   else if (capacity.load === 'medium' && intense >= 4) fit = 'high';
   else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
 
-  const note = joinAdviceParts(
-    checks.length ? [...checks, capacity.hint] : [capacity.hint, capacity.calendarHint],
-  );
-
   return {
     title: busiestDay
       ? lang === 'uk'
         ? `${capitalize(busiestDay)} — ваш найнасиченіший день`
         : `${capitalize(busiestDay)} is your busiest day`
       : capacity.label,
-    note,
+    note: busiestDay
+      ? reviewBusiestDayNote(busiestDay, lang)
+      : joinAdviceParts([capacity.hint, capacity.calendarHint]),
     fit,
     busiestDay,
     events,
@@ -315,6 +312,22 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
     };
   }
   return { best: [], avoid: [] };
+}
+
+function reviewBusiestDayNote(dayName: string, lang: Language): string {
+  if (lang === 'uk') {
+    const accusative: Record<string, string> = {
+      неділя: 'неділю',
+      понеділок: 'понеділок',
+      вівторок: 'вівторок',
+      середа: 'середу',
+      четвер: 'четвер',
+      "п'ятниця": "п'ятницю",
+      субота: 'суботу',
+    };
+    return `Перегляньте плани на ${accusative[dayName] ?? dayName}`;
+  }
+  return `Review your ${capitalize(dayName)}'s plans`;
 }
 
 function capitalize(value: string): string {
