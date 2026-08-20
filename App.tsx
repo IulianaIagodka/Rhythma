@@ -286,9 +286,6 @@ export default function App() {
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardBlock}>
-                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                    {t(language, 'cycleSection')}
-                  </Text>
                   {status.cycleDay == null ? (
                     <>
                       <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
