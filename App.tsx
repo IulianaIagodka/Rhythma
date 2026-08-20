@@ -439,15 +439,7 @@ export default function App() {
                           style={[
                             styles.sectionLabel,
                             styles.textLink,
-                            {
-                              color:
-                                visibleAdvice.fit === 'high'
-                                  ? theme.accent
-                                  : visibleAdvice.fit === 'low'
-                                    ? theme.teal
-                                    : theme.ink,
-                              textAlign: 'left',
-                            },
+                            { color: theme.ink, textAlign: 'left' },
                           ]}
                         >
                           {visibleAdvice.title}
