@@ -21,6 +21,7 @@ import {
   cycleDayOnDate,
   cycleStatus,
   daysUntilNextPeriod,
+  markForDate,
   marksForYear,
   periodPromptForDate,
   togglePeriodStart,
@@ -180,6 +181,14 @@ export default function App() {
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
+  const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
+  const selectedDayIsPeriod =
+    selectedDayMark === 'period' || selectedDayMark === 'periodForecast';
+  const selectedDayTitleColor = selectedDayIsPeriod
+    ? theme.accent
+    : selectedItems.length
+      ? theme.teal
+      : theme.muted;
   const yearEventDays = showCalendarEvents
     ? new Set(yearItems.map((item) => item.day))
     : undefined;
