@@ -176,7 +176,6 @@ export default function App() {
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
-  const showCalendarEvents = calendarEnabled && data.settings.showCalendarEvents;
   const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
   const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
@@ -191,9 +190,6 @@ export default function App() {
     : selectedItems.length
       ? theme.teal
       : theme.muted;
-  const yearEventDays = showCalendarEvents
-    ? new Set(yearItems.map((item) => item.day))
-    : undefined;
   const promptItems = periodPrompt
     ? yearItems.filter((item) => item.day === periodPrompt.iso)
     : [];
@@ -241,34 +237,10 @@ export default function App() {
                 <Text style={[styles.yearNavBtn, { color: theme.muted }]}>›</Text>
               </Pressable>
             </View>
-            {calendarEnabled ? (
-              <View style={[styles.yearEventsToggle, { backgroundColor: theme.card }]}>
-                <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
-                    {t(language, 'showCalendarEvents')}
-                  </Text>
-                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
-                    {t(language, 'showCalendarEventsDesc')}
-                  </Text>
-                </View>
-                <BrightSwitch
-                  value={data.settings.showCalendarEvents}
-                  theme={theme}
-                  readyRef={switchesReady}
-                  onValueChange={(showCalendarEventsValue) =>
-                    persist({
-                      ...data,
-                      settings: { ...data.settings, showCalendarEvents: showCalendarEventsValue },
-                    })
-                  }
-                />
-              </View>
-            ) : null}
             <YearCalendar
               year={year}
               today={today}
               marks={marks}
-              eventDays={yearEventDays}
               theme={theme}
               language={language}
               onPressDay={onCalendarDayPress}
@@ -355,7 +327,7 @@ export default function App() {
                   language={language}
                   items={calendarItems}
                   selectedDay={selectedDay}
-                  showCalendarLoad={showCalendarEvents}
+                  showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
               </View>
@@ -1022,16 +994,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 24,
     marginBottom: 8,
-  },
-  yearEventsToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 10,
   },
   yearNavBtn: { fontSize: 28, fontWeight: '300' },
   yearLabel: { fontSize: 18, fontWeight: '600' },
