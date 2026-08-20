@@ -206,11 +206,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
 
   return {
     title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : capacity.label,
-    note: busiestDay
-      ? lang === 'uk'
-        ? `${capitalize(busiestDay)} — ваш найнасиченіший день`
-        : `${capitalize(busiestDay)} is your busiest day`
-      : joinAdviceParts([capacity.hint, capacity.calendarHint]),
+    note: busiestDay ? '' : joinAdviceParts([capacity.hint, capacity.calendarHint]),
     fit,
     busiestDay,
     events,

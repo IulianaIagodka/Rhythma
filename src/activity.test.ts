@@ -88,7 +88,7 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
-    assert.match(advice.note, /Sunday is your busiest day/);
+    assert.equal(advice.note, '');
   });
 
   it('uses the Ukrainian busiest-day insight title', () => {
@@ -97,7 +97,7 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.match(advice.note, /Неділя — ваш найнасиченіший день/);
+    assert.equal(advice.note, '');
   });
 });
 

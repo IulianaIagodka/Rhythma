@@ -444,7 +444,11 @@ export default function App() {
                     >
                       {visibleAdvice.title}
                     </Text>
-                    <Text style={[styles.secondaryLine, { color: theme.muted }]}>{visibleAdvice.note}</Text>
+                    {visibleAdvice.note ? (
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {visibleAdvice.note}
+                      </Text>
+                    ) : null}
                   </View>
                 </View>
               ) : null}
