@@ -426,46 +426,54 @@ export default function App() {
                     >
                       {t(language, adviceLabelKey)}
                     </Text>
-                    <Text
-                      style={[
-                        styles.sectionLabel,
-                        {
-                          color:
-                            visibleAdvice.fit === 'high'
-                              ? theme.accent
-                              : visibleAdvice.fit === 'low'
-                                ? theme.teal
-                                : theme.ink,
-                        },
-                      ]}
-                    >
-                      {visibleAdvice.title}
-                    </Text>
-                    {visibleAdvice.note ? (
-                      visibleAdvice.busiestDayISO ? (
-                        <Pressable
-                          onPress={() => {
-                            const interval = appleCalendarShowInterval(visibleAdvice.busiestDayISO!);
-                            Linking.openURL(`calshow:${interval}`).catch(() => {});
-                          }}
-                          accessibilityRole="link"
-                          hitSlop={8}
+                    {visibleAdvice.busiestDayISO ? (
+                      <Pressable
+                        onPress={() => {
+                          const interval = appleCalendarShowInterval(visibleAdvice.busiestDayISO!);
+                          Linking.openURL(`calshow:${interval}`).catch(() => {});
+                        }}
+                        accessibilityRole="link"
+                        hitSlop={8}
+                      >
+                        <Text
+                          style={[
+                            styles.sectionLabel,
+                            styles.textLink,
+                            {
+                              color:
+                                visibleAdvice.fit === 'high'
+                                  ? theme.accent
+                                  : visibleAdvice.fit === 'low'
+                                    ? theme.teal
+                                    : theme.ink,
+                              textAlign: 'left',
+                            },
+                          ]}
                         >
-                          <Text
-                            style={[
-                              styles.secondaryLine,
-                              styles.textLink,
-                              { color: theme.muted, textAlign: 'left' },
-                            ]}
-                          >
-                            {visibleAdvice.note}
-                          </Text>
-                        </Pressable>
-                      ) : (
-                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                          {visibleAdvice.note}
+                          {visibleAdvice.title}
                         </Text>
-                      )
+                      </Pressable>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.sectionLabel,
+                          {
+                            color:
+                              visibleAdvice.fit === 'high'
+                                ? theme.accent
+                                : visibleAdvice.fit === 'low'
+                                  ? theme.teal
+                                  : theme.ink,
+                          },
+                        ]}
+                      >
+                        {visibleAdvice.title}
+                      </Text>
+                    )}
+                    {visibleAdvice.note ? (
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {visibleAdvice.note}
+                      </Text>
                     ) : null}
                   </View>
                 </View>
