@@ -29,7 +29,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Plus — Coming soon
 
-Recommendations, phase tips, and energy curve. More details to follow.
+Recommendations, Phase tips (Yes / No), and Energy curve. More details to follow.
 
 ---
 
@@ -76,7 +76,7 @@ Cycle data lives only on this iPhone. Deleting the app deletes that data. There 
 
 Your cycle data stays on this iPhone. Rhythma does not create an account and does not upload cycle data to a server.
 
-Calendar access is used only when you turn on Plus calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
+Calendar access is used only when you turn on Calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
 
 Full policy: [Privacy](privacy.md) · [HTML](privacy.html)
 
@@ -122,7 +122,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Plus — Незабаром
 
-Рекомендації, підказки фази та Energy curve. Деталі з'являться пізніше.
+Рекомендації, Підказки фази (Так / Ні) та Energy curve. Деталі з'являться пізніше.
 
 ## Як користуватись
 
@@ -163,7 +163,7 @@ Rhythma бере мову з iPhone (англійська або українс�
 
 Дані циклу залишаються на цьому iPhone. Rhythma не створює акаунт і не надсилає цикл на сервер.
 
-Доступ до календаря потрібен лише якщо увімкнути синхронізацію Plus. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
+Доступ до календаря потрібен лише якщо увімкнути Синхронізацію календаря. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
 
 Повна політика: [Privacy](privacy.md) · [HTML](privacy.html)
 

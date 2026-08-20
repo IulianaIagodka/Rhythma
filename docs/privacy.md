@@ -1,6 +1,6 @@
 # Privacy Policy — Rhythma
 
-Last updated: 18 August 2026
+Last updated: 20 August 2026
 
 Rhythma is a private cycle tracker for iPhone by Iuliana Iagodka.
 
@@ -14,7 +14,7 @@ Period days, settings, and related cycle data are stored **on this iPhone only**
 
 ## Calendar
 
-If you turn on Plus calendar sync and grant permission, Rhythma reads calendar events on the device so they can be shown next to your cycle. That data stays on the iPhone. Rhythma does not send it to a server.
+If you turn on Calendar sync and grant permission, Rhythma reads calendar events on the device so they can be shown next to your cycle. That data stays on the iPhone. Rhythma does not send it to a server.
 
 ## Analytics and ads
 
@@ -34,7 +34,7 @@ Support page: [support.md](support.md) · [HTML](index.html)
 
 # Політика приватності — Rhythma
 
-Оновлено: 18 серпня 2026
+Оновлено: 20 серпня 2026
 
 Rhythma — приватний трекер циклу для iPhone. Розробниця: Iuliana Iagodka.
 
@@ -46,7 +46,7 @@ Rhythma **не** створює акаунт і **не** надсилає дан
 
 ## Календар
 
-Якщо увімкнути синхронізацію календаря Plus і дати дозвіл, Rhythma читає події на пристрої, щоб показати їх поруч із циклом. Ці дані залишаються на iPhone. На сервер вони не відправляються.
+Якщо увімкнути Синхронізацію календаря і дати дозвіл, Rhythma читає події на пристрої, щоб показати їх поруч із циклом. Ці дані залишаються на iPhone. На сервер вони не відправляються.
 
 ## Аналітика й реклама
 
