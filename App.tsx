@@ -186,10 +186,31 @@ export default function App() {
           <Text style={[styles.brand, { color: theme.accent }]}>Rhythma</Text>
         </View>
 
+        {tab === 'year' ? (
+          <View style={[styles.yearPane, styles.content]}>
+            <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'cycleCalendar')}</Text>
+            <View style={styles.yearNav}>
+              <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
+                <Text style={[styles.yearNavBtn, { color: theme.muted }]}>‹</Text>
+              </Pressable>
+              <Text style={[styles.yearLabel, { color: theme.ink }]}>{year}</Text>
+              <Pressable onPress={() => setYear((value) => value + 1)} hitSlop={12}>
+                <Text style={[styles.yearNavBtn, { color: theme.muted }]}>›</Text>
+              </Pressable>
+            </View>
+            <YearCalendar
+              year={year}
+              today={today}
+              marks={marks}
+              theme={theme}
+              language={language}
+              onPressDay={onCalendarDayPress}
+            />
+          </View>
+        ) : (
         <ScrollView
           style={styles.mainScroll}
-          contentContainerStyle={[styles.content, tab === 'year' ? styles.yearContent : null]}
-          scrollEnabled={tab !== 'year'}
+          contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
           {tab === 'today' ? (
@@ -441,29 +462,6 @@ export default function App() {
             </>
           ) : null}
 
-          {tab === 'year' ? (
-            <View style={styles.yearScreen}>
-              <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'cycleCalendar')}</Text>
-              <View style={styles.yearNav}>
-                <Pressable onPress={() => setYear((value) => value - 1)} hitSlop={12}>
-                  <Text style={[styles.yearNavBtn, { color: theme.muted }]}>‹</Text>
-                </Pressable>
-                <Text style={[styles.yearLabel, { color: theme.ink }]}>{year}</Text>
-                <Pressable onPress={() => setYear((value) => value + 1)} hitSlop={12}>
-                  <Text style={[styles.yearNavBtn, { color: theme.muted }]}>›</Text>
-                </Pressable>
-              </View>
-              <YearCalendar
-                year={year}
-                today={today}
-                marks={marks}
-                theme={theme}
-                language={language}
-                onPressDay={onCalendarDayPress}
-              />
-            </View>
-          ) : null}
-
           {tab === 'settings' ? (
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'settings')}</Text>
@@ -629,6 +627,7 @@ export default function App() {
             </>
           ) : null}
         </ScrollView>
+        )}
 
         <SafeAreaView edges={['bottom']} style={{ backgroundColor: theme.tabBar }}>
           <View style={[styles.tabBar, { borderTopColor: theme.border }]}>
@@ -868,13 +867,10 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     gap: 16,
   },
-  yearContent: {
-    flexGrow: 1,
-    paddingBottom: 8,
-  },
-  yearScreen: {
+  yearPane: {
     flex: 1,
     gap: 12,
+    paddingBottom: 8,
     minHeight: 0,
   },
   hero: {

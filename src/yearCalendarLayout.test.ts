@@ -35,4 +35,10 @@ describe('yearCalendarMetrics', () => {
     assert.equal(yearCalendarScrollOffset(7, monthHeight, rowGap), monthHeight + rowGap);
     assert.equal(yearCalendarScrollOffset(11, monthHeight, rowGap), monthHeight + rowGap);
   });
+
+  it('keeps a usable month height even when the viewport is short', () => {
+    const metrics = yearCalendarMetrics(350, 100);
+    assert.ok(metrics.monthHeight >= 150);
+    assert.ok(metrics.daySize >= 14);
+  });
 });

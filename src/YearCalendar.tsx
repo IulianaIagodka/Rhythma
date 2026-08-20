@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
@@ -18,6 +26,15 @@ type YearCalendarProps = {
   language: Language;
   onPressDay: (iso: string) => void;
 };
+
+/** Ignore layout blips from nested flex/ScrollView collapse. */
+const MIN_STABLE_VIEWPORT_HEIGHT = 220;
+
+function initialMetrics(): YearCalendarMetrics {
+  const { width, height } = Dimensions.get('window');
+  // Header + year nav + tab bar roughly; keep a usable year grid on first paint.
+  return yearCalendarMetrics(Math.max(280, width - 40), Math.max(MIN_STABLE_VIEWPORT_HEIGHT, height * 0.58));
+}
 
 function monthISO(year: number, monthIndex: number, day: number): string {
   const m = String(monthIndex + 1).padStart(2, '0');
@@ -107,7 +124,7 @@ function MonthGrid({
 
 export function YearCalendar(props: YearCalendarProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const [metrics, setMetrics] = useState(() => yearCalendarMetrics(320, 420));
+  const [metrics, setMetrics] = useState(initialMetrics);
   const currentMonthIndex = useMemo(() => {
     const date = new Date();
     return date.getFullYear() === props.year ? date.getMonth() : 0;
@@ -115,8 +132,18 @@ export function YearCalendar(props: YearCalendarProps) {
 
   const onViewportLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
-    if (width <= 0 || height <= 0) return;
-    setMetrics(yearCalendarMetrics(width, height));
+    // Flex collapse inside a parent ScrollView can report ~0 after a good first layout.
+    if (width < 120 || height < MIN_STABLE_VIEWPORT_HEIGHT) return;
+    setMetrics((prev) => {
+      const next = yearCalendarMetrics(width, height);
+      if (
+        Math.abs(prev.monthHeight - next.monthHeight) < 1 &&
+        Math.abs(prev.monthWidth - next.monthWidth) < 1
+      ) {
+        return prev;
+      }
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -131,6 +158,7 @@ export function YearCalendar(props: YearCalendarProps) {
     <View style={styles.viewport} onLayout={onViewportLayout}>
       <ScrollView
         ref={scrollRef}
+        style={styles.scroll}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.year,
@@ -148,7 +176,10 @@ export function YearCalendar(props: YearCalendarProps) {
 const styles = StyleSheet.create({
   viewport: {
     flex: 1,
-    minHeight: 0,
+    minHeight: MIN_STABLE_VIEWPORT_HEIGHT,
+  },
+  scroll: {
+    flex: 1,
   },
   year: {
     flexDirection: 'row',
