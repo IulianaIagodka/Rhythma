@@ -349,7 +349,7 @@ export default function App() {
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionLabel, { color: theme.muted }]}>{t(language, 'thisWeek')}</Text>
+                  <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
                 </View>
                 <WeekStrip
                   today={today}
@@ -366,7 +366,7 @@ export default function App() {
               {calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: selectedDayTitleColor }]}>
+                    <Text style={[styles.primaryLine, { color: selectedDayTitleColor }]}>
                       {formatSelectedDayTitle(selectedDay, language)}
                     </Text>
                     {selectedItems.length ? (
