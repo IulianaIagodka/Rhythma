@@ -349,7 +349,7 @@ export default function App() {
 
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
+                  <Text style={[styles.sectionLabel, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
                 </View>
                 <WeekStrip
                   today={today}
@@ -366,7 +366,7 @@ export default function App() {
               {calendarEnabled ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.primaryLine, { color: selectedDayTitleColor }]}>
+                    <Text style={[styles.sectionLabel, { color: selectedDayTitleColor }]}>
                       {formatSelectedDayTitle(selectedDay, language)}
                     </Text>
                     {selectedItems.length ? (
@@ -467,7 +467,7 @@ export default function App() {
               {showPhaseLists && phasePlan.best.length ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.primaryLine, { color: theme.ink }]}>
+                    <Text style={[styles.sectionLabel, { color: theme.ink }]}>
                       {t(language, 'phaseRecommendationsHint')}
                     </Text>
                     <Text style={[styles.tipGroupItems, { color: theme.muted }]}>
