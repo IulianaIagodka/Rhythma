@@ -28,6 +28,8 @@ const PAD_Y = 16;
 const EXPANDED_HEIGHT = 188;
 const EXPANDED_PAD_X = 14;
 const EXPANDED_PAD_Y = 22;
+/** Extra samples between cycle days — denser path = smoother spline. */
+const SAMPLES_PER_DAY = 4;
 
 type Point = { x: number; y: number; day: number; phase: PhaseId };
 
@@ -57,47 +59,67 @@ function curvePoints(
 ): Point[] {
   const innerWidth = width - padX * 2;
   const innerHeight = height - padY * 2;
-  return Array.from({ length: cycleLength }, (_, index) => {
-    const day = index + 1;
-    const value = valueAtDay(day);
-    return {
-      day,
-      phase: phaseIdForCycleDay(day, cycleLength, settings),
-      x: padX + ((day - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
+  const steps = Math.max(2, (cycleLength - 1) * SAMPLES_PER_DAY + 1);
+  const points: Point[] = [];
+
+  for (let i = 0; i < steps; i += 1) {
+    const dayFloat = 1 + (i / (steps - 1)) * (cycleLength - 1);
+    const dayFloor = Math.min(cycleLength, Math.max(1, Math.round(dayFloat)));
+    const value = valueAtDay(dayFloat);
+    points.push({
+      day: dayFloor,
+      phase: phaseIdForCycleDay(dayFloor, cycleLength, settings),
+      x: padX + ((dayFloat - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
       y: padY + (1 - value) * innerHeight,
-    };
-  });
+    });
+  }
+  return points;
 }
 
-function smoothPath(points: Point[]): string {
-  if (points.length < 2) return '';
-  let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
-  for (let i = 0; i < points.length - 1; i += 1) {
+/** Catmull-Rom → cubic Bezier; draws only [start..end], using neighbors for tangents. */
+function smoothPathRange(points: Point[], start: number, end: number, tension = 0.35): string {
+  if (end <= start || points.length < 2) return '';
+  let d = `M ${points[start].x.toFixed(2)} ${points[start].y.toFixed(2)}`;
+  for (let i = start; i < end; i += 1) {
     const p0 = points[i - 1] ?? points[i];
     const p1 = points[i];
     const p2 = points[i + 1];
     const p3 = points[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
+    if (!p2) break;
+    const t = tension;
+    const c1x = p1.x + (p2.x - p0.x) * t;
+    const c1y = p1.y + (p2.y - p0.y) * t;
+    const c2x = p2.x - (p3.x - p1.x) * t;
+    const c2y = p2.y - (p3.y - p1.y) * t;
     d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
   }
   return d;
 }
 
-function phaseSegments(points: Point[]): { phase: PhaseId; points: Point[] }[] {
-  const segments: { phase: PhaseId; points: Point[] }[] = [];
-  for (const point of points) {
+function smoothPath(points: Point[], tension = 0.35): string {
+  if (points.length < 2) return '';
+  return smoothPathRange(points, 0, points.length - 1, tension);
+}
+
+function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {
+  const segments: { phase: PhaseId; start: number; end: number }[] = [];
+  for (let i = 0; i < points.length; i += 1) {
     const last = segments[segments.length - 1];
-    if (last && last.phase === point.phase) {
-      last.points.push(point);
+    if (last && last.phase === points[i].phase) {
+      last.end = i;
     } else {
-      const join = last ? [last.points[last.points.length - 1], point] : [point];
-      segments.push({ phase: point.phase, points: join });
+      segments.push({ phase: points[i].phase, start: i, end: i });
     }
   }
-  return segments.filter((segment) => segment.points.length >= 2);
+  return segments.filter((segment) => segment.end > segment.start);
+}
+
+function todayPoint(points: Point[], cycleDay: number, cycleLength: number, width: number, padX: number): Point {
+  const todayDay = wrappedCycleDay(cycleDay, cycleLength);
+  const todayX = padX + ((todayDay - 1) / Math.max(1, cycleLength - 1)) * (width - padX * 2);
+  return points.reduce((best, point) =>
+    Math.abs(point.x - todayX) < Math.abs(best.x - todayX) ? point : best,
+  );
 }
 
 function CompactChart({
@@ -114,8 +136,7 @@ function CompactChart({
       ),
     [cycleLength, settings],
   );
-  const todayDay = wrappedCycleDay(cycleDay, cycleLength);
-  const today = points[todayDay - 1] ?? points[0];
+  const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
   const segments = useMemo(() => phaseSegments(points), [points]);
   const labelWidth = language === 'uk' ? 72 : 44;
   const labelLeft = Math.max(0, Math.min(CHART_WIDTH - labelWidth, today.x - labelWidth / 2));
@@ -125,8 +146,8 @@ function CompactChart({
       <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
         {segments.map((segment) => (
           <Path
-            key={`${segment.phase}-${segment.points[0].day}`}
-            d={smoothPath(segment.points)}
+            key={`${segment.phase}-${segment.start}`}
+            d={smoothPathRange(points, segment.start, segment.end)}
             stroke={phaseColor(segment.phase, theme)}
             strokeWidth={2.4}
             strokeLinecap="round"
@@ -198,8 +219,7 @@ function ExpandedChart({
       ),
     [cycleLength, settings, width],
   );
-  const todayDay = wrappedCycleDay(cycleDay, cycleLength);
-  const today = energyPoints[todayDay - 1] ?? energyPoints[0];
+  const today = todayPoint(energyPoints, cycleDay, cycleLength, width, EXPANDED_PAD_X);
   const labelWidth = language === 'uk' ? 72 : 44;
   const labelLeft = Math.max(0, Math.min(width - labelWidth, today.x - labelWidth / 2));
 

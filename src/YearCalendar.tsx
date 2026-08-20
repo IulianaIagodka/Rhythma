@@ -14,9 +14,12 @@ type YearCalendarProps = {
   onPressDay: (iso: string) => void;
 };
 
-const MONTH_HEIGHT = 106;
-const ROW_GAP = 20;
-const VISIBLE_ROWS = 3;
+const COLS = 3;
+const MONTH_HEIGHT = 118;
+const ROW_GAP = 16;
+const COL_GAP = 8;
+const VISIBLE_MONTHS = 9;
+const VISIBLE_ROWS = VISIBLE_MONTHS / COLS;
 const VIEWPORT_HEIGHT = MONTH_HEIGHT * VISIBLE_ROWS + ROW_GAP * (VISIBLE_ROWS - 1);
 
 function monthISO(year: number, monthIndex: number, day: number): string {
@@ -102,8 +105,9 @@ export function YearCalendar(props: YearCalendarProps) {
   }, [props.year]);
 
   useEffect(() => {
-    const rowIndex = Math.floor(currentMonthIndex / 2);
-    const centeredRow = Math.max(0, rowIndex - 1);
+    const rowIndex = Math.floor(currentMonthIndex / COLS);
+    const maxStartRow = Math.max(0, 12 / COLS - VISIBLE_ROWS);
+    const centeredRow = Math.min(maxStartRow, Math.max(0, rowIndex - 1));
     const y = centeredRow * (MONTH_HEIGHT + ROW_GAP);
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({ y, animated: false });
@@ -131,16 +135,17 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     rowGap: ROW_GAP,
+    columnGap: COL_GAP,
     paddingBottom: 8,
   },
   month: {
-    width: '48%',
+    width: '31%',
     minHeight: MONTH_HEIGHT,
   },
   monthTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
     textTransform: 'capitalize',
   },
   days: {
@@ -154,14 +159,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayFill: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayText: {
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: '500',
   },
   dayPeriod: {
