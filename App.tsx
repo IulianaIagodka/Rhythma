@@ -332,7 +332,7 @@ export default function App() {
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.secondaryAction, { color: theme.muted }]}>
+                  <Text style={[styles.textLink, { color: theme.teal }]}>
                     {t(language, 'chooseOtherDate')}
                   </Text>
                 </Pressable>
@@ -341,16 +341,6 @@ export default function App() {
               <View style={[styles.card, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
                   <Text style={[styles.sectionLabel, { color: theme.muted }]}>{t(language, 'thisWeek')}</Text>
-                  <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                    <Text
-                      style={[
-                        calendarEnabled ? styles.sectionLink : styles.sectionTag,
-                        { color: calendarEnabled ? theme.teal : theme.accent },
-                      ]}
-                    >
-                      {calendarEnabled ? t(language, 'calendarTag') : t(language, 'cycleTag')}
-                    </Text>
-                  </Pressable>
                 </View>
                 <WeekStrip
                   today={today}
@@ -957,6 +947,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  textLink: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
   secondaryAction: {
     fontSize: 13,
