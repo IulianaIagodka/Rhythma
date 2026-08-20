@@ -80,6 +80,22 @@ export type PhasePlan = {
   avoid: string[];
 };
 
+/** Factual phase name for status UI (Cycle card) — not a recommendation label. */
+export function phaseStatusLabel(phase: PhaseId | null, lang: Language): string {
+  if (lang === 'uk') {
+    if (phase === 'menstrual') return 'Менструальна фаза';
+    if (phase === 'follicular') return 'Фолікулярна фаза';
+    if (phase === 'ovulatory') return 'Овуляторна фаза';
+    if (phase === 'luteal') return 'Лютеїнова фаза';
+    return 'Цикл';
+  }
+  if (phase === 'menstrual') return 'Menstrual phase';
+  if (phase === 'follicular') return 'Follicular phase';
+  if (phase === 'ovulatory') return 'Ovulatory phase';
+  if (phase === 'luteal') return 'Luteal phase';
+  return 'Cycle';
+}
+
 export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacity {
   if (lang === 'uk') {
     if (phase === 'menstrual') {

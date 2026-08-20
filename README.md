@@ -9,7 +9,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Log the first day of your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days (9 months visible, scroll for the rest)
 - Today cards with a clear hierarchy: Cycle status, this week, selected day, and phase context
-- Phase name on Today (`Rest & release`, `Renew & rise`, `Peak & powerful`, `Turn inward`)
+- Phase name on Today (`Menstrual phase`, `Follicular phase`, `Ovulatory phase`, `Luteal phase`)
 - **Calendar sync** for events from the iPhone Calendar
 - Optional ovulation marks on the calendars
 - Theme switch: Light / Dark

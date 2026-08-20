@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { adviseLoad, capacityForPhase, cycleInsight, dayAlignmentForPhase, planningForPhase } from './activity';
+import { adviseLoad, capacityForPhase, cycleInsight, dayAlignmentForPhase, phaseStatusLabel, planningForPhase } from './activity';
 import { classifyActivity, classifyTitle, type CalendarItem } from './calendarItems';
 
 function item(
@@ -43,6 +43,16 @@ describe('capacityForPhase', () => {
     assert.equal(capacityForPhase('menstrual', 'uk').load, 'low');
     assert.equal(capacityForPhase('ovulatory', 'uk').load, 'high');
     assert.match(capacityForPhase('luteal', 'uk').calendarHint, /спрощувати графік/);
+  });
+});
+
+describe('phaseStatusLabel', () => {
+  it('uses factual phase names, not recommendation labels', () => {
+    assert.equal(phaseStatusLabel('luteal', 'en'), 'Luteal phase');
+    assert.equal(phaseStatusLabel('menstrual', 'en'), 'Menstrual phase');
+    assert.equal(phaseStatusLabel('follicular', 'uk'), 'Фолікулярна фаза');
+    assert.equal(phaseStatusLabel('ovulatory', 'uk'), 'Овуляторна фаза');
+    assert.notEqual(phaseStatusLabel('luteal', 'en'), capacityForPhase('luteal', 'en').label);
   });
 });
 

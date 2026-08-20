@@ -15,7 +15,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { activityFitForPhase, activityFitLabel, adviseLoad, capacityForPhase, cycleInsight, planningForPhase } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel, planningForPhase } from './src/activity';
 import { loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleStatus,
@@ -163,7 +163,6 @@ export default function App() {
       : cycleInsight(status.phase, language)
     : null;
   const adviceLabelKey = calendarEnabled ? 'scheduleInsight' : 'cycleInsight';
-  const phaseCapacity = capacityForPhase(status.phase, language);
   const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
@@ -227,7 +226,7 @@ export default function App() {
                         </Text>
                         <Text style={[styles.secondaryLine, { color: theme.muted }]}>
                           {t(language, 'cycleDay')} {status.cycleDay}
-                          <Text style={{ color: theme.accent }}> · {phaseCapacity.label}</Text>
+                          <Text style={{ color: theme.muted }}> · {phaseStatusLabel(status.phase, language)}</Text>
                         </Text>
                       </View>
                       {showCycleRhythm ? (
@@ -245,14 +244,20 @@ export default function App() {
 
                 <Pressable
                   onPress={onFirstDay}
-                  style={[styles.cta, { backgroundColor: theme.accent }]}
+                  style={[
+                    styles.cta,
+                    styles.ctaQuiet,
+                    { backgroundColor: theme.accentSoft, borderColor: theme.border },
+                  ]}
                 >
-                  <Text style={styles.ctaText}>
+                  <Text style={[styles.ctaText, styles.ctaQuietText, { color: theme.accent }]}>
                     {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
                   </Text>
                 </Pressable>
                 <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.link, { color: theme.teal }]}>{t(language, 'chooseOtherDate')}</Text>
+                  <Text style={[styles.secondaryAction, { color: theme.muted }]}>
+                    {t(language, 'chooseOtherDate')}
+                  </Text>
                 </Pressable>
               </View>
 
@@ -951,15 +956,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ctaQuiet: {
+    minHeight: 46,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
   ctaText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  ctaQuietText: {
+    fontSize: 15,
     fontWeight: '600',
   },
   link: {
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  secondaryAction: {
+    fontSize: 13,
+    textAlign: 'center',
+    fontWeight: '400',
   },
   sectionTag: {
     fontSize: 13,

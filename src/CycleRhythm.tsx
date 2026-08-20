@@ -42,10 +42,9 @@ type CycleRhythmProps = {
 };
 
 function phaseColor(phase: PhaseId, theme: Theme): string {
+  // Compact curve: pink only for period; cyan elsewhere — no violet recommendation tint.
   if (phase === 'menstrual') return theme.period;
-  if (phase === 'follicular') return theme.rhythmFollicular;
-  if (phase === 'ovulatory') return theme.teal;
-  return theme.rhythmLuteal;
+  return theme.teal;
 }
 
 function curvePoints(
@@ -138,8 +137,6 @@ function CompactChart({
   );
   const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
   const segments = useMemo(() => phaseSegments(points), [points]);
-  const labelWidth = language === 'uk' ? 72 : 44;
-  const labelLeft = Math.max(0, Math.min(CHART_WIDTH - labelWidth, today.x - labelWidth / 2));
 
   return (
     <View style={styles.compactWrap}>
@@ -149,32 +146,23 @@ function CompactChart({
             key={`${segment.phase}-${segment.start}`}
             d={smoothPathRange(points, segment.start, segment.end)}
             stroke={phaseColor(segment.phase, theme)}
-            strokeWidth={2.4}
+            strokeWidth={2.2}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
+            opacity={segment.phase === 'menstrual' ? 1 : 0.85}
           />
         ))}
         <Circle
           cx={today.x}
           cy={today.y}
-          r={5}
+          r={3.5}
           fill={theme.teal}
-          stroke="#FFFFFF"
-          strokeWidth={2}
+          stroke={theme.card}
+          strokeWidth={1.5}
         />
       </Svg>
-      <Text
-        style={[
-          styles.todayLabel,
-          {
-            color: theme.teal,
-            left: labelLeft,
-            top: Math.max(0, today.y - 18),
-            width: labelWidth,
-          },
-        ]}
-      >
+      <Text style={[styles.compactTodayCaption, { color: theme.teal }]}>
         {t(language, 'rhythmToday')}
       </Text>
     </View>
@@ -366,7 +354,14 @@ export function CycleRhythm({
 const styles = StyleSheet.create({
   compactWrap: {
     width: CHART_WIDTH,
-    height: CHART_HEIGHT,
+    height: CHART_HEIGHT + 16,
+    alignItems: 'center',
+  },
+  compactTodayCaption: {
+    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   todayLabel: {
     position: 'absolute',
