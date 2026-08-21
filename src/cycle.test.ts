@@ -28,16 +28,17 @@ import {
 import { addDays, appleCalendarShowInterval, formatSelectedDayTitle, mondayIndex } from './dates';
 
 describe('defaultSettings', () => {
-  it('shows forecast and lists, hides ovulation', () => {
+  it('enables forecast, ovulation, calendar sync, and insight features', () => {
     const settings = defaultSettings();
     assert.equal(settings.showForecast, true);
-    assert.equal(settings.showOvulation, false);
+    assert.equal(settings.showOvulation, true);
     assert.equal(settings.showCycleInsight, true);
     assert.equal(settings.showScheduleInsight, true);
     assert.equal(settings.showPhaseLists, true);
-    assert.equal(settings.phaseListsExpanded, false);
+    assert.equal(settings.phaseListsExpanded, true);
     assert.equal(settings.showCycleRhythm, true);
     assert.equal(settings.showCalendarEvents, true);
+    assert.equal(settings.calendarSync, true);
     assert.equal(settings.themeMode, 'dark');
   });
 });
@@ -85,6 +86,7 @@ describe('marksForYear', () => {
     const marks = marksForYear(2026, ['2026-08-01'], {
       ...defaultSettings(),
       showForecast: true,
+      showOvulation: false,
     });
     assert.equal(marks.get('2026-08-01'), 'period');
     assert.equal(marks.get('2026-08-29'), 'periodForecast');

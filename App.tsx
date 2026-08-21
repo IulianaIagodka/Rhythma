@@ -7,7 +7,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -678,7 +677,7 @@ export default function App() {
               active={tab === 'today'}
               theme={theme}
               onPress={() => setTab('today')}
-              icon="●"
+              icon="■"
             />
             <TabButton
               label={t(language, 'yearTab')}
@@ -838,17 +837,27 @@ function BrightSwitch({
   readyRef: MutableRefObject<boolean>;
 }) {
   return (
-    <Switch
-      value={value}
-      onValueChange={(next) => {
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      onPress={() => {
         if (!readyRef.current) return;
-        if (next === value) return;
-        onValueChange(next);
+        onValueChange(!value);
       }}
-      trackColor={{ false: theme.faint, true: theme.accent }}
-      thumbColor="#FFFFFF"
-      ios_backgroundColor={theme.faint}
-    />
+      style={[
+        styles.squareSwitch,
+        { backgroundColor: value ? theme.accent : theme.faint },
+      ]}
+      hitSlop={8}
+    >
+      <View
+        style={[
+          styles.squareSwitchThumb,
+          value ? styles.squareSwitchThumbOn : styles.squareSwitchThumbOff,
+          { backgroundColor: '#FFFFFF' },
+        ]}
+      />
+    </Pressable>
   );
 }
 
@@ -1158,6 +1167,24 @@ const styles = StyleSheet.create({
   planSwitchText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  squareSwitch: {
+    width: 50,
+    height: 30,
+    borderRadius: 0,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  squareSwitchThumb: {
+    width: 24,
+    height: 24,
+    borderRadius: 0,
+  },
+  squareSwitchThumbOn: {
+    alignSelf: 'flex-end',
+  },
+  squareSwitchThumbOff: {
+    alignSelf: 'flex-start',
   },
   lockPill: {
     minWidth: 56,

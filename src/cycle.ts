@@ -48,17 +48,17 @@ export type CycleStatus = {
 export function defaultSettings(): Settings {
   return {
     showForecast: true,
-    showOvulation: false,
+    showOvulation: true,
     showCycleInsight: true,
     showScheduleInsight: true,
     showPhaseLists: true,
-    phaseListsExpanded: false,
+    phaseListsExpanded: true,
     showCycleRhythm: true,
     showCalendarEvents: true,
     periodLength: DEFAULT_PERIOD_LENGTH,
     lutealLength: DEFAULT_LUTEAL_LENGTH,
     themeMode: 'dark',
-    calendarSync: false,
+    calendarSync: true,
     accessTier: 'free',
   };
 }
