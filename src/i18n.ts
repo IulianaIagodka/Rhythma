@@ -12,7 +12,7 @@ export const copy = {
   uk: {
     appName: 'Rhythma',
     todayHeader: 'Ваш ритм сьогодні',
-    logCycle: 'Запишіть місячні',
+    logCycle: 'Позначте місячні',
     logCycleSub: 'Додайте перший день, щоб почати відстежувати цикл.',
     cycleDay: 'День циклу',
     cycleSection: 'Цикл',
@@ -144,7 +144,7 @@ export const copy = {
   en: {
     appName: 'Rhythma',
     todayHeader: 'Your rhythm today',
-    logCycle: 'Record your period',
+    logCycle: 'Log period',
     logCycleSub: 'Add the first day to start tracking your cycle.',
     cycleDay: 'Cycle day',
     cycleSection: 'Cycle',
