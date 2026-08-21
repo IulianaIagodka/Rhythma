@@ -21,8 +21,10 @@ import {
   cycleDayOnDate,
   cycleStatus,
   daysUntilNextPeriod,
+  isPredictedCycleDate,
   markForDate,
   marksForYear,
+  phaseOnDate,
   periodPromptForDate,
   togglePeriodStart,
   type DayMark,
@@ -194,6 +196,14 @@ export default function App() {
   const promptCycleDay = periodPrompt
     ? cycleDayOnDate(periodPrompt.iso, data.periodStarts, data.settings)
     : null;
+  const promptPredicted = periodPrompt
+    ? isPredictedCycleDate(periodPrompt.iso, data.periodStarts)
+    : false;
+  const promptOvulatory =
+    periodPrompt != null &&
+    data.settings.showOvulation &&
+    phaseOnDate(periodPrompt.iso, data.periodStarts, data.settings) === 'ovulatory';
+  const todayPredicted = isPredictedCycleDate(today, data.periodStarts);
   const visibleCycleInsight = showAdvice ? cycleInsight(status.phase, language) : null;
   const visibleScheduleAdvice =
     showAdvice && calendarEnabled ? adviseLoad(status.phase, calendarItems, language) : null;
@@ -269,7 +279,11 @@ export default function App() {
                             { color: theme.ink },
                           ]}
                         >
-                          {t(language, 'cycleDay')} {status.cycleDay}
+                          {t(
+                            language,
+                            todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                            { day: status.cycleDay },
+                          )}
                         </Text>
                         <Text style={[styles.phaseName, { color: theme.accent }]}>
                           {phaseStatusLabel(status.phase, language)}
@@ -672,8 +686,20 @@ export default function App() {
         }
         cycleLine={
           promptCycleDay != null
-            ? t(language, 'dayDetailCycleDay', { day: String(promptCycleDay) })
+            ? t(
+                language,
+                promptPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                { day: String(promptCycleDay) },
+              )
             : t(language, 'dayDetailNoCycle')
+        }
+        ovulationLine={
+          promptOvulatory
+            ? t(
+                language,
+                promptPredicted ? 'dayDetailOvulationPredicted' : 'dayDetailOvulation',
+              )
+            : undefined
         }
         eventsLabel={t(language, 'dayDetailEvents')}
         events={calendarEnabled ? promptItems : []}

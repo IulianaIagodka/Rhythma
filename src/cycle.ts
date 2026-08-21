@@ -305,6 +305,22 @@ export function cycleDayOnDate(iso: string, starts: string[], settings: Settings
   return cycleDay;
 }
 
+/**
+ * True when the date sits past the open cycle after the last logged period start
+ * (projected / wrapped cycle), so cycle day and ovulation are forecasts.
+ */
+export function isPredictedCycleDate(iso: string, starts: string[]): boolean {
+  const sorted = sortedUnique(starts);
+  if (!sorted.length || iso < sorted[0]) return false;
+  const startIndex = sorted.reduce((found, value, index) => (value <= iso ? index : found), -1);
+  if (startIndex < 0) return false;
+  const nextLogged = sorted[startIndex + 1];
+  if (nextLogged != null) return false;
+  const cycleLength = averageCycleLength(sorted);
+  const rawDay = diffDays(sorted[startIndex], iso) + 1;
+  return rawDay > cycleLength;
+}
+
 export function phaseOnDate(iso: string, starts: string[], settings: Settings): PhaseId | null {
   const cycleDay = cycleDayOnDate(iso, starts, settings);
   if (cycleDay == null) return null;
