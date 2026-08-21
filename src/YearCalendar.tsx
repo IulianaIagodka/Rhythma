@@ -87,7 +87,12 @@ function MonthGrid({
             const fill = mark ? colors[mark] : undefined;
             const todayNoMark = isToday && !mark;
             return (
-              <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
+              <Pressable
+                key={iso}
+                onPress={() => onPressDay(iso)}
+                style={styles.dayCell}
+                hitSlop={6}
+              >
                 <View
                   style={[
                     styles.dayFill,

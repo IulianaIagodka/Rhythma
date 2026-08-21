@@ -1,11 +1,15 @@
-export const YEAR_CALENDAR_COLS = 3;
-export const YEAR_CALENDAR_VISIBLE_MONTHS = 9;
+export const YEAR_CALENDAR_COLS = 2;
+/** How many months fit on screen at once (2 cols × 3 rows). */
+export const YEAR_CALENDAR_VISIBLE_MONTHS = 6;
 export const YEAR_CALENDAR_VISIBLE_ROWS = YEAR_CALENDAR_VISIBLE_MONTHS / YEAR_CALENDAR_COLS;
-export const YEAR_CALENDAR_ROW_GAP = 14;
-export const YEAR_CALENDAR_COL_GAP = 10;
+export const YEAR_CALENDAR_ROW_GAP = 16;
+export const YEAR_CALENDAR_COL_GAP = 12;
 
 /** Fallback when layout has not been measured yet (compact phones). */
-export const YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT = 150;
+export const YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT = 180;
+
+/** Keep day hit targets usable on small phones (Apple HIG ~44pt; 2-col gets us closer). */
+export const YEAR_CALENDAR_MIN_DAY_SIZE = 28;
 
 export type YearCalendarMetrics = {
   monthHeight: number;
@@ -19,8 +23,8 @@ export type YearCalendarMetrics = {
 };
 
 /**
- * Size the 3×3 year grid to the available viewport so months fill the screen
- * instead of leaving empty space under a fixed short grid.
+ * Size the 2×3 year grid to the available viewport so months fill the screen
+ * and day cells stay large enough to tap reliably.
  */
 export function yearCalendarMetrics(
   viewportWidth: number,
@@ -35,10 +39,10 @@ export function yearCalendarMetrics(
     YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT,
     (height - rowGap * (YEAR_CALENDAR_VISIBLE_ROWS - 1)) / YEAR_CALENDAR_VISIBLE_ROWS,
   );
-  // Seven weekday columns; leave a hair of padding inside the cell.
-  const daySize = Math.max(14, Math.floor(monthWidth / 7) - 1);
-  const dayFontSize = Math.max(9, Math.round(daySize * 0.62));
-  const monthTitleSize = Math.max(11, Math.min(14, Math.round(monthWidth * 0.11)));
+  // Prefer filling the weekday cell; floor leaves a hair of breathing room.
+  const daySize = Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, Math.floor(monthWidth / 7) - 1);
+  const dayFontSize = Math.max(12, Math.round(daySize * 0.55));
+  const monthTitleSize = Math.max(13, Math.min(16, Math.round(monthWidth * 0.09)));
 
   return {
     monthHeight,
