@@ -40,8 +40,8 @@ export function activityFitLabel(
   lang: Language,
 ): string | null {
   const fit = activityFitForPhase(phase, activity);
-  if (fit === 'support') return lang === 'uk' ? 'ок зараз' : 'okay now';
-  if (fit === 'harder') return lang === 'uk' ? 'краще перенести' : 'consider moving';
+  if (fit === 'support') return lang === 'uk' ? 'Ок зараз' : 'Okay now';
+  if (fit === 'harder') return lang === 'uk' ? 'Краще перенести' : 'Consider moving';
   return null;
 }
 
@@ -103,78 +103,78 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
       return {
         label: 'Rest & release',
         load: 'low',
-        hint: 'естроген і прогестерон на мінімумі — енергія часто спадає',
-        calendarHint: 'краще відновлення й легкий рух; менше жорстких тренувань і щільних днів',
+        hint: 'Естроген і прогестерон на мінімумі — енергія часто спадає',
+        calendarHint: 'Краще відновлення й легкий рух; менше жорстких тренувань і щільних днів',
       };
     }
     if (phase === 'follicular') {
       return {
         label: 'Renew & rise',
         load: 'medium',
-        hint: 'естроген зростає — енергія, фокус і мотивація зазвичай підсилюються',
-        calendarHint: 'добрий час для нових планів, прогресивних тренувань і стартів',
+        hint: 'Естроген зростає — енергія, фокус і мотивація зазвичай підсилюються',
+        calendarHint: 'Добрий час для нових планів, прогресивних тренувань і стартів',
       };
     }
     if (phase === 'ovulatory') {
       return {
         label: 'Peak & powerful',
         load: 'high',
-        hint: 'естроген на піку навколо овуляції — часто найбільше енергії',
-        calendarHint: 'ставте ключові розмови, соціальні плани й інтенсивні сесії',
+        hint: 'Естроген на піку навколо овуляції — часто найбільше енергії',
+        calendarHint: 'Ставте ключові розмови, соціальні плани й інтенсивні сесії',
       };
     }
     if (phase === 'luteal') {
       return {
         label: 'Turn inward',
         load: 'medium',
-        hint: 'після овуляції росте прогестерон — енергія може спадати',
-        calendarHint: 'закривайте почате, спрощуйте графік і залишайте буфер',
+        hint: 'Після овуляції росте прогестерон — енергія може спадати',
+        calendarHint: 'Закривайте почате, спрощуйте графік і залишайте буфер',
       };
     }
     return {
       label: 'Цикл',
       load: 'medium',
-      hint: 'запишіть перший день, щоб Rhythma визначила фазу',
-      calendarHint: 'після кількох записів зʼявляться підказки, що пасує до планів',
+      hint: 'Запишіть перший день, щоб Rhythma визначила фазу',
+      calendarHint: 'Після кількох записів зʼявляться підказки, що пасує до планів',
     };
   }
   if (phase === 'menstrual') {
     return {
       label: 'Rest & release',
       load: 'low',
-      hint: 'estrogen and progesterone are at their lowest — energy often dips',
-      calendarHint: 'favor recovery and light movement; ease off hard workouts and packed days',
+      hint: 'Estrogen and progesterone are at their lowest — energy often dips',
+      calendarHint: 'Favor recovery and light movement; ease off hard workouts and packed days',
     };
   }
   if (phase === 'follicular') {
     return {
       label: 'Renew & rise',
       load: 'medium',
-      hint: 'estrogen rises — energy, focus, and motivation usually build',
-      calendarHint: 'a good window for new plans, progressive training, and starts',
+      hint: 'Estrogen rises — energy, focus, and motivation usually build',
+      calendarHint: 'A good window for new plans, progressive training, and starts',
     };
   }
   if (phase === 'ovulatory') {
     return {
       label: 'Peak & powerful',
       load: 'high',
-      hint: 'estrogen peaks around ovulation — many feel most energetic',
-      calendarHint: 'place key conversations, social plans, and intense sessions here',
+      hint: 'Estrogen peaks around ovulation — many feel most energetic',
+      calendarHint: 'Place key conversations, social plans, and intense sessions here',
     };
   }
   if (phase === 'luteal') {
     return {
       label: 'Turn inward',
       load: 'medium',
-      hint: 'progesterone rises after ovulation — energy may ease',
-      calendarHint: 'close loops, simplify the schedule, and leave more buffer',
+      hint: 'Progesterone rises after ovulation — energy may ease',
+      calendarHint: 'Close loops, simplify the schedule, and leave more buffer',
     };
   }
   return {
     label: 'Cycle',
     load: 'medium',
-    hint: 'record the first day so Rhythma can map your phase',
-    calendarHint: 'after a few records, you will get suggestions on what fits your plans',
+    hint: 'Record the first day so Rhythma can map your phase',
+    calendarHint: 'After a few records, you will get suggestions on what fits your plans',
   };
 }
 
@@ -254,8 +254,16 @@ export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice 
   };
 }
 
+function capitalizeSentence(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toLocaleUpperCase() + text.slice(1);
+}
+
 function joinAdviceParts(parts: string[]): string {
-  const cleaned = parts.map((part) => part.trim()).filter(Boolean);
+  const cleaned = parts
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map(capitalizeSentence);
   if (!cleaned.length) return '';
   const body = cleaned.join('. ').replace(/\.\s*\./g, '.');
   return /[.!?]$/.test(body) ? body : `${body}.`;
