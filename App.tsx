@@ -262,73 +262,11 @@ export default function App() {
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'todayHeader')}</Text>
 
-              <View style={[styles.card, { backgroundColor: theme.card }]}>
-                <View style={styles.cardBlock}>
-                  {status.cycleDay == null ? (
-                    <>
-                      <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
-                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                        {t(language, 'logCycleSub')}
-                      </Text>
-                    </>
-                  ) : (
-                    <View style={showCycleRhythm ? styles.cycleHero : undefined}>
-                      <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
-                        <Text
-                          style={[
-                            styles.primaryLine,
-                            showCycleRhythm ? styles.primaryLineWithChart : null,
-                            { color: theme.ink },
-                          ]}
-                        >
-                          {t(
-                            language,
-                            todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
-                            { day: status.cycleDay },
-                          )}
-                        </Text>
-                        <Text style={[styles.phaseName, { color: theme.accent }]}>
-                          {phaseStatusLabel(status.phase, language)}
-                        </Text>
-                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                          {daysLeft == null
-                            ? t(language, 'nextAfterRecords')
-                            : daysLeft === 0
-                              ? t(language, 'nextToday')
-                              : t(language, 'nextIn', { days: daysLeft })}
-                        </Text>
-                      </View>
-                      {showCycleRhythm ? (
-                        <CycleRhythm
-                          cycleDay={status.cycleDay}
-                          cycleLength={status.cycleLength}
-                          settings={data.settings}
-                          theme={theme}
-                          language={language}
-                        />
-                      ) : null}
-                    </View>
-                  )}
-                </View>
-
-                <Pressable
-                  onPress={onFirstDay}
-                  style={[styles.cta, { backgroundColor: theme.accent }]}
-                >
-                  <Text style={styles.ctaText}>
-                    {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
-                  </Text>
-                </Pressable>
-                <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.textLink, { color: theme.ink }]}>
-                    {t(language, 'chooseOtherDate')}
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={[styles.card, { backgroundColor: theme.card }]}>
+              <View style={[styles.card, styles.weekCard, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionLabel, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
+                  <Text style={[styles.sectionLabel, styles.weekSectionLabel, { color: theme.ink }]}>
+                    {t(language, 'thisWeek')}
+                  </Text>
                 </View>
                 <WeekStrip
                   today={today}
@@ -340,11 +278,14 @@ export default function App() {
                   showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
-              </View>
-
-              {calendarEnabled ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <View style={styles.cardBlock}>
+                {calendarEnabled ? (
+                  <View
+                    style={[
+                      styles.cardBlock,
+                      styles.weekDayAgenda,
+                      { borderTopColor: theme.border },
+                    ]}
+                  >
                     <Text style={[styles.sectionLabel, { color: selectedDayTitleColor }]}>
                       {formatSelectedDayTitle(selectedDay, language)}
                     </Text>
@@ -355,12 +296,7 @@ export default function App() {
                           const fitLabel = activityFitLabel(status.phase, item.activity, language);
                           return (
                             <View key={item.id} style={styles.dayRow}>
-                              <View
-                                style={[
-                                  styles.dayBullet,
-                                  { backgroundColor: theme.teal },
-                                ]}
-                              />
+                              <View style={[styles.dayBullet, { backgroundColor: theme.teal }]} />
                               <View style={styles.dayTextWrap}>
                                 <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
                                 {fitLabel ? (
@@ -391,8 +327,70 @@ export default function App() {
                       </Text>
                     )}
                   </View>
+                ) : null}
+              </View>
+
+              <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
+                <View style={styles.periodCardBody}>
+                  <View style={styles.periodCardText}>
+                    {status.cycleDay == null ? (
+                      <>
+                        <Text style={[styles.periodTitle, { color: theme.accent }]}>
+                          {t(language, 'logCycle')}
+                        </Text>
+                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                          {t(language, 'logCycleSub')}
+                        </Text>
+                      </>
+                    ) : (
+                      <View style={showCycleRhythm ? styles.cycleHero : undefined}>
+                        <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
+                          <Text style={[styles.periodTitle, { color: theme.accent }]}>
+                            {t(language, 'logCycle')}
+                          </Text>
+                          <Text style={[styles.periodMeta, { color: theme.ink }]}>
+                            {t(
+                              language,
+                              todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                              { day: status.cycleDay },
+                            )}
+                            {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
+                          </Text>
+                          <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                            {daysLeft == null
+                              ? t(language, 'nextAfterRecords')
+                              : daysLeft === 0
+                                ? t(language, 'nextToday')
+                                : t(language, 'nextIn', { days: daysLeft })}
+                          </Text>
+                        </View>
+                        {showCycleRhythm ? (
+                          <CycleRhythm
+                            cycleDay={status.cycleDay}
+                            cycleLength={status.cycleLength}
+                            settings={data.settings}
+                            theme={theme}
+                            language={language}
+                          />
+                        ) : null}
+                      </View>
+                    )}
+                  </View>
+                  <Pressable
+                    onPress={onFirstDay}
+                    style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent }]}
+                  >
+                    <Text style={styles.ctaText}>
+                      {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={() => setTab('year')} hitSlop={8}>
+                    <Text style={[styles.textLink, styles.periodDateLink, { color: theme.muted }]}>
+                      {t(language, 'chooseOtherDate')}
+                    </Text>
+                  </Pressable>
                 </View>
-              ) : null}
+              </View>
 
               {visibleCycleInsight ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
@@ -425,11 +423,14 @@ export default function App() {
               ) : null}
 
               {visibleScheduleAdvice ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                <View style={[styles.card, styles.insightCard, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                      {t(language, 'scheduleInsight')}
-                    </Text>
+                    <View style={styles.insightHeader}>
+                      <Text style={[styles.sectionLabel, { color: theme.teal }]}>
+                        {t(language, 'scheduleInsight')}
+                      </Text>
+                      <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                    </View>
                     {visibleScheduleAdvice.busiestDayISO ? (
                       <Pressable
                         onPress={() => {
@@ -484,9 +485,12 @@ export default function App() {
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
                   accessibilityRole="button"
                 >
-                  <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                    {t(language, 'connectCalendar')}
-                  </Text>
+                  <View style={styles.insightHeader}>
+                    <Text style={[styles.sectionLabel, { color: theme.teal }]}>
+                      {t(language, 'connectCalendar')}
+                    </Text>
+                    <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                  </View>
                   <Text style={[styles.connectCalendarHint, { color: theme.muted }]}>
                     {t(language, 'connectCalendarHint')}
                   </Text>
@@ -908,9 +912,9 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   brand: {
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   mainScroll: {
     flex: 1,
@@ -918,7 +922,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 24,
-    gap: 16,
+    gap: 14,
   },
   yearPane: {
     flex: 1,
@@ -930,17 +934,70 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: 4,
+    marginBottom: 2,
   },
   card: {
-    borderRadius: 0,
-    padding: 20,
+    borderRadius: 14,
+    padding: 18,
     gap: 14,
+  },
+  weekCard: {
+    paddingVertical: 20,
+    gap: 16,
+  },
+  weekSectionLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: -0.1,
+  },
+  weekDayAgenda: {
+    marginTop: 4,
+    paddingTop: 14,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  periodCard: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  periodCardBody: {
+    gap: 10,
+  },
+  periodCardText: {
+    gap: 4,
+  },
+  periodTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: -0.1,
+  },
+  periodMeta: {
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
+  },
+  periodDateLink: {
+    textAlign: 'left',
+    fontSize: 13,
+  },
+  insightCard: {
+    paddingVertical: 14,
+  },
+  insightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  insightChevron: {
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 20,
   },
   connectCalendarCard: {
     gap: 4,
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   connectCalendarHint: {
     fontSize: 12,
@@ -992,14 +1049,18 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   cta: {
-    borderRadius: 0,
+    borderRadius: 12,
     minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ctaCompact: {
+    minHeight: 40,
+    paddingVertical: 10,
+  },
   ctaText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
   textLink: {
@@ -1017,9 +1078,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dayBullet: {
-    width: 10,
-    height: 10,
-    borderRadius: 0,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dayTextWrap: {
     flex: 1,

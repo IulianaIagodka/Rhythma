@@ -4,6 +4,10 @@ import type { CalendarItem } from './calendar';
 import { markForDate, type StoredData } from './cycle';
 import { parseISODate, weekDaysFromMonday, weekdayShort, type Language } from './dates';
 import type { Theme } from './theme';
+import { weekDayBars, weekDayCellColors } from './weekStripLogic';
+
+export { weekDayBars, weekDayCellColors } from './weekStripLogic';
+export type { WeekDayBarKind } from './weekStripLogic';
 
 type WeekStripProps = {
   today: string;
@@ -29,49 +33,44 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
     <View style={styles.row}>
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
-        const eventCount = Math.min(4, countByDay.get(iso) ?? 0);
-        const period = mark === 'period' || mark === 'periodForecast';
-        const ovulatory = data.settings.showOvulation && mark === 'ovulatory';
+        const eventCount = countByDay.get(iso) ?? 0;
         const isToday = iso === today;
         const isSelected = iso === selectedDay;
         const dayNum = parseISODate(iso).getDate();
+        const cell = weekDayCellColors(isSelected, isToday, theme);
+        const bars = weekDayBars({
+          mark,
+          showOvulation: data.settings.showOvulation,
+          eventCount,
+          showCalendarLoad,
+        });
         return (
           <Pressable
             key={iso}
             onPress={() => onSelectDay(iso)}
-            style={[
-              styles.day,
-              isToday && { borderColor: theme.teal, backgroundColor: theme.tealSoft },
-              isSelected && { borderColor: theme.accent, backgroundColor: theme.accentSoft },
-            ]}
+            style={[styles.day, { backgroundColor: cell.backgroundColor }]}
           >
             <Text style={[styles.weekday, { color: theme.muted }]}>{weekdayShort(iso, language)}</Text>
-            <Text
-              style={[
-                styles.date,
-                { color: isSelected ? theme.accent : isToday ? theme.teal : theme.ink },
-              ]}
-            >
-              {dayNum}
-            </Text>
+            <Text style={[styles.date, { color: cell.dateColor }]}>{dayNum}</Text>
             <View style={styles.bars}>
-              {period ? (
+              {bars.map((kind, i) => (
                 <View
+                  key={`${kind}-${i}`}
                   style={[
                     styles.bar,
-                    { backgroundColor: mark === 'period' ? theme.period : theme.periodForecast },
+                    {
+                      backgroundColor:
+                        kind === 'period'
+                          ? theme.period
+                          : kind === 'periodForecast'
+                            ? theme.periodForecast
+                            : kind === 'ovulatory'
+                              ? theme.ovulatory
+                              : theme.teal,
+                    },
                   ]}
                 />
-              ) : null}
-              {ovulatory ? (
-                <View style={[styles.bar, { backgroundColor: theme.ovulatory }]} />
-              ) : null}
-              {showCalendarLoad
-                ? Array.from({ length: eventCount }, (_, i) => (
-                    <View key={i} style={[styles.bar, { backgroundColor: theme.teal }]} />
-                  ))
-                : null}
-              {!period && !ovulatory && !eventCount ? <View style={[styles.bar, { backgroundColor: theme.faint }]} /> : null}
+              ))}
             </View>
           </Pressable>
         );
@@ -84,34 +83,32 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 4,
+    gap: 6,
   },
   day: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 0,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    paddingVertical: 10,
+    borderRadius: 14,
+    paddingVertical: 12,
     paddingHorizontal: 2,
-    gap: 6,
+    gap: 8,
   },
   weekday: {
     fontSize: 11,
     fontWeight: '500',
   },
   date: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
   },
   bars: {
     gap: 3,
-    minHeight: 28,
+    minHeight: 20,
     justifyContent: 'flex-end',
   },
   bar: {
-    width: 18,
-    height: 4,
-    borderRadius: 0,
+    width: 16,
+    height: 3,
+    borderRadius: 2,
   },
 });
