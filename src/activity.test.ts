@@ -7,6 +7,7 @@ import {
   capacityForPhase,
   cycleInsight,
   dayAlignmentForPhase,
+  joinPlanItems,
   phaseStatusLabel,
   planningForPhase,
 } from './activity';
@@ -214,5 +215,25 @@ describe('planningForPhase', () => {
     const plan = planningForPhase('menstrual', 'uk');
     assert.match(plan.best.join(' '), /Відновлен/);
     assert.match(plan.avoid.join(' '), /інтенсивн|графік|вечор/);
+  });
+});
+
+describe('joinPlanItems', () => {
+  it('keeps the first chip capitalized and lowercases later chips after commas', () => {
+    assert.equal(
+      joinPlanItems(['Recovery', 'Light movement', 'Meeting buffers']),
+      'Recovery, light movement, meeting buffers',
+    );
+    assert.equal(
+      joinPlanItems(['Відновлення', 'Легкий рух', 'Буфер між зустрічами']),
+      'Відновлення, легкий рух, буфер між зустрічами',
+    );
+  });
+
+  it('shows lowercased chips in schedule insight copy', () => {
+    const advice = adviseLoad('menstrual', [], 'en');
+    assert.match(advice.note, /Fits well: Recovery, light movement, meeting buffers/);
+    assert.match(advice.note, /Ease off: High intensity, packed schedule, late nights/);
+    assert.doesNotMatch(advice.note, /Recovery, Light|High intensity, Packed/);
   });
 });

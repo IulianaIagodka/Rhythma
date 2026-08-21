@@ -186,13 +186,13 @@ function schedulePlanLine(phase: PhaseId | null, lang: Language): string {
   if (!plan.best.length && !plan.avoid.length) return '';
   if (lang === 'uk') {
     const parts: string[] = [];
-    if (plan.best.length) parts.push(`Підходить: ${plan.best.join(', ')}`);
-    if (plan.avoid.length) parts.push(`Краще уникати: ${plan.avoid.join(', ')}`);
+    if (plan.best.length) parts.push(`Підходить: ${joinPlanItems(plan.best)}`);
+    if (plan.avoid.length) parts.push(`Краще уникати: ${joinPlanItems(plan.avoid)}`);
     return parts.join('. ');
   }
   const parts: string[] = [];
-  if (plan.best.length) parts.push(`Fits well: ${plan.best.join(', ')}`);
-  if (plan.avoid.length) parts.push(`Ease off: ${plan.avoid.join(', ')}`);
+  if (plan.best.length) parts.push(`Fits well: ${joinPlanItems(plan.best)}`);
+  if (plan.avoid.length) parts.push(`Ease off: ${joinPlanItems(plan.avoid)}`);
   return parts.join('. ');
 }
 
@@ -265,6 +265,19 @@ export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice 
 function capitalizeSentence(text: string): string {
   if (!text) return text;
   return text.charAt(0).toLocaleUpperCase() + text.slice(1);
+}
+
+/** After a comma, keep lowercase unless the caller already used a proper noun. */
+function lowerSentenceStart(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toLocaleLowerCase() + text.slice(1);
+}
+
+/** Join plan chips: first item keeps its capital; later items are lowercased. */
+export function joinPlanItems(items: string[]): string {
+  return items
+    .map((item, index) => (index === 0 ? item : lowerSentenceStart(item)))
+    .join(', ');
 }
 
 function joinAdviceParts(parts: string[]): string {
