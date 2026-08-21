@@ -44,7 +44,7 @@ export function monthBlockHeight(weekRows: number, titleBlock: number, daySize: 
 /**
  * One full-width month column with normalized day cells:
  * capped size, inset marks, height follows each month’s real week count.
- * Day grid is centered when capped cells are narrower than the column.
+ * Day size always fits seven columns; the grid is centered when narrower than the column.
  */
 export function yearCalendarMetrics(
   viewportWidth: number,
@@ -58,14 +58,16 @@ export function yearCalendarMetrics(
   const monthTitleSize = Math.max(13, Math.min(15, Math.round(monthWidth * 0.042)));
   const titleBlock = monthTitleSize + YEAR_CALENDAR_TITLE_GAP;
 
-  const rawDay = Math.floor(monthWidth / 7) - 2;
+  // Floor so seven cells never exceed the column (avoids flexWrap dropping to 6 columns).
+  const fittingDay = Math.max(1, Math.floor(monthWidth / 7));
   const daySize = Math.min(
     YEAR_CALENDAR_MAX_DAY_SIZE,
-    Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, rawDay),
+    Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, fittingDay),
+    fittingDay,
   );
-  const gridWidth = Math.min(monthWidth, daySize * 7);
-  const markSize = Math.max(22, Math.round(daySize * YEAR_CALENDAR_MARK_SCALE));
-  const dayFontSize = Math.max(12, Math.min(15, Math.round(markSize * 0.48)));
+  const gridWidth = daySize * 7;
+  const markSize = Math.max(18, Math.min(daySize - 2, Math.round(daySize * YEAR_CALENDAR_MARK_SCALE)));
+  const dayFontSize = Math.max(11, Math.min(15, Math.round(markSize * 0.48)));
   const monthHeight = monthBlockHeight(YEAR_CALENDAR_MAX_WEEKS, titleBlock, daySize);
 
   return {

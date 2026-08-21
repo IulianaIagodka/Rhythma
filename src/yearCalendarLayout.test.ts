@@ -38,10 +38,13 @@ describe('yearCalendarMetrics', () => {
     assert.equal(roomy.daySize, YEAR_CALENDAR_MAX_DAY_SIZE);
     assert.equal(roomy.gridWidth, roomy.daySize * 7);
     assert.ok(roomy.gridWidth < roomy.monthWidth);
+  });
 
+  it('keeps seven day columns inside the month width on tight screens', () => {
     const tight = yearCalendarMetrics(240, 520);
-    assert.equal(tight.gridWidth, tight.monthWidth);
-    assert.ok(tight.gridWidth <= tight.daySize * 7);
+    assert.equal(tight.gridWidth, tight.daySize * 7);
+    assert.ok(tight.gridWidth <= tight.monthWidth);
+    assert.equal(tight.daySize, Math.floor(tight.monthWidth / 7));
   });
 
   it('sizes each month from its real week count so empty weeks do not pad the block', () => {
