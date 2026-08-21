@@ -11,6 +11,7 @@ import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import {
   energyAtCycleDay,
+  energyPercentAtCycleDay,
   estrogenAtCycleDay,
   phaseIdForCycleDay,
   phaseWindows,
@@ -129,6 +130,7 @@ function CompactChart({
   cycleLength,
   settings,
   theme,
+  language,
 }: CycleRhythmProps) {
   const points = useMemo(
     () =>
@@ -139,6 +141,7 @@ function CompactChart({
   );
   const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
   const segments = useMemo(() => phaseSegments(points), [points]);
+  const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
 
   return (
     <View style={styles.compactWrap}>
@@ -164,6 +167,9 @@ function CompactChart({
           strokeWidth={2}
         />
       </Svg>
+      <Text style={[styles.compactPercent, { color: theme.teal }]}>
+        {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
+      </Text>
     </View>
   );
 }
@@ -208,6 +214,7 @@ function ExpandedChart({
     [cycleLength, settings, plotWidth],
   );
   const today = todayPoint(energyPoints, cycleDay, cycleLength, plotWidth, EXPANDED_PAD_X);
+  const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
   const labelWidth = language === 'uk' ? 72 : 44;
   const labelLeft = Math.max(
     0,
@@ -291,7 +298,21 @@ function ExpandedChart({
               {
                 color: theme.teal,
                 left: labelLeft,
-                top: Math.max(0, today.y - 20),
+                top: Math.max(0, today.y - 34),
+                width: labelWidth,
+              },
+            ]}
+          >
+            {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
+          </Text>
+          <Text
+            style={[
+              styles.todayLabel,
+              styles.expandedTodayLabel,
+              {
+                color: theme.teal,
+                left: labelLeft,
+                top: Math.max(14, today.y - 20),
                 width: labelWidth,
               },
             ]}
@@ -337,12 +358,14 @@ export function CycleRhythm({
   const { width: windowWidth } = useWindowDimensions();
   const chartWidth = Math.max(240, windowWidth - 64);
 
+  const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
+
   return (
     <>
       <Pressable
         onPress={() => setExpanded(true)}
         accessibilityRole="button"
-        accessibilityLabel={`${t(language, 'cycleRhythm')}. ${t(language, 'rhythmToday')}`}
+        accessibilityLabel={`${t(language, 'cycleRhythm')}. ${t(language, 'rhythmToday')}. ${t(language, 'rhythmEnergyPercent', { value: energyPercent })}`}
         accessibilityHint={t(language, 'rhythmExpandHint')}
         hitSlop={8}
       >
@@ -381,7 +404,13 @@ export function CycleRhythm({
             />
 
             <View style={styles.legend}>
-              <LegendDot color={theme.teal} label={t(language, 'rhythmEnergy')} ink={theme.ink} />
+              <LegendDot
+                color={theme.teal}
+                label={`${t(language, 'rhythmEnergy')} · ${t(language, 'rhythmEnergyPercent', {
+                  value: energyPercentAtCycleDay(cycleDay, cycleLength, settings),
+                })}`}
+                ink={theme.ink}
+              />
               <LegendDot color={theme.period} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
               <LegendDot
                 color={theme.rhythmLuteal}
@@ -412,8 +441,14 @@ export function CycleRhythm({
 const styles = StyleSheet.create({
   compactWrap: {
     width: CHART_WIDTH,
-    height: CHART_HEIGHT,
+    height: CHART_HEIGHT + 18,
     alignItems: 'center',
+  },
+  compactPercent: {
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: -0.2,
   },
   todayLabel: {
     position: 'absolute',
