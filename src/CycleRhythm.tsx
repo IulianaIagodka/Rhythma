@@ -7,7 +7,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Line, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import {
   energyAtCycleDay,
@@ -125,6 +125,27 @@ function todayPoint(points: Point[], cycleDay: number, cycleLength: number, widt
   );
 }
 
+/** Small “today” dot with a soft glow halo on the energy curve. */
+function TodayGlowDot({
+  x,
+  y,
+  color,
+  stroke,
+}: {
+  x: number;
+  y: number;
+  color: string;
+  stroke: string;
+}) {
+  return (
+    <>
+      <Circle cx={x} cy={y} r={7} fill={color} opacity={0.16} />
+      <Circle cx={x} cy={y} r={4.5} fill={color} opacity={0.32} />
+      <Circle cx={x} cy={y} r={2.6} fill={color} stroke={stroke} strokeWidth={1.4} />
+    </>
+  );
+}
+
 function CompactChart({
   cycleDay,
   cycleLength,
@@ -158,15 +179,7 @@ function CompactChart({
             opacity={segment.phase === 'menstrual' ? 1 : 0.85}
           />
         ))}
-        <Rect
-          x={today.x - 5}
-          y={today.y - 5}
-          width={10}
-          height={10}
-          fill={theme.teal}
-          stroke={theme.card}
-          strokeWidth={2}
-        />
+        <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke={theme.card} />
       </Svg>
       <Text style={[styles.compactPercent, { color: theme.teal }]}>
         {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
@@ -283,15 +296,7 @@ function ExpandedChart({
               strokeLinejoin="miter"
               fill="none"
             />
-            <Rect
-              x={today.x - 5.5}
-              y={today.y - 5.5}
-              width={11}
-              height={11}
-              fill={theme.teal}
-              stroke="#FFFFFF"
-              strokeWidth={2}
-            />
+            <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke="#FFFFFF" />
           </Svg>
           <Text
             style={[
