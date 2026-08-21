@@ -359,9 +359,6 @@ export default function App() {
                       <View style={showCycleRhythm ? styles.cycleHero : undefined}>
                         <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
                           <Text style={[styles.periodTitle, { color: theme.accent }]}>
-                            {t(language, 'cycleSection')}
-                          </Text>
-                          <Text style={[styles.periodMeta, { color: theme.ink }]}>
                             {t(
                               language,
                               todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
