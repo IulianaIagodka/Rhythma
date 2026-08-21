@@ -2,6 +2,31 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { daysSpannedByEvent, formatEventTime, itemsFromCalendarEvents } from './calendarItems';
+import { calendarIdsForSync } from './calendarSync';
+
+describe('calendarIdsForSync', () => {
+  it('prefers visible calendars and skips blank ids', () => {
+    assert.deepEqual(
+      calendarIdsForSync([
+        { id: 'a', isVisible: true },
+        { id: 'b', isVisible: false },
+        { id: '  ', isVisible: true },
+        { id: 'c', isVisible: true },
+      ]),
+      ['a', 'c'],
+    );
+  });
+
+  it('falls back to all calendars with ids when none are marked visible', () => {
+    assert.deepEqual(
+      calendarIdsForSync([
+        { id: 'a', isVisible: false },
+        { id: 'b', isVisible: false },
+      ]),
+      ['a', 'b'],
+    );
+  });
+});
 
 describe('daysSpannedByEvent', () => {
   it('keeps a one-day timed event on its local day', () => {

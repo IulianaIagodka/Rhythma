@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   ActivityIndicator,
+  AppState,
   Linking,
   Pressable,
   ScrollView,
@@ -16,7 +17,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel } from './src/activity';
-import { loadCalendarItems, loadWeekItems, type CalendarItem } from './src/calendar';
+import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
 import {
   cycleDayOnDate,
@@ -31,7 +32,7 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
+import { appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
 import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
@@ -89,8 +90,7 @@ export default function App() {
       setCalendarPermissionDenied(false);
       return;
     }
-    const monday = addDays(todayISO(), -((new Date(todayISO()).getDay() + 6) % 7));
-    const result = await loadWeekItems(monday, addDays(monday, 6), language);
+    const result = await loadCurrentWeekItems(language);
     setItems(result.items);
     setCalendarError(result.error);
     setCalendarPermissionDenied(result.permissionDenied);
@@ -114,10 +114,34 @@ export default function App() {
   useEffect(() => {
     const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
     const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (tab === 'today' && enabled) {
+      refreshCalendar(true);
+    }
     if (tab === 'year' && enabled) {
       refreshYearEvents(true, year);
     }
-  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshYearEvents]);
+  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar, refreshYearEvents]);
+
+  // Re-read the phone calendar when returning to the app (new events often appear then).
+  useEffect(() => {
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (!enabled) return;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'active') {
+        refreshCalendar(true);
+        if (tab === 'year') refreshYearEvents(true, year);
+      }
+    });
+    return () => sub.remove();
+  }, [
+    data?.settings.accessTier,
+    data?.settings.calendarSync,
+    refreshCalendar,
+    refreshYearEvents,
+    tab,
+    year,
+  ]);
 
   const onSyncCalendar = useCallback(async () => {
     const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
@@ -125,10 +149,17 @@ export default function App() {
     if (!enabled || calendarSyncing) return;
     Haptics.selectionAsync().catch(() => {});
     setCalendarSyncing(true);
+    const started = Date.now();
     try {
+      // Clear first so the agenda visibly refreshes even if EventKit returns the same set.
+      setItems([]);
       await refreshCalendar(true);
-      if (tab === 'year') await refreshYearEvents(true, year);
+      await refreshYearEvents(true, year);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } finally {
+      const elapsed = Date.now() - started;
+      const wait = Math.max(0, 450 - elapsed);
+      if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
       setCalendarSyncing(false);
     }
   }, [
@@ -137,7 +168,6 @@ export default function App() {
     data?.settings.calendarSync,
     refreshCalendar,
     refreshYearEvents,
-    tab,
     year,
   ]);
 
@@ -301,23 +331,34 @@ export default function App() {
                   </Text>
                   {syncNow.visible ? (
                     <Pressable
-                      onPress={onSyncCalendar}
+                      onPress={() => {
+                        void onSyncCalendar();
+                      }}
                       disabled={syncNow.disabled}
-                      hitSlop={8}
+                      hitSlop={12}
                       accessibilityRole="button"
                       accessibilityLabel={t(language, 'syncNow')}
+                      style={[
+                        styles.syncNowBtn,
+                        {
+                          borderColor: theme.teal,
+                          opacity: syncNow.disabled ? 0.45 : 1,
+                        },
+                      ]}
                     >
-                      <Text
-                        style={[
-                          styles.syncNowLabel,
-                          { color: theme.teal, opacity: syncNow.disabled ? 0.45 : 1 },
-                        ]}
-                      >
-                        {calendarSyncing ? t(language, 'readingEvents') : t(language, 'syncNow')}
-                      </Text>
+                      {calendarSyncing ? (
+                        <ActivityIndicator color={theme.teal} size="small" />
+                      ) : (
+                        <Text style={[styles.syncNowLabel, { color: theme.teal }]}>
+                          {t(language, 'syncNow')}
+                        </Text>
+                      )}
                     </Pressable>
                   ) : null}
                 </View>
+                {calendarEnabled && calendarError && !calendarPermissionDenied ? (
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>{calendarError}</Text>
+                ) : null}
                 <WeekStrip
                   today={today}
                   data={data}
@@ -611,7 +652,9 @@ export default function App() {
                   </Pressable>
                   {syncNow.visible ? (
                     <Pressable
-                      onPress={onSyncCalendar}
+                      onPress={() => {
+                        void onSyncCalendar();
+                      }}
                       disabled={syncNow.disabled}
                       hitSlop={8}
                       accessibilityRole="button"
@@ -1077,6 +1120,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  syncNowBtn: {
+    minHeight: 32,
+    minWidth: 56,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.control,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   syncNowLabel: {
     fontSize: 13,

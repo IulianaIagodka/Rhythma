@@ -25,7 +25,7 @@ import {
   togglePeriodStart,
   wrappedCycleDay,
 } from './cycle';
-import { addDays, appleCalendarShowInterval, formatSelectedDayTitle, mondayIndex } from './dates';
+import { addDays, appleCalendarShowInterval, formatSelectedDayTitle, mondayIndex, weekRangeContaining } from './dates';
 
 describe('defaultSettings', () => {
   it('enables forecast, ovulation, calendar sync, and insight features', () => {
@@ -322,5 +322,12 @@ describe('dates', () => {
     assert.ok(interval > 0);
     // Same calendar day should be stable
     assert.equal(appleCalendarShowInterval('2026-08-23'), interval);
+  });
+
+  it('returns the Monday–Sunday range that contains a day', () => {
+    assert.deepEqual(weekRangeContaining('2026-08-21'), {
+      start: '2026-08-17',
+      end: '2026-08-23',
+    });
   });
 });

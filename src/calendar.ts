@@ -8,10 +8,12 @@ import {
 } from 'expo-calendar';
 
 import { itemsFromCalendarEvents, type CalendarItem } from './calendarItems';
-import type { Language } from './dates';
+import { calendarIdsForSync } from './calendarSync';
+import { todayISO, weekRangeContaining, type Language } from './dates';
 
 export type { CalendarItem } from './calendarItems';
 export { classifyTitle, itemsFromCalendarEvents } from './calendarItems';
+export { calendarIdsForSync } from './calendarSync';
 
 export type CalendarLoadResult = {
   items: CalendarItem[];
@@ -42,7 +44,8 @@ export async function loadCalendarItems(
     }
 
     const calendars = await getCalendars(EntityTypes.EVENT);
-    if (!calendars.length) {
+    const calendarIds = calendarIdsForSync(calendars);
+    if (!calendarIds.length) {
       return {
         items: [],
         error: lang === 'uk' ? 'Не знайдено жодного календаря на телефоні.' : 'No calendars were found on this phone.',
@@ -51,8 +54,8 @@ export async function loadCalendarItems(
     }
 
     const start = new Date(`${rangeStart}T00:00:00`);
-    const end = new Date(`${rangeEnd}T23:59:59`);
-    const events = await listEvents(calendars, start, end);
+    const end = new Date(`${rangeEnd}T23:59:59.999`);
+    const events = await listEvents(calendarIds, start, end);
 
     const items = itemsFromCalendarEvents(events, rangeStart, rangeEnd, lang);
 
@@ -81,4 +84,9 @@ export async function loadWeekItems(
   lang: Language,
 ): Promise<CalendarLoadResult> {
   return loadCalendarItems(weekStart, weekEnd, lang);
+}
+
+export async function loadCurrentWeekItems(lang: Language): Promise<CalendarLoadResult> {
+  const { start, end } = weekRangeContaining(todayISO());
+  return loadWeekItems(start, end, lang);
 }
