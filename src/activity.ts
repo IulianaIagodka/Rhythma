@@ -209,7 +209,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
 
   return {
     title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : capacity.label,
-    note: busiestDay ? '' : joinAdviceParts([capacity.hint, capacity.calendarHint]),
+    note: joinAdviceParts([capacity.hint, capacity.calendarHint]),
     fit,
     busiestDay,
     busiestDayISO,

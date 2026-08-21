@@ -15,7 +15,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel, planningForPhase } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel } from './src/activity';
 import { loadCalendarItems, loadWeekItems, type CalendarItem } from './src/calendar';
 import {
   cycleDayOnDate,
@@ -172,12 +172,10 @@ export default function App() {
   const tier = effectiveAccessTier(storedTier);
   const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
-  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
-  const showPhaseLists = hasPhasePlanningLists && data.settings.showPhaseLists;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
@@ -202,7 +200,6 @@ export default function App() {
       : cycleInsight(status.phase, language)
     : null;
   const adviceLabelKey = calendarEnabled ? 'scheduleInsight' : 'cycleInsight';
-  const phasePlan = planningForPhase(status.phase, language);
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
@@ -457,19 +454,6 @@ export default function App() {
                   </Text>
                 </Pressable>
               ) : null}
-
-              {showPhaseLists && phasePlan.best.length ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.ink }]}>
-                      {t(language, 'phaseRecommendationsHint')}
-                    </Text>
-                    <Text style={[styles.tipGroupItems, { color: theme.muted }]}>
-                      {phasePlan.best.join(' · ')}
-                    </Text>
-                  </View>
-                </View>
-              ) : null}
             </>
           ) : null}
 
@@ -556,20 +540,6 @@ export default function App() {
                       readyRef={switchesReady}
                       onValueChange={(showEventAdvice) =>
                         persist({ ...data, settings: { ...data.settings, showEventAdvice } })
-                      }
-                    />
-                  </View>
-                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-                    <View style={styles.settingText}>
-                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proPhaseLists')}</Text>
-                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'phaseListsDesc')}</Text>
-                    </View>
-                    <BrightSwitch
-                      value={data.settings.showPhaseLists}
-                      theme={theme}
-                      readyRef={switchesReady}
-                      onValueChange={(showPhaseListsValue) =>
-                        persist({ ...data, settings: { ...data.settings, showPhaseLists: showPhaseListsValue } })
                       }
                     />
                   </View>

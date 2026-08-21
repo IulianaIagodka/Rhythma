@@ -88,7 +88,8 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
-    assert.equal(advice.note, '');
+    assert.match(advice.note, /progesterone rises|buffer/i);
+    assert.match(advice.note, /close loops|simplify/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 
@@ -98,7 +99,8 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.equal(advice.note, '');
+    assert.match(advice.note, /прогестерон|буфер/i);
+    assert.match(advice.note, /закривати|спрощувати/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 });
