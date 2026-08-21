@@ -14,6 +14,8 @@ import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
 import { radius, type Theme } from './theme';
 import {
   YEAR_CALENDAR_TITLE_GAP,
+  monthBlockHeight,
+  monthWeekRows,
   yearCalendarMetrics,
   yearCalendarScrollOffset,
   type YearCalendarMetrics,
@@ -67,11 +69,18 @@ function MonthGrid({
   ];
   while (cells.length % 7 !== 0) cells.push(null);
   const colors = MARK_COLORS(theme);
-  const { daySize, dayFontSize, monthTitleSize, monthHeight, monthWidth } = metrics;
+  const weekRows = monthWeekRows(year, monthIndex);
+  const { daySize, markSize, dayFontSize, monthTitleSize, monthWidth, titleBlock } = metrics;
+  const monthHeight = monthBlockHeight(weekRows, titleBlock, daySize);
 
   return (
     <View style={[styles.month, { width: monthWidth, height: monthHeight }]}>
-      <Text style={[styles.monthTitle, { color: theme.muted, fontSize: monthTitleSize }]}>
+      <Text
+        style={[
+          styles.monthTitle,
+          { color: theme.muted, fontSize: monthTitleSize, marginBottom: YEAR_CALENDAR_TITLE_GAP },
+        ]}
+      >
         {monthName(monthIndex, language)}
       </Text>
       <View style={styles.daysWrap}>
@@ -97,14 +106,14 @@ function MonthGrid({
                 key={iso}
                 onPress={() => onPressDay(iso)}
                 style={[styles.dayCell, { width: `${100 / 7}%`, height: daySize }]}
-                hitSlop={6}
+                hitSlop={8}
               >
                 <View
                   style={[
                     styles.dayFill,
                     {
-                      width: daySize,
-                      height: daySize,
+                      width: markSize,
+                      height: markSize,
                       borderRadius: radius.day,
                     },
                     mark && fill ? { backgroundColor: fill } : null,
@@ -148,8 +157,9 @@ export function YearCalendar(props: YearCalendarProps) {
     setMetrics((prev) => {
       const next = yearCalendarMetrics(width, height);
       if (
-        Math.abs(prev.monthHeight - next.monthHeight) < 1 &&
-        Math.abs(prev.monthWidth - next.monthWidth) < 1
+        Math.abs(prev.daySize - next.daySize) < 1 &&
+        Math.abs(prev.monthWidth - next.monthWidth) < 1 &&
+        Math.abs(prev.markSize - next.markSize) < 1
       ) {
         return prev;
       }
@@ -158,12 +168,12 @@ export function YearCalendar(props: YearCalendarProps) {
   };
 
   useEffect(() => {
-    const y = yearCalendarScrollOffset(currentMonthIndex, metrics.monthHeight, metrics.rowGap);
+    const y = yearCalendarScrollOffset(currentMonthIndex, props.year, metrics);
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({ y, animated: false });
     }, 0);
     return () => clearTimeout(timer);
-  }, [currentMonthIndex, props.year, metrics.monthHeight, metrics.rowGap]);
+  }, [currentMonthIndex, props.year, metrics]);
 
   return (
     <View style={styles.viewport} onLayout={onViewportLayout}>
@@ -204,7 +214,6 @@ const styles = StyleSheet.create({
   },
   monthTitle: {
     fontWeight: '600',
-    marginBottom: YEAR_CALENDAR_TITLE_GAP,
     textTransform: 'capitalize',
   },
   daysWrap: {
