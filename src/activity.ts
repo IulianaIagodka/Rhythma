@@ -134,7 +134,7 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
     return {
       label: 'Цикл',
       load: 'medium',
-      hint: 'запишіть перший день місячних — Rhythma зможе читати фазу й гормональний ритм',
+      hint: 'запишіть перший день, щоб Rhythma визначила фазу',
       calendarHint: 'після кількох записів зʼявляться підказки, що пасує до планів',
     };
   }
@@ -173,7 +173,7 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
   return {
     label: 'Cycle',
     load: 'medium',
-    hint: 'record the first day of your period so Rhythma can read your phase and hormone rhythm',
+    hint: 'record the first day so Rhythma can map your phase',
     calendarHint: 'after a few records, you will get suggestions on what fits your plans',
   };
 }
@@ -238,8 +238,14 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
 /** Phase and hormone insight — no calendar or activity recommendations. */
 export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice {
   const capacity = capacityForPhase(phase, lang);
+  const title =
+    phase == null
+      ? lang === 'uk'
+        ? 'Ще немає запису місячних'
+        : 'No period logged yet'
+      : phaseStatusLabel(phase, lang);
   return {
-    title: phaseStatusLabel(phase, lang),
+    title,
     note: joinAdviceParts([capacity.hint]),
     fit: phase === 'ovulatory' ? 'low' : 'ok',
     busiestDay: null,

@@ -127,6 +127,17 @@ describe('cycleInsight', () => {
     assert.doesNotMatch(insight.note, /календар|Підходить|тренуван/i);
     assert.equal(insight.fit, 'low');
   });
+
+  it('uses Variant A empty-cycle wording', () => {
+    const en = cycleInsight(null, 'en');
+    assert.equal(en.title, 'No period logged yet');
+    assert.match(en.note, /record the first day/i);
+    assert.doesNotMatch(en.note, /log your/i);
+
+    const uk = cycleInsight(null, 'uk');
+    assert.equal(uk.title, 'Ще немає запису місячних');
+    assert.match(uk.note, /запишіть перший день/i);
+  });
 });
 
 describe('dayAlignmentForPhase', () => {

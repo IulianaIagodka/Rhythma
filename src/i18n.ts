@@ -12,8 +12,8 @@ export const copy = {
   uk: {
     appName: 'Rhythma',
     todayHeader: 'Ваш ритм сьогодні',
-    logCycle: 'Запишіть цикл',
-    logCycleSub: 'Перший день місячних — і ритм зʼявиться в календарі року',
+    logCycle: 'Запишіть місячні',
+    logCycleSub: 'Перший день — і ритм зʼявиться в календарі року',
     cycleDay: 'День циклу',
     cycleSection: 'Цикл',
     nextAfterRecords: 'Наступні місячні зʼявляться після кількох записів',
@@ -138,8 +138,8 @@ export const copy = {
   en: {
     appName: 'Rhythma',
     todayHeader: 'Your rhythm today',
-    logCycle: 'Log your cycle',
-    logCycleSub: 'Record the first day of your period and see it on the year calendar',
+    logCycle: 'Record your period',
+    logCycleSub: 'Add the first day — your rhythm appears on the year calendar',
     cycleDay: 'Cycle day',
     cycleSection: 'Cycle',
     nextAfterRecords: 'Your next period will appear after a few records',
