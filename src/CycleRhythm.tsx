@@ -310,13 +310,12 @@ function ExpandedChart({
         ]}
       >
         {windows.map((window) => (
-          <View
-            key={`${window.phase}-${window.startDay}`}
-            style={[styles.xAxisLabelCell, { flex: window.endDay - window.startDay + 1 }]}
-          >
+          <View key={`${window.phase}-${window.startDay}`} style={styles.xAxisLabelCell}>
             <Text
               style={[styles.axisLabel, styles.xAxisLabelText, { color: theme.muted }]}
               numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
             >
               {t(language, PHASE_LABEL_KEY[window.phase])}
             </Text>
@@ -472,8 +471,9 @@ const styles = StyleSheet.create({
     minHeight: EXPANDED_X_LABEL_HEIGHT,
   },
   xAxisLabelCell: {
+    flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 1,
+    paddingHorizontal: 2,
   },
   xAxisLabelText: {
     textAlign: 'center',
@@ -489,6 +489,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
     marginTop: 4,
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   legendItem: {
     flexDirection: 'row',
