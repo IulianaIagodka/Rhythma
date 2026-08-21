@@ -976,11 +976,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: -0.1,
   },
-  periodMeta: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
-  },
   periodDateLink: {
     textAlign: 'left',
     fontSize: 13,
