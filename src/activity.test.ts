@@ -42,7 +42,8 @@ describe('capacityForPhase', () => {
   it('keeps period as recovery and ovulation as peak', () => {
     assert.equal(capacityForPhase('menstrual', 'uk').load, 'low');
     assert.equal(capacityForPhase('ovulatory', 'uk').load, 'high');
-    assert.match(capacityForPhase('luteal', 'uk').calendarHint, /спрощувати графік/);
+    assert.match(capacityForPhase('luteal', 'uk').calendarHint, /спрощуйте графік|буфер/);
+    assert.match(capacityForPhase('luteal', 'uk').hint, /прогестерон/);
   });
 });
 
@@ -65,6 +66,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(heavy.fit, 'high');
     assert.match(heavy.title, /Перегляньте плани/);
+    assert.match(heavy.note, /Підходить|уникати|перенести/);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -73,12 +75,15 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
     assert.match(gentle.title, /Перегляньте плани/);
+    assert.match(gentle.note, /Йога|Масаж|Плавання/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
     const advice = adviseLoad('ovulatory', [], 'uk');
+    assert.equal(advice.title, 'Що пасує цього тижня');
     assert.match(advice.note, /додати тренування/);
-    assert.match(advice.note, /найважливіші розмови|важливі/);
+    assert.match(advice.note, /Підходить|Ключові розмови/);
+    assert.doesNotMatch(advice.note, /естроген|прогестерон/);
   });
 
   it('titles the insight around the busiest day', () => {
@@ -88,8 +93,8 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
-    assert.match(advice.note, /progesterone rises|buffer/i);
-    assert.match(advice.note, /close loops|simplify/i);
+    assert.match(advice.note, /Fits well|Ease off|moving|Massage/i);
+    assert.doesNotMatch(advice.note, /progesterone|estrogen/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 
@@ -99,27 +104,27 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.match(advice.note, /прогестерон|буфер/i);
-    assert.match(advice.note, /закривати|спрощувати/i);
+    assert.match(advice.note, /Підходить|уникати|перенести|Масаж/);
+    assert.doesNotMatch(advice.note, /прогестерон|естроген/);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 });
 
 describe('cycleInsight', () => {
-  it('uses phase capacity only, without calendar copy', () => {
+  it('uses phase and hormone copy only, without calendar advice', () => {
     const insight = cycleInsight('menstrual', 'en');
-    assert.equal(insight.title, 'Rest & release');
-    assert.match(insight.note, /hormones are lowest/i);
-    assert.doesNotMatch(insight.note, /calendar/i);
+    assert.equal(insight.title, 'Menstrual phase');
+    assert.match(insight.note, /estrogen|progesterone/i);
+    assert.doesNotMatch(insight.note, /calendar|workout|plan|Fits well/i);
     assert.equal(insight.events, 0);
     assert.equal(insight.busiestDay, null);
   });
 
   it('keeps Ukrainian phase-only wording', () => {
     const insight = cycleInsight('ovulatory', 'uk');
-    assert.equal(insight.title, 'Peak & powerful');
-    assert.match(insight.note, /пік енергії/i);
-    assert.doesNotMatch(insight.note, /календар/i);
+    assert.equal(insight.title, 'Овуляторна фаза');
+    assert.match(insight.note, /естроген/i);
+    assert.doesNotMatch(insight.note, /календар|Підходить|тренуван/i);
     assert.equal(insight.fit, 'low');
   });
 });
