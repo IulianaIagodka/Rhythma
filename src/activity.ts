@@ -103,79 +103,94 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
       return {
         label: 'Rest & release',
         load: 'low',
-        hint: 'гормони на мінімумі: більше сну, легкий рух, менше інтенсивності',
-        calendarHint: 'залишайте у календарі простір, переносіть жорсткі тренування й важкі зустрічі, якщо можете',
+        hint: 'естроген і прогестерон на мінімумі — енергія часто спадає',
+        calendarHint: 'краще відновлення й легкий рух; менше жорстких тренувань і щільних днів',
       };
     }
     if (phase === 'follicular') {
       return {
         label: 'Renew & rise',
         load: 'medium',
-        hint: 'енергія, креативність і мотивація ростуть',
-        calendarHint: 'добрий час додавати нові плани, тренування, брейншторми й старт задач',
+        hint: 'естроген зростає — енергія, фокус і мотивація зазвичай підсилюються',
+        calendarHint: 'добрий час для нових планів, прогресивних тренувань і стартів',
       };
     }
     if (phase === 'ovulatory') {
       return {
         label: 'Peak & powerful',
         load: 'high',
-        hint: 'пік енергії: складні тренування, виступи, зустрічі, рішення',
-        calendarHint: 'ставте сюди найважливіші розмови, соціальні події та інтенсивні сесії',
+        hint: 'естроген на піку навколо овуляції — часто найбільше енергії',
+        calendarHint: 'ставте ключові розмови, соціальні плани й інтенсивні сесії',
       };
     }
     if (phase === 'luteal') {
       return {
         label: 'Turn inward',
         load: 'medium',
-        hint: 'прогестерон росте, енергія може спадати — потрібен буфер',
-        calendarHint: 'краще закривати розпочате, спрощувати графік і не перевантажувати кінець циклу',
+        hint: 'після овуляції росте прогестерон — енергія може спадати',
+        calendarHint: 'закривайте почате, спрощуйте графік і залишайте буфер',
       };
     }
     return {
       label: 'Цикл',
       load: 'medium',
-      hint: 'позначте перший день, щоб Rhythma звіряла фазу з навантаженням',
-      calendarHint: 'після кількох записів зʼявляться підказки, як адаптувати календар під ваш ритм',
+      hint: 'запишіть перший день, щоб Rhythma визначила фазу',
+      calendarHint: 'після кількох записів зʼявляться підказки, що пасує до планів',
     };
   }
   if (phase === 'menstrual') {
     return {
       label: 'Rest & release',
       load: 'low',
-      hint: 'hormones are lowest: favor sleep, walks, and lighter effort',
-      calendarHint: 'keep more space in your calendar and move hard workouts or heavy meetings when possible',
+      hint: 'estrogen and progesterone are at their lowest — energy often dips',
+      calendarHint: 'favor recovery and light movement; ease off hard workouts and packed days',
     };
   }
   if (phase === 'follicular') {
     return {
       label: 'Renew & rise',
       load: 'medium',
-      hint: 'energy, creativity, and motivation are climbing',
-      calendarHint: 'good time to add new plans, training blocks, brainstorms, and starts',
+      hint: 'estrogen rises — energy, focus, and motivation usually build',
+      calendarHint: 'a good window for new plans, progressive training, and starts',
     };
   }
   if (phase === 'ovulatory') {
     return {
       label: 'Peak & powerful',
       load: 'high',
-      hint: 'energy tends to peak: use it for hard sessions, meetings, and decisions',
-      calendarHint: 'place important conversations, social plans, and intense sessions here',
+      hint: 'estrogen peaks around ovulation — many feel most energetic',
+      calendarHint: 'place key conversations, social plans, and intense sessions here',
     };
   }
   if (phase === 'luteal') {
     return {
       label: 'Turn inward',
       load: 'medium',
-      hint: 'progesterone rises and energy may dip, so leave more buffer',
-      calendarHint: 'close loops, simplify the schedule, and avoid stacking the end of the cycle',
+      hint: 'progesterone rises after ovulation — energy may ease',
+      calendarHint: 'close loops, simplify the schedule, and leave more buffer',
     };
   }
   return {
     label: 'Cycle',
     load: 'medium',
-    hint: 'log your first day so Rhythma can map your phase against your load',
-    calendarHint: 'after a few records, you will get suggestions on how to adapt your calendar',
+    hint: 'record the first day so Rhythma can map your phase',
+    calendarHint: 'after a few records, you will get suggestions on what fits your plans',
   };
+}
+
+function schedulePlanLine(phase: PhaseId | null, lang: Language): string {
+  const plan = planningForPhase(phase, lang);
+  if (!plan.best.length && !plan.avoid.length) return '';
+  if (lang === 'uk') {
+    const parts: string[] = [];
+    if (plan.best.length) parts.push(`Підходить: ${plan.best.join(', ')}`);
+    if (plan.avoid.length) parts.push(`Краще уникати: ${plan.avoid.join(', ')}`);
+    return parts.join('. ');
+  }
+  const parts: string[] = [];
+  if (plan.best.length) parts.push(`Fits well: ${plan.best.join(', ')}`);
+  if (plan.avoid.length) parts.push(`Ease off: ${plan.avoid.join(', ')}`);
+  return parts.join('. ');
 }
 
 export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: Language): LoadAdvice {
@@ -189,13 +204,16 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   const busiest = [...byDay.entries()].sort((a, b) => b[1] - a[1])[0];
   const busiestDayISO = busiest ? busiest[0] : null;
   const busiestDay = busiestDayISO ? weekdayName(busiestDayISO, lang) : null;
+  const checks = activityChecks(phase, items, lang);
+  const planLine = schedulePlanLine(phase, lang);
+  const scheduleNote = joinAdviceParts([...checks, planLine || capacity.calendarHint]);
+  const emptyTitle = lang === 'uk' ? 'Що пасує цього тижня' : 'What fits this week';
 
   let fit: Fit = 'ok';
   if (!items.length) {
-    const emptyChecks = activityChecks(phase, items, lang);
     return {
-      title: capacity.label,
-      note: joinAdviceParts([...emptyChecks, capacity.hint, capacity.calendarHint]),
+      title: emptyTitle,
+      note: scheduleNote,
       fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
       busiestDayISO: null,
@@ -208,8 +226,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
 
   return {
-    title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : capacity.label,
-    note: busiestDay ? '' : joinAdviceParts([capacity.hint, capacity.calendarHint]),
+    title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : emptyTitle,
+    note: scheduleNote,
     fit,
     busiestDay,
     busiestDayISO,
@@ -217,11 +235,17 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   };
 }
 
-/** Phase-only insight when calendar sync is off — no event or calendar copy. */
+/** Phase and hormone insight — no calendar or activity recommendations. */
 export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice {
   const capacity = capacityForPhase(phase, lang);
+  const title =
+    phase == null
+      ? lang === 'uk'
+        ? 'Ще немає запису місячних'
+        : 'No period logged yet'
+      : phaseStatusLabel(phase, lang);
   return {
-    title: capacity.label,
+    title,
     note: joinAdviceParts([capacity.hint]),
     fit: phase === 'ovulatory' ? 'low' : 'ok',
     busiestDay: null,
