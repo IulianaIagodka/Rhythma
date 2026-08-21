@@ -13,6 +13,7 @@ import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
 import { radius, type Theme } from './theme';
 import {
+  YEAR_CALENDAR_TITLE_GAP,
   yearCalendarMetrics,
   yearCalendarScrollOffset,
   type YearCalendarMetrics,
@@ -77,7 +78,12 @@ function MonthGrid({
         <View style={styles.days}>
           {cells.map((day, index) => {
             if (day == null) {
-              return <View key={`e-${index}`} style={styles.dayCell} />;
+              return (
+                <View
+                  key={`e-${index}`}
+                  style={[styles.dayCell, { width: `${100 / 7}%`, height: daySize }]}
+                />
+              );
             }
             const iso = monthISO(year, monthIndex, day);
             const mark = marks.get(iso);
@@ -90,7 +96,7 @@ function MonthGrid({
               <Pressable
                 key={iso}
                 onPress={() => onPressDay(iso)}
-                style={styles.dayCell}
+                style={[styles.dayCell, { width: `${100 / 7}%`, height: daySize }]}
                 hitSlop={6}
               >
                 <View
@@ -194,33 +200,27 @@ const styles = StyleSheet.create({
   },
   month: {
     justifyContent: 'flex-start',
+    overflow: 'hidden',
   },
   monthTitle: {
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: YEAR_CALENDAR_TITLE_GAP,
     textTransform: 'capitalize',
   },
   daysWrap: {
-    flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   days: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   dayCell: {
-    width: `${100 / 7}%`,
-    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // Expand the pressable slightly beyond the painted fill.
-    minHeight: 44,
   },
   dayFill: {
     alignItems: 'center',
     justifyContent: 'center',
-    maxWidth: '92%',
-    maxHeight: '92%',
   },
   dayText: {
     fontWeight: '600',

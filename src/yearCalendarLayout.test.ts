@@ -3,10 +3,9 @@ import { describe, it } from 'node:test';
 
 import {
   YEAR_CALENDAR_COLS,
-  YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT,
   YEAR_CALENDAR_MIN_DAY_SIZE,
-  YEAR_CALENDAR_VISIBLE_ROWS,
   yearCalendarMetrics,
+  yearCalendarMonthFitsGrid,
   yearCalendarScrollOffset,
 } from './yearCalendarLayout';
 
@@ -15,13 +14,9 @@ describe('yearCalendarMetrics', () => {
     const metrics = yearCalendarMetrics(350, 700);
     assert.equal(YEAR_CALENDAR_COLS, 1);
     assert.equal(metrics.monthWidth, 350);
-    assert.ok(metrics.monthHeight > YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT);
     assert.ok(metrics.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
     assert.ok(metrics.daySize >= 44);
-    const used =
-      metrics.monthHeight * YEAR_CALENDAR_VISIBLE_ROWS +
-      metrics.rowGap * (YEAR_CALENDAR_VISIBLE_ROWS - 1);
-    assert.ok(Math.abs(used - 700) < 0.01);
+    assert.equal(yearCalendarMonthFitsGrid(metrics), true);
   });
 
   it('keeps day cells at least ~40pt on compact phones', () => {
@@ -30,6 +25,24 @@ describe('yearCalendarMetrics', () => {
     assert.ok(compact.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
     assert.ok(compact.dayFontSize >= 14);
     assert.ok(roomy.daySize >= compact.daySize);
+    assert.equal(yearCalendarMonthFitsGrid(compact), true);
+    assert.equal(yearCalendarMonthFitsGrid(roomy), true);
+  });
+
+  it('sizes months so the day grid never overflows into the next month', () => {
+    for (const [width, height] of [
+      [320, 400],
+      [350, 100],
+      [390, 800],
+    ] as const) {
+      const metrics = yearCalendarMetrics(width, height);
+      assert.equal(yearCalendarMonthFitsGrid(metrics), true);
+      assert.ok(metrics.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
+      assert.equal(
+        metrics.monthHeight,
+        metrics.monthTitleSize + 6 + 6 * metrics.daySize,
+      );
+    }
   });
 
   it('scrolls so the current month stays inside the visible window', () => {
@@ -37,12 +50,6 @@ describe('yearCalendarMetrics', () => {
     const rowGap = 18;
     assert.equal(yearCalendarScrollOffset(0, monthHeight, rowGap), 0);
     assert.equal(yearCalendarScrollOffset(2, monthHeight, rowGap), monthHeight + rowGap);
-    assert.equal(yearCalendarScrollOffset(11, monthHeight, rowGap), 9 * (monthHeight + rowGap));
-  });
-
-  it('keeps a usable month height even when the viewport is short', () => {
-    const metrics = yearCalendarMetrics(350, 100);
-    assert.ok(metrics.monthHeight >= YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT);
-    assert.ok(metrics.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
+    assert.equal(yearCalendarScrollOffset(11, monthHeight, rowGap), 10 * (monthHeight + rowGap));
   });
 });
