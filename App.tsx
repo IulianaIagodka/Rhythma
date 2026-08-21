@@ -37,7 +37,7 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
-import { scheduleInsightToggleState } from './src/settingsControls';
+import { cycleInsightToggleState, scheduleInsightToggleState } from './src/settingsControls';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -181,6 +181,7 @@ export default function App() {
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
+  const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
   const scheduleInsightToggle = scheduleInsightToggleState(
     data.settings.calendarSync,
     data.settings.showScheduleInsight,
@@ -591,7 +592,8 @@ export default function App() {
                       </Text>
                     </View>
                     <BrightSwitch
-                      value={data.settings.showCycleInsight}
+                      value={cycleInsightToggle.value}
+                      disabled={cycleInsightToggle.disabled}
                       theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showCycleInsight) =>

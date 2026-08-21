@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { scheduleInsightToggleState } from './settingsControls';
+import { cycleInsightToggleState, scheduleInsightToggleState } from './settingsControls';
+
+describe('cycleInsightToggleState', () => {
+  it('stays enabled regardless of calendar sync — cycle insight is phase-only', () => {
+    assert.deepEqual(cycleInsightToggleState(true), { disabled: false, value: true });
+    assert.deepEqual(cycleInsightToggleState(false), { disabled: false, value: false });
+  });
+});
 
 describe('scheduleInsightToggleState', () => {
   it('disables and forces off when calendar sync is off', () => {
