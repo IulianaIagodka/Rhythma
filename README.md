@@ -6,28 +6,28 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Free
 
-- Log the first day of your period from Today, or confirm a date on the year calendar
+- Record your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days (9 months visible, scroll for the rest)
-- Today cards with a clear hierarchy: Cycle status, this week, selected day, and phase context
+- Today cards: cycle status, this week, selected day, and phase context
 - Phase name on Today (`Menstrual phase`, `Follicular phase`, `Ovulatory phase`, `Luteal phase`)
-- **Calendar sync** for events from the iPhone Calendar
+- **Predicted** labels for forecast cycle day and ovulation past the open logged cycle
+- **Calendar sync** for events from the iPhone Calendar (including Google if added in iOS Calendar settings)
 - Optional ovulation marks on the calendars
 - Theme switch: Light / Dark
 - English and Ukrainian, based on the phone language
 
 ## Plus — Coming soon
 
-- Schedule insight when Calendar sync is on (cycle-aware load advice for the week)
-- Cycle insight when Calendar sync is off (phase-only guidance) plus a Schedule insights CTA to connect the calendar
-- For this phase guidance shown as “Good for you now” with Yes tips (always open)
-- Energy curve (smooth sparkline; tap to open energy with estrogen and progesterone)
+Purchase UI is off in the App Store release (`Coming soon`). Unlock later with `EXPO_PUBLIC_IAP_PLUS=1` / EAS profile `plus`.
 
-Purchase will be available behind the `EXPO_PUBLIC_IAP_PLUS` flag (`eas` profile `plus`).
+- **Cycle insight** — short phase and hormone context
+- **Schedule insight** — plan and activity fit when Calendar sync is on (with a Review link into Apple Calendar when helpful); CTA to connect the calendar when sync is off
+- **Energy curve** — compact sparkline; tap for energy with estrogen and progesterone (axes: High/Low + phase names)
 
 ## Builds
 
-- `production` — App Store / TestFlight. No purchase UI (Coming soon). TestFlight installs may show a Free / Plus switch for QA.
-- `testflight` — same as production, with an explicit Free / Plus switch (`EXPO_PUBLIC_PLAN_SWITCH=1`).
+- `production` — App Store. No purchase UI (**Coming soon**). No Free / Plus QA switch for App Store installs.
+- `testflight` — same product bits as production, with an explicit Free / Plus switch (`EXPO_PUBLIC_PLAN_SWITCH=1`). TestFlight installs may also detect as TestFlight and show the switch.
 - `plus` — enables in-app purchase UI (`EXPO_PUBLIC_IAP_PLUS=1`).
 - `preview` / `internal` — Free / Plus switch via env.
 - Local Expo (`__DEV__`) also shows the Free / Plus switch.
@@ -40,6 +40,11 @@ npx expo start
 ```bash
 npm test
 npx tsc --noEmit
+```
+
+```bash
+# App Store / Coming soon
+npx eas-cli build --platform ios --profile production --auto-submit --non-interactive
 ```
 
 ## Support

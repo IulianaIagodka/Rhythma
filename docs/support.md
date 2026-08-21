@@ -19,10 +19,11 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Free
 
-- Log the first day of your period from Today, or confirm a date on the year calendar
+- Record your period from Today, or confirm a date on the year calendar
 - Week and year calendars for recorded and forecasted period days
-- Today cards: Cycle, This week, selected day, and phase context
+- Today cards: cycle status, this week, selected day, and phase context
 - Phase name on Today: Menstrual, Follicular, Ovulatory, Luteal phase
+- **Predicted** cycle day and ovulation labels when the date is past the open logged cycle
 - **Calendar sync** — connect your iPhone calendar to see events alongside your cycle
 - Optional ovulation marks on the calendars (off by default)
 - Light or dark appearance
@@ -30,7 +31,11 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Plus — Coming soon
 
-Schedule insight (with Calendar sync on), Cycle insight (when sync is off), For this phase (Yes), and Energy curve. More details to follow.
+Purchase is not enabled in the first App Store release. Coming next:
+
+- **Cycle insight** — short phase and hormone context
+- **Schedule insight** — what fits your plans and activities when Calendar sync is on
+- **Energy curve** — tap the sparkline for energy with estrogen and progesterone
 
 ---
 
@@ -113,10 +118,11 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Безкоштовно
 
-- Позначити перший день місячних на Today або підтвердити дату в річному календарі
+- Запишіть місячні на Today або підтвердіть дату в річному календарі
 - Тижневий і річний календарі для записаних і прогнозованих днів
-- Картки Today: Цикл, Цей тиждень, обраний день і контекст фази
+- Картки Today: цикл, цей тиждень, обраний день і контекст фази
 - Назва фази на Today: менструальна, фолікулярна, овуляторна, лютеїнова фаза
+- Мітки **Прогноз** для дня циклу й овуляції, коли дата вже в прогнозованому циклі
 - **Синхронізація календаря** — підключіть календар iPhone, щоб бачити події поруч із циклом
 - За бажанням — позначки овуляції на календарях (за замовчуванням вимкнені)
 - Світла або темна тема
@@ -124,7 +130,11 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Plus — Незабаром
 
-Підказка розкладу (коли синхронізація календаря увімкнена), Підказка циклу (коли вимкнена), Для цієї фази (Так) та Energy curve. Деталі з'являться пізніше.
+Покупка у першому релізі App Store вимкнена. Далі:
+
+- **Підказка циклу** — коротка інформація про фазу й гормони
+- **Підказка розкладу** — що пасує до планів і активностей, коли синхронізація календаря увімкнена
+- **Крива енергії** — натисніть міні-графік, щоб відкрити енергію з естрогеном і прогестероном
 
 ## Як користуватись
 
