@@ -63,6 +63,14 @@ export const darkTheme: Theme = {
 
 export type ThemeMode = 'light' | 'dark';
 
+/** Shared corner radii — keep Today / Settings / Calendar visually consistent. */
+export const radius = {
+  card: 14,
+  control: 12,
+  day: 8,
+  switch: 6,
+} as const;
+
 export function themeFor(mode: ThemeMode): Theme {
   return mode === 'dark' ? darkTheme : lightTheme;
 }

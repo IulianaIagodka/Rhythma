@@ -11,7 +11,7 @@ import {
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 import {
   yearCalendarMetrics,
   yearCalendarScrollOffset,
@@ -94,7 +94,7 @@ function MonthGrid({
                     {
                       width: daySize,
                       height: daySize,
-                      borderRadius: 0,
+                      borderRadius: radius.day,
                     },
                     mark && fill ? { backgroundColor: fill } : null,
                     todayNoMark ? { backgroundColor: theme.accent } : null,

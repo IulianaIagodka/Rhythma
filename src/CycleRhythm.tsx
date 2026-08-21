@@ -21,7 +21,7 @@ import {
   type Settings,
 } from './cycle';
 import { t, type Language } from './i18n';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 
 const CHART_WIDTH = 132;
 const CHART_HEIGHT = 64;
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
-    borderRadius: 0,
+    borderRadius: radius.card,
     borderWidth: 1,
     paddingHorizontal: 18,
     paddingTop: 20,
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   legendSwatch: {
     width: 10,
     height: 10,
-    borderRadius: 0,
+    borderRadius: 3,
   },
   legendLabel: {
     fontSize: 13,
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     minHeight: 48,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

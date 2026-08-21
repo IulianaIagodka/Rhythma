@@ -31,7 +31,7 @@ import {
 } from './src/cycle';
 import { addDays, appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
-import { themeFor, type Theme } from './src/theme';
+import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   card: {
-    borderRadius: 14,
+    borderRadius: radius.card,
     padding: 18,
     gap: 14,
   },
@@ -1049,7 +1049,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   cta: {
-    borderRadius: 12,
+    borderRadius: radius.control,
     minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1103,7 +1103,7 @@ const styles = StyleSheet.create({
   yearNavBtn: { fontSize: 28, fontWeight: '300' },
   yearLabel: { fontSize: 18, fontWeight: '600' },
   settingRow: {
-    borderRadius: 0,
+    borderRadius: radius.card,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1122,7 +1122,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1131,7 +1131,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   paywallInline: {
-    borderRadius: 0,
+    borderRadius: radius.card,
     padding: 16,
     marginBottom: 8,
     gap: 12,
@@ -1144,7 +1144,7 @@ const styles = StyleSheet.create({
   paywallIconWrap: {
     width: 44,
     height: 44,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1170,7 +1170,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 0,
+    borderRadius: radius.control,
     backgroundColor: 'rgba(233,30,140,0.08)',
   },
   paywallInlineCheck: {
@@ -1186,7 +1186,7 @@ const styles = StyleSheet.create({
   },
   paywallInlineBtn: {
     paddingVertical: 14,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
   },
   paywallInlineBtnText: {
@@ -1207,7 +1207,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
   },
   paywallComingSoonText: {
     fontSize: 13,
@@ -1215,7 +1215,7 @@ const styles = StyleSheet.create({
   },
   planSwitch: {
     flexDirection: 'row',
-    borderRadius: 0,
+    borderRadius: radius.control,
     borderWidth: 1,
     padding: 2,
     gap: 2,
@@ -1223,7 +1223,7 @@ const styles = StyleSheet.create({
   planSwitchBtn: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.switch,
   },
   planSwitchText: {
     fontSize: 13,
@@ -1232,14 +1232,14 @@ const styles = StyleSheet.create({
   squareSwitch: {
     width: 50,
     height: 30,
-    borderRadius: 0,
+    borderRadius: radius.switch,
     justifyContent: 'center',
     paddingHorizontal: 3,
   },
   squareSwitchThumb: {
     width: 24,
     height: 24,
-    borderRadius: 0,
+    borderRadius: radius.switch,
   },
   squareSwitchThumbOn: {
     alignSelf: 'flex-end',
@@ -1251,7 +1251,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1282,7 +1282,7 @@ const styles = StyleSheet.create({
   },
   menuBar: {
     height: 2,
-    borderRadius: 0,
+    borderRadius: 1,
   },
   tabLabel: { fontSize: 11, fontWeight: '600' },
 });

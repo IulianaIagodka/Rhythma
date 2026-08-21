@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { CalendarItem } from './calendar';
 import { markForDate, type StoredData } from './cycle';
 import { parseISODate, weekDaysFromMonday, weekdayShort, type Language } from './dates';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 import { weekDayBars, weekDayCellColors } from './weekStripLogic';
 
 export { weekDayBars, weekDayCellColors } from './weekStripLogic';
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   day: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 14,
+    borderRadius: radius.day,
     paddingVertical: 12,
     paddingHorizontal: 2,
     gap: 8,
