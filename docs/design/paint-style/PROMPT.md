@@ -1,6 +1,7 @@
 # Rhythma — Paint-style design prompt
 
 Current dark neon brand palette + classic old Microsoft Paint delivery.
+Tone: **restrained / adult / raw** — not teenage, not cute-diary.
 
 ## Palette (do not drift)
 
@@ -23,8 +24,12 @@ Mood stays **dark neon Rhythma** — only the *drawing method* becomes Paint.
 ```
 Mobile UI for cycle tracker app "Rhythma".
 Aesthetic: classic old Microsoft Paint (Windows 95/XP) — drawn with a mouse.
-Uneven 1–2px outlines, wobbly circles, naive stick icons, aliased/jagged edges,
-chunky imperfect handwriting, cute raw playful doodles.
+Thin uneven 1–2px outlines, slightly imperfect geometry, aliased/jagged edges,
+flat fills, geometric icons only (circle, grid, gear).
+Typography: plain Paint Text-tool / system-like sans — slightly uneven, NOT cursive,
+NOT brush lettering, NOT bubbly handwriting, NOT diary script.
+Tone: restrained, adult, calm, raw, dry — NOT teenage, NOT cute, NOT playful doodle.
+NO hearts, smileys, stars, flowers, stickers, stick figures, sparkles.
 NO glossy UI, NO realistic shadows, NO glassmorphism, NO luxury minimalism,
 NO gradients on controls, NO photoreal imagery.
 
@@ -36,9 +41,8 @@ Palette ONLY:
 - main accent neon magenta/pink #FF10F0
 - secondary accent cyan/teal #5ECAD6
 
-Brand word "Rhythma" must read as a hero-level hand-painted signal.
-Feel: playful, raw, hand-drawn, imperfect, cute, dark UI with bright pink accents.
-iPhone portrait mockup.
+Brand word "Rhythma" as a clear hero signal (flat paint letters, not cute).
+iPhone portrait mockup. Tabs: Today · Year · Settings.
 ```
 
 ## Master prompt (UA)
@@ -46,10 +50,13 @@ iPhone portrait mockup.
 ```
 Дизайн мобільного UI для трекера циклу "Rhythma".
 Стиль: старий Microsoft Paint (Win 95/XP) — ніби намальовано мишкою.
-Нерівні контури 1–2px, криві кола, наївні іконки, aliased краї,
-нерівний hand-drawn текст, милі сирі doodles.
-Без glossy UI, без реалістичних тіней, без glassmorphism, без luxury minimalism,
-без градієнтів на кнопках, без фотореалізму.
+Тонкі нерівні контури 1–2px, трохи недосконала геометрія, aliased краї,
+плоскі заливки, лише геометричні іконки (коло, сітка, шестерня).
+Типографіка: простий Paint Text tool / system-like sans — трохи нерівний,
+НЕ курсив, НЕ brush lettering, НЕ «милий» handwriting, НЕ щоденниковий скрипт.
+Тон: стриманий, дорослий, спокійний, raw — НЕ підлітковий, НЕ cute, НЕ doodle-journal.
+Без сердець, смайликів, зірочок, квіточок, стікерів, stick figures, блискіток.
+Без glossy UI, тіней, glassmorphism, luxury minimalism, градієнтів на кнопках.
 
 Палітра лише:
 - фон #0A0A0A
@@ -59,41 +66,43 @@ iPhone portrait mockup.
 - акцент neon pink/magenta #FF10F0
 - додатковий акцент cyan/teal #5ECAD6
 
-Назва "Rhythma" — hero-рівень, hand-painted.
-Настрій: playful, raw, hand-drawn, imperfect, cute, dark + bright pink.
-iPhone portrait.
+"Rhythma" — чіткий hero-сигнал (плоскі paint-літери).
+iPhone portrait. Таби: Today · Year · Settings.
 ```
 
 ## Screen add-ons
 
 ### Today
-Add: big wobbly pink cycle circle “Day N”, phase in cyan, gray “Next period in…”,
-pink outline button “Period started today”, 7 uneven day squares (pink = period, cyan outline = today),
-bottom tabs **Today / Year / Settings** (match product: 3 tabs).
+Big imperfect pink cycle ring “Day N”, phase in cyan, gray “Next period in…”,
+pink outline button “Period started today” (text only), 7 plain day squares
+(pink fill = period, cyan outline = today), tabs **Today / Year / Settings**.
 
 ### Year
-Add: hand-drawn year header with pink arrows, 12 crude month grids,
-pink blobs = period, cyan dots = ovulation, gray empty = forecast, simple legend.
+Plain year header with pink chevrons, 12 crude month grids,
+pink cells = period, cyan dots = ovulation, gray empty = forecast, minimal legend.
 
 ### Settings
-Add: wobbly rows + crude toggles (Theme, Calendar sync, Show ovulation),
-language EN/UK, pink outline “Rhythma Plus — Coming soon”, gray privacy scribble.
+Wobbly rows + crude rectangular toggles (Theme, Calendar sync, Show ovulation),
+language EN/UK, pink outline “Rhythma Plus — Coming soon” (no decoration),
+short gray privacy line.
 
 ### Splash
-Add: optional Paint window chrome; huge pink “Rhythma”; one line “Your cycle, doodled.”;
-one cyan CTA; tiny gray “private · on device”. No stats, no cards, no badges.
+Optional Paint window chrome; large flat pink “Rhythma”; one line
+“Plan around your rhythm.”; one cyan outline CTA “Open”;
+tiny gray “private · on device”. Geometric ring only. No stickers.
 
 ### Energy curve (Plus)
-Add: wobbly pink solid + cyan dashed hormone lines, High/Low axis, phase labels along X,
-white “Today” marker, naive legend.
+Wobbly pink solid + cyan dashed lines, High/Low axis, phase labels along X,
+white “Today” marker, text-only legend.
 
 ## Negative prompt
 
 ```
-modern iOS glossy UI, skeuomorphic luxury, soft drop shadows, blur, glassmorphism,
-perfect geometry, Inter/Roboto, purple-indigo gradient theme, cream paper,
-newspaper layout, photorealistic icons, 3D, neon glow bloom overload,
-crowded dashboard, floating sticker badges, inset hero cards
+teenage aesthetic, cute diary, bubbly handwriting, cursive script, brush lettering,
+hearts, smileys, stars, flowers, stickers, stick figures, sparkles, doodle journal,
+modern iOS glossy UI, soft drop shadows, blur, glassmorphism, luxury minimalism,
+perfect geometry, Inter/Roboto, purple-indigo gradient, cream paper, newspaper layout,
+photorealistic icons, 3D, neon glow bloom overload, crowded dashboard, floating badges
 ```
 
 ## Mockups in this folder
@@ -106,4 +115,4 @@ crowded dashboard, floating sticker badges, inset hero cards
 | `rhythma-paint-settings.png` | Settings |
 | `rhythma-paint-energy.png` | Energy curve (Plus) |
 
-Note: some generators invent extra tabs — product navigation is **Today · Year · Settings** only.
+Product navigation is **Today · Year · Settings** only.
