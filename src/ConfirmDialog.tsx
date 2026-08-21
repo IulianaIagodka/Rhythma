@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 0,
     borderWidth: 1,
     paddingHorizontal: 22,
     paddingTop: 22,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     minHeight: 48,
-    borderRadius: 14,
+    borderRadius: 0,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

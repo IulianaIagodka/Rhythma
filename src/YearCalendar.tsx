@@ -94,7 +94,7 @@ function MonthGrid({
                     {
                       width: daySize,
                       height: daySize,
-                      borderRadius: daySize / 2,
+                      borderRadius: 0,
                     },
                     mark && fill ? { backgroundColor: fill } : null,
                     todayNoMark ? { backgroundColor: theme.accent } : null,

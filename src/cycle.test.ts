@@ -12,6 +12,8 @@ import {
   loggedPeriodDays,
   marksForYear,
   energyAtCycleDay,
+  energyPercentAtCycleDay,
+  peakEnergyAtCycle,
   estrogenAtCycleDay,
   nextRhythmMarker,
   ovulationDayForCycle,
@@ -211,6 +213,18 @@ describe('energyAtCycleDay', () => {
     assert.equal(rhythmEnergyKind('follicular'), 'rising');
     assert.equal(rhythmEnergyKind('ovulatory'), 'peak');
     assert.equal(rhythmEnergyKind('luteal'), 'easing');
+  });
+
+  it('maps energy to 0–100 with 100 at the cycle peak', () => {
+    const settings = defaultSettings();
+    const peakDay = ovulationDayForCycle(28, settings);
+    assert.equal(energyPercentAtCycleDay(peakDay, 28, settings), 100);
+    assert.equal(peakEnergyAtCycle(28, settings), energyAtCycleDay(peakDay, 28, settings));
+    const menstrual = energyPercentAtCycleDay(1, 28, settings);
+    const luteal = energyPercentAtCycleDay(22, 28, settings);
+    assert.ok(menstrual < 100);
+    assert.ok(luteal < 100);
+    assert.ok(menstrual < energyPercentAtCycleDay(peakDay, 28, settings));
   });
 });
 

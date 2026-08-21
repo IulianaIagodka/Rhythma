@@ -221,6 +221,26 @@ export function energyAtCycleDay(
   return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
 }
 
+/** Peak relative energy for this cycle length (ovulation window). */
+export function peakEnergyAtCycle(cycleLength: number, settings: Settings): number {
+  return energyAtCycleDay(ovulationDayForCycle(cycleLength, settings), cycleLength, settings);
+}
+
+/**
+ * Energy as 0–100 relative to this cycle’s peak.
+ * 100 = peak energy day; lower days scale down from that peak.
+ */
+export function energyPercentAtCycleDay(
+  cycleDay: number,
+  cycleLength: number,
+  settings: Settings,
+): number {
+  const peak = peakEnergyAtCycle(cycleLength, settings);
+  if (peak <= 0) return 0;
+  const value = energyAtCycleDay(cycleDay, cycleLength, settings);
+  return Math.max(0, Math.min(100, Math.round((value / peak) * 100)));
+}
+
 /** Illustrative relative estrogen pattern — not a lab value. */
 export function estrogenAtCycleDay(
   cycleDay: number,

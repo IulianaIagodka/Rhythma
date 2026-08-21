@@ -107,7 +107,7 @@ export function PlusFreeCard(props: PlusFreeCardProps) {
 
 const styles = StyleSheet.create({
   paywallInline: {
-    borderRadius: 20,
+    borderRadius: 0,
     padding: 20,
     gap: 14,
     marginBottom: 12,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   paywallInlineBtn: {
-    borderRadius: 999,
+    borderRadius: 0,
     paddingVertical: 14,
     alignItems: 'center',
   },
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   paywallComingSoonBadge: {
     alignSelf: 'flex-start',
-    borderRadius: 999,
+    borderRadius: 0,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
