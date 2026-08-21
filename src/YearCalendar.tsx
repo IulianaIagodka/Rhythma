@@ -70,7 +70,7 @@ function MonthGrid({
   while (cells.length % 7 !== 0) cells.push(null);
   const colors = MARK_COLORS(theme);
   const weekRows = monthWeekRows(year, monthIndex);
-  const { daySize, markSize, dayFontSize, monthTitleSize, monthWidth, titleBlock } = metrics;
+  const { daySize, markSize, dayFontSize, monthTitleSize, monthWidth, gridWidth, titleBlock } = metrics;
   const monthHeight = monthBlockHeight(weekRows, titleBlock, daySize);
 
   return (
@@ -83,14 +83,14 @@ function MonthGrid({
       >
         {monthName(monthIndex, language)}
       </Text>
-      <View style={styles.daysWrap}>
+      <View style={[styles.daysWrap, { width: gridWidth }]}>
         <View style={styles.days}>
           {cells.map((day, index) => {
             if (day == null) {
               return (
                 <View
                   key={`e-${index}`}
-                  style={[styles.dayCell, { width: `${100 / 7}%`, height: daySize }]}
+                  style={[styles.dayCell, { width: daySize, height: daySize }]}
                 />
               );
             }
@@ -105,7 +105,7 @@ function MonthGrid({
               <Pressable
                 key={iso}
                 onPress={() => onPressDay(iso)}
-                style={[styles.dayCell, { width: `${100 / 7}%`, height: daySize }]}
+                style={[styles.dayCell, { width: daySize, height: daySize }]}
                 hitSlop={8}
               >
                 <View
@@ -159,6 +159,7 @@ export function YearCalendar(props: YearCalendarProps) {
       if (
         Math.abs(prev.daySize - next.daySize) < 1 &&
         Math.abs(prev.monthWidth - next.monthWidth) < 1 &&
+        Math.abs(prev.gridWidth - next.gridWidth) < 1 &&
         Math.abs(prev.markSize - next.markSize) < 1
       ) {
         return prev;
@@ -210,14 +211,18 @@ const styles = StyleSheet.create({
   },
   month: {
     justifyContent: 'flex-start',
+    alignItems: 'center',
     overflow: 'hidden',
   },
   monthTitle: {
     fontWeight: '600',
     textTransform: 'capitalize',
+    textAlign: 'center',
+    alignSelf: 'stretch',
   },
   daysWrap: {
     justifyContent: 'flex-start',
+    alignSelf: 'center',
   },
   days: {
     flexDirection: 'row',

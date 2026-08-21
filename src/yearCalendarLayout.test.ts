@@ -33,6 +33,17 @@ describe('yearCalendarMetrics', () => {
     assert.equal(yearCalendarMonthFitsGrid(compact), true);
   });
 
+  it('centers a capped day grid when it is narrower than the month column', () => {
+    const roomy = yearCalendarMetrics(390, 720);
+    assert.equal(roomy.daySize, YEAR_CALENDAR_MAX_DAY_SIZE);
+    assert.equal(roomy.gridWidth, roomy.daySize * 7);
+    assert.ok(roomy.gridWidth < roomy.monthWidth);
+
+    const tight = yearCalendarMetrics(240, 520);
+    assert.equal(tight.gridWidth, tight.monthWidth);
+    assert.ok(tight.gridWidth <= tight.daySize * 7);
+  });
+
   it('sizes each month from its real week count so empty weeks do not pad the block', () => {
     // August 2026 starts Saturday → 6 weeks; September 2026 starts Tuesday → 5 weeks.
     assert.equal(monthWeekRows(2026, 7), 6);

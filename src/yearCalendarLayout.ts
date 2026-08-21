@@ -19,6 +19,8 @@ export type YearCalendarMetrics = {
   /** Max month height (6 weeks) — used for conservative layout estimates. */
   monthHeight: number;
   monthWidth: number;
+  /** Width of the 7-day grid (may be narrower than monthWidth when days are capped). */
+  gridWidth: number;
   daySize: number;
   markSize: number;
   dayFontSize: number;
@@ -42,6 +44,7 @@ export function monthBlockHeight(weekRows: number, titleBlock: number, daySize: 
 /**
  * One full-width month column with normalized day cells:
  * capped size, inset marks, height follows each month’s real week count.
+ * Day grid is centered when capped cells are narrower than the column.
  */
 export function yearCalendarMetrics(
   viewportWidth: number,
@@ -60,6 +63,7 @@ export function yearCalendarMetrics(
     YEAR_CALENDAR_MAX_DAY_SIZE,
     Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, rawDay),
   );
+  const gridWidth = Math.min(monthWidth, daySize * 7);
   const markSize = Math.max(22, Math.round(daySize * YEAR_CALENDAR_MARK_SCALE));
   const dayFontSize = Math.max(12, Math.min(15, Math.round(markSize * 0.48)));
   const monthHeight = monthBlockHeight(YEAR_CALENDAR_MAX_WEEKS, titleBlock, daySize);
@@ -67,6 +71,7 @@ export function yearCalendarMetrics(
   return {
     monthHeight,
     monthWidth,
+    gridWidth,
     daySize,
     markSize,
     dayFontSize,
