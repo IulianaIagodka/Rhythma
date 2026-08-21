@@ -11,33 +11,33 @@ import {
 } from './yearCalendarLayout';
 
 describe('yearCalendarMetrics', () => {
-  it('fills the viewport with three visible month rows in two columns', () => {
-    const metrics = yearCalendarMetrics(350, 600);
-    assert.equal(YEAR_CALENDAR_COLS, 2);
-    assert.equal(metrics.monthWidth, (350 - metrics.colGap) / 2);
+  it('uses one full-width month column so days stay tappable', () => {
+    const metrics = yearCalendarMetrics(350, 700);
+    assert.equal(YEAR_CALENDAR_COLS, 1);
+    assert.equal(metrics.monthWidth, 350);
     assert.ok(metrics.monthHeight > YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT);
+    assert.ok(metrics.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
+    assert.ok(metrics.daySize >= 44);
     const used =
       metrics.monthHeight * YEAR_CALENDAR_VISIBLE_ROWS +
       metrics.rowGap * (YEAR_CALENDAR_VISIBLE_ROWS - 1);
-    assert.ok(Math.abs(used - 600) < 0.01);
+    assert.ok(Math.abs(used - 700) < 0.01);
   });
 
-  it('keeps day cells large enough to tap on compact phones', () => {
-    const compact = yearCalendarMetrics(320, 400);
-    const roomy = yearCalendarMetrics(390, 560);
+  it('keeps day cells at least ~40pt on compact phones', () => {
+    const compact = yearCalendarMetrics(320, 520);
+    const roomy = yearCalendarMetrics(390, 720);
     assert.ok(compact.daySize >= YEAR_CALENDAR_MIN_DAY_SIZE);
-    assert.ok(compact.dayFontSize >= 12);
+    assert.ok(compact.dayFontSize >= 14);
     assert.ok(roomy.daySize >= compact.daySize);
-    assert.ok(roomy.dayFontSize >= compact.dayFontSize);
   });
 
   it('scrolls so the current month stays inside the visible window', () => {
-    const monthHeight = 180;
-    const rowGap = 16;
+    const monthHeight = 220;
+    const rowGap = 18;
     assert.equal(yearCalendarScrollOffset(0, monthHeight, rowGap), 0);
-    assert.equal(yearCalendarScrollOffset(3, monthHeight, rowGap), 0);
-    assert.equal(yearCalendarScrollOffset(7, monthHeight, rowGap), 2 * (monthHeight + rowGap));
-    assert.equal(yearCalendarScrollOffset(11, monthHeight, rowGap), 3 * (monthHeight + rowGap));
+    assert.equal(yearCalendarScrollOffset(2, monthHeight, rowGap), monthHeight + rowGap);
+    assert.equal(yearCalendarScrollOffset(11, monthHeight, rowGap), 9 * (monthHeight + rowGap));
   });
 
   it('keeps a usable month height even when the viewport is short', () => {

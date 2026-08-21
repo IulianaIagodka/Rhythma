@@ -213,10 +213,14 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    // Expand the pressable slightly beyond the painted fill.
+    minHeight: 44,
   },
   dayFill: {
     alignItems: 'center',
     justifyContent: 'center',
+    maxWidth: '92%',
+    maxHeight: '92%',
   },
   dayText: {
     fontWeight: '600',

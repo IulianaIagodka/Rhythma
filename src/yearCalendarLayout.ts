@@ -1,15 +1,15 @@
-export const YEAR_CALENDAR_COLS = 2;
-/** How many months fit on screen at once (2 cols × 3 rows). */
-export const YEAR_CALENDAR_VISIBLE_MONTHS = 6;
+export const YEAR_CALENDAR_COLS = 1;
+/** Full-width months so day taps stay near Apple’s ~44pt target. */
+export const YEAR_CALENDAR_VISIBLE_MONTHS = 3;
 export const YEAR_CALENDAR_VISIBLE_ROWS = YEAR_CALENDAR_VISIBLE_MONTHS / YEAR_CALENDAR_COLS;
-export const YEAR_CALENDAR_ROW_GAP = 16;
-export const YEAR_CALENDAR_COL_GAP = 12;
+export const YEAR_CALENDAR_ROW_GAP = 18;
+export const YEAR_CALENDAR_COL_GAP = 0;
 
 /** Fallback when layout has not been measured yet (compact phones). */
-export const YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT = 180;
+export const YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT = 220;
 
-/** Keep day hit targets usable on small phones (Apple HIG ~44pt; 2-col gets us closer). */
-export const YEAR_CALENDAR_MIN_DAY_SIZE = 28;
+/** Prefer comfortable finger targets on year days. */
+export const YEAR_CALENDAR_MIN_DAY_SIZE = 40;
 
 export type YearCalendarMetrics = {
   monthHeight: number;
@@ -23,8 +23,7 @@ export type YearCalendarMetrics = {
 };
 
 /**
- * Size the 2×3 year grid to the available viewport so months fill the screen
- * and day cells stay large enough to tap reliably.
+ * One full-width month column — day cells stay large enough to tap reliably.
  */
 export function yearCalendarMetrics(
   viewportWidth: number,
@@ -34,15 +33,14 @@ export function yearCalendarMetrics(
   const height = Math.max(0, viewportHeight);
   const rowGap = YEAR_CALENDAR_ROW_GAP;
   const colGap = YEAR_CALENDAR_COL_GAP;
-  const monthWidth = (width - colGap * (YEAR_CALENDAR_COLS - 1)) / YEAR_CALENDAR_COLS;
+  const monthWidth = width;
   const monthHeight = Math.max(
     YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT,
     (height - rowGap * (YEAR_CALENDAR_VISIBLE_ROWS - 1)) / YEAR_CALENDAR_VISIBLE_ROWS,
   );
-  // Prefer filling the weekday cell; floor leaves a hair of breathing room.
-  const daySize = Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, Math.floor(monthWidth / 7) - 1);
-  const dayFontSize = Math.max(12, Math.round(daySize * 0.55));
-  const monthTitleSize = Math.max(13, Math.min(16, Math.round(monthWidth * 0.09)));
+  const daySize = Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, Math.floor(monthWidth / 7) - 2);
+  const dayFontSize = Math.max(14, Math.round(daySize * 0.48));
+  const monthTitleSize = Math.max(15, Math.min(18, Math.round(monthWidth * 0.055)));
 
   return {
     monthHeight,
