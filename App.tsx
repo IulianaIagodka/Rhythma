@@ -177,7 +177,8 @@ export default function App() {
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
-  const showAdvice = hasEventLoadAdvice && data.settings.showEventAdvice;
+  const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
+  const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
@@ -204,9 +205,11 @@ export default function App() {
     data.settings.showOvulation &&
     phaseOnDate(periodPrompt.iso, data.periodStarts, data.settings) === 'ovulatory';
   const todayPredicted = isPredictedCycleDate(today, data.periodStarts);
-  const visibleCycleInsight = showAdvice ? cycleInsight(status.phase, language) : null;
+  const visibleCycleInsight = showCycleInsightCard ? cycleInsight(status.phase, language) : null;
   const visibleScheduleAdvice =
-    showAdvice && calendarEnabled ? adviseLoad(status.phase, calendarItems, language) : null;
+    showScheduleInsightCard && calendarEnabled
+      ? adviseLoad(status.phase, calendarItems, language)
+      : null;
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
@@ -475,7 +478,8 @@ export default function App() {
                 </View>
               ) : null}
 
-              {!calendarEnabled ? (
+              {!calendarEnabled &&
+              (!hasEventLoadAdvice || data.settings.showScheduleInsight) ? (
                 <Pressable
                   onPress={() => setTab('settings')}
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
@@ -566,15 +570,37 @@ export default function App() {
                 <>
                   <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                     <View style={styles.settingText}>
-                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proEventAdvice')}</Text>
-                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'eventAdviceDesc')}</Text>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                        {t(language, 'cycleInsight')}
+                      </Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                        {t(language, 'cycleInsightDesc')}
+                      </Text>
                     </View>
                     <BrightSwitch
-                      value={data.settings.showEventAdvice}
+                      value={data.settings.showCycleInsight}
                       theme={theme}
                       readyRef={switchesReady}
-                      onValueChange={(showEventAdvice) =>
-                        persist({ ...data, settings: { ...data.settings, showEventAdvice } })
+                      onValueChange={(showCycleInsight) =>
+                        persist({ ...data, settings: { ...data.settings, showCycleInsight } })
+                      }
+                    />
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                        {t(language, 'scheduleInsight')}
+                      </Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                        {t(language, 'scheduleInsightDesc')}
+                      </Text>
+                    </View>
+                    <BrightSwitch
+                      value={data.settings.showScheduleInsight}
+                      theme={theme}
+                      readyRef={switchesReady}
+                      onValueChange={(showScheduleInsight) =>
+                        persist({ ...data, settings: { ...data.settings, showScheduleInsight } })
                       }
                     />
                   </View>

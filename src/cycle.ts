@@ -12,7 +12,8 @@ export type PhaseId = 'menstrual' | 'follicular' | 'ovulatory' | 'luteal';
 export type Settings = {
   showForecast: boolean;
   showOvulation: boolean;
-  showEventAdvice: boolean;
+  showCycleInsight: boolean;
+  showScheduleInsight: boolean;
   showPhaseLists: boolean;
   phaseListsExpanded: boolean;
   showCycleRhythm: boolean;
@@ -48,7 +49,8 @@ export function defaultSettings(): Settings {
   return {
     showForecast: true,
     showOvulation: false,
-    showEventAdvice: true,
+    showCycleInsight: true,
+    showScheduleInsight: true,
     showPhaseLists: true,
     phaseListsExpanded: false,
     showCycleRhythm: true,
