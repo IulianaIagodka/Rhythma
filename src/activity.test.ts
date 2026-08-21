@@ -16,6 +16,9 @@ function item(
     day,
     activity,
     kind: activity === 'event' ? 'event' : 'workout',
+    allDay: false,
+    startMs: Date.parse(`${day}T09:00:00`),
+    endMs: Date.parse(`${day}T10:00:00`),
   };
 }
 

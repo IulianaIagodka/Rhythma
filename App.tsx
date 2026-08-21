@@ -17,6 +17,7 @@ import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSour
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel } from './src/activity';
 import { loadCalendarItems, loadWeekItems, type CalendarItem } from './src/calendar';
+import { formatEventTime } from './src/calendarItems';
 import {
   cycleDayOnDate,
   cycleStatus,
@@ -295,11 +296,17 @@ export default function App() {
                         {selectedItems.map((item) => {
                           const fit = activityFitForPhase(status.phase, item.activity);
                           const fitLabel = activityFitLabel(status.phase, item.activity, language);
+                          const timeLabel = formatEventTime(item, language);
                           return (
                             <View key={item.id} style={styles.dayRow}>
                               <View style={[styles.dayBullet, { backgroundColor: theme.teal }]} />
                               <View style={styles.dayTextWrap}>
-                                <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
+                                <View style={styles.dayTitleRow}>
+                                  <Text style={[styles.dayTitle, { color: theme.ink }]} numberOfLines={2}>
+                                    {item.title}
+                                  </Text>
+                                  <Text style={[styles.dayTime, { color: theme.teal }]}>{timeLabel}</Text>
+                                </View>
                                 {fitLabel ? (
                                   <Text
                                     style={[
@@ -704,6 +711,7 @@ export default function App() {
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
+        language={language}
         title={t(language, 'periodStartTitle')}
         message={
           periodPrompt
@@ -1075,9 +1083,20 @@ const styles = StyleSheet.create({
   dayTextWrap: {
     flex: 1,
   },
+  dayTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
   dayTitle: {
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
+  },
+  dayTime: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
   dayMeta: {
     fontSize: 12,

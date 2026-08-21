@@ -8,6 +8,10 @@ export type CalendarItem = {
   day: string;
   kind: 'workout' | 'event';
   activity: ActivityKind;
+  allDay: boolean;
+  /** Local start instant for sorting / display. */
+  startMs: number;
+  endMs: number | null;
 };
 
 export type CalendarEventLike = {
@@ -76,6 +80,35 @@ export function daysSpannedByEvent(
   return [first];
 }
 
+function pad2(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+/** Clock time in 24h for uk, 12h for en. */
+export function formatClockTime(date: Date, lang: Language): string {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  if (lang === 'uk') {
+    return `${pad2(hours)}:${pad2(minutes)}`;
+  }
+  const suffix = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${pad2(minutes)} ${suffix}`;
+}
+
+/** Short label for agenda rows: all-day, start only, or start–end. */
+export function formatEventTime(item: CalendarItem, lang: Language): string {
+  if (item.allDay) {
+    return lang === 'uk' ? 'Увесь день' : 'All day';
+  }
+  const start = new Date(item.startMs);
+  const startLabel = formatClockTime(start, lang);
+  if (item.endMs == null) return startLabel;
+  const end = new Date(item.endMs);
+  if (end.getTime() <= start.getTime()) return startLabel;
+  return `${startLabel} – ${formatClockTime(end, lang)}`;
+}
+
 export function itemsFromCalendarEvents(
   events: CalendarEventLike[],
   rangeStart: string,
@@ -88,6 +121,9 @@ export function itemsFromCalendarEvents(
     const activity = classifyActivity(title);
     const kind = activity === 'event' ? 'event' : 'workout';
     const eventId = event.id?.trim() || `event-${index}`;
+    const allDay = Boolean(event.allDay);
+    const start = parseCalendarDate(event.startDate);
+    const end = event.endDate != null ? parseCalendarDate(event.endDate) : null;
     for (const day of daysSpannedByEvent(event, rangeStart, rangeEnd)) {
       items.push({
         id: `${eventId}:${day}:${index}`,
@@ -95,9 +131,18 @@ export function itemsFromCalendarEvents(
         day,
         kind,
         activity,
+        allDay,
+        startMs: start.getTime(),
+        endMs: end ? end.getTime() : null,
       });
     }
   });
-  items.sort((a, b) => a.day.localeCompare(b.day) || a.title.localeCompare(b.title));
+  items.sort(
+    (a, b) =>
+      a.day.localeCompare(b.day) ||
+      Number(a.allDay) - Number(b.allDay) ||
+      a.startMs - b.startMs ||
+      a.title.localeCompare(b.title),
+  );
   return items;
 }

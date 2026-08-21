@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { daysSpannedByEvent, itemsFromCalendarEvents } from './calendarItems';
+import { daysSpannedByEvent, formatEventTime, itemsFromCalendarEvents } from './calendarItems';
 
 describe('daysSpannedByEvent', () => {
   it('keeps a one-day timed event on its local day', () => {
@@ -49,7 +49,7 @@ describe('daysSpannedByEvent', () => {
 });
 
 describe('itemsFromCalendarEvents', () => {
-  it('lists both events that fall on the same Sunday', () => {
+  it('lists both events that fall on the same Sunday in start-time order', () => {
     const items = itemsFromCalendarEvents(
       [
         {
@@ -71,7 +71,28 @@ describe('itemsFromCalendarEvents', () => {
     );
     const sunday = items.filter((item) => item.day === '2024-06-23');
     assert.equal(sunday.length, 2);
-    assert.equal(sunday[0].kind, 'event');
-    assert.equal(sunday[1].kind, 'workout');
+    assert.equal(sunday[0].kind, 'workout');
+    assert.equal(sunday[1].kind, 'event');
+    assert.equal(formatEventTime(sunday[0], 'uk'), '10:00 – 11:00');
+    assert.equal(formatEventTime(sunday[1], 'uk'), '14:00 – 16:00');
+  });
+
+  it('labels all-day events without a clock range', () => {
+    const items = itemsFromCalendarEvents(
+      [
+        {
+          id: 'h',
+          title: 'Holiday',
+          allDay: true,
+          startDate: new Date('2024-06-23T00:00:00.000Z'),
+          endDate: new Date('2024-06-24T00:00:00.000Z'),
+        },
+      ],
+      '2024-06-17',
+      '2024-06-23',
+      'en',
+    );
+    assert.equal(items[0]?.allDay, true);
+    assert.equal(formatEventTime(items[0]!, 'en'), 'All day');
   });
 });
