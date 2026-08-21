@@ -37,7 +37,7 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
-import { cycleInsightToggleState, scheduleInsightToggleState } from './src/settingsControls';
+import { cycleInsightToggleState, scheduleInsightToggleState, calendarSyncNowState } from './src/settingsControls';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -54,6 +54,7 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
+  const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
   const switchesReady = useRef(false);
 
@@ -117,6 +118,28 @@ export default function App() {
       refreshYearEvents(true, year);
     }
   }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshYearEvents]);
+
+  const onSyncCalendar = useCallback(async () => {
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (!enabled || calendarSyncing) return;
+    Haptics.selectionAsync().catch(() => {});
+    setCalendarSyncing(true);
+    try {
+      await refreshCalendar(true);
+      if (tab === 'year') await refreshYearEvents(true, year);
+    } finally {
+      setCalendarSyncing(false);
+    }
+  }, [
+    calendarSyncing,
+    data?.settings.accessTier,
+    data?.settings.calendarSync,
+    refreshCalendar,
+    refreshYearEvents,
+    tab,
+    year,
+  ]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -186,6 +209,7 @@ export default function App() {
     data.settings.calendarSync,
     data.settings.showScheduleInsight,
   );
+  const syncNow = calendarSyncNowState(calendarEnabled, calendarSyncing);
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
@@ -275,6 +299,24 @@ export default function App() {
                   <Text style={[styles.sectionLabel, styles.weekSectionLabel, { color: theme.ink }]}>
                     {t(language, 'thisWeek')}
                   </Text>
+                  {syncNow.visible ? (
+                    <Pressable
+                      onPress={onSyncCalendar}
+                      disabled={syncNow.disabled}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(language, 'syncNow')}
+                    >
+                      <Text
+                        style={[
+                          styles.syncNowLabel,
+                          { color: theme.teal, opacity: syncNow.disabled ? 0.45 : 1 },
+                        ]}
+                      >
+                        {calendarSyncing ? t(language, 'readingEvents') : t(language, 'syncNow')}
+                      </Text>
+                    </Pressable>
+                  ) : null}
                 </View>
                 <WeekStrip
                   today={today}
@@ -567,6 +609,23 @@ export default function App() {
                   <Pressable onPress={() => Linking.openURL('https://iulianaiagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
                     <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
                   </Pressable>
+                  {syncNow.visible ? (
+                    <Pressable
+                      onPress={onSyncCalendar}
+                      disabled={syncNow.disabled}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                    >
+                      <Text
+                        style={[
+                          styles.settingLink,
+                          { color: theme.teal, opacity: syncNow.disabled ? 0.45 : 1 },
+                        ]}
+                      >
+                        {calendarSyncing ? t(language, 'readingEvents') : t(language, 'syncNow')}
+                      </Text>
+                    </Pressable>
+                  ) : null}
                 </View>
                 <BrightSwitch
                   value={data.settings.calendarSync}
@@ -1018,6 +1077,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  syncNowLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   cardBlock: {
     gap: 8,

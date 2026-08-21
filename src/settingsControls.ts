@@ -19,3 +19,14 @@ export function scheduleInsightToggleState(
     value: calendarSync && showScheduleInsight,
   };
 }
+
+/** Manual Sync is available only while Calendar sync is on. */
+export function calendarSyncNowState(
+  calendarSync: boolean,
+  syncing: boolean,
+): { visible: boolean; disabled: boolean } {
+  return {
+    visible: calendarSync,
+    disabled: syncing,
+  };
+}
