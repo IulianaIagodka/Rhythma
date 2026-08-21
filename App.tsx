@@ -1,3 +1,4 @@
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
@@ -38,7 +39,13 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
-import { cycleInsightToggleState, scheduleInsightToggleState, calendarSyncNowState } from './src/settingsControls';
+import {
+  calendarSyncNowState,
+  cycleInsightToggleState,
+  planSegmentIndex,
+  scheduleInsightToggleState,
+  themeSegmentIndex,
+} from './src/settingsControls';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -606,7 +613,7 @@ export default function App() {
                   </View>
                   <PlanSwitch
                     value={storedTier}
-                    theme={theme}
+                    appearance={data.settings.themeMode}
                     language={language}
                     onChange={(accessTier) => {
                       persist({ ...data, settings: { ...data.settings, accessTier } });
@@ -672,7 +679,6 @@ export default function App() {
                 </View>
                 <BrightSwitch
                   value={data.settings.calendarSync}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(calendarSync) => {
                     persist({ ...data, settings: { ...data.settings, calendarSync } });
@@ -696,7 +702,6 @@ export default function App() {
                     <BrightSwitch
                       value={cycleInsightToggle.value}
                       disabled={cycleInsightToggle.disabled}
-                      theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showCycleInsight) =>
                         persist({ ...data, settings: { ...data.settings, showCycleInsight } })
@@ -715,7 +720,6 @@ export default function App() {
                     <BrightSwitch
                       value={scheduleInsightToggle.value}
                       disabled={scheduleInsightToggle.disabled}
-                      theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showScheduleInsight) =>
                         persist({ ...data, settings: { ...data.settings, showScheduleInsight } })
@@ -729,7 +733,6 @@ export default function App() {
                     </View>
                     <BrightSwitch
                       value={data.settings.showCycleRhythm}
-                      theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showCycleRhythm) =>
                         persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
@@ -748,7 +751,6 @@ export default function App() {
                 </View>
                 <BrightSwitch
                   value={data.settings.showForecast}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(showForecast) =>
                     persist({ ...data, settings: { ...data.settings, showForecast } })
@@ -764,7 +766,6 @@ export default function App() {
                 </View>
                 <BrightSwitch
                   value={data.settings.showOvulation}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(showOvulation) =>
                     persist({ ...data, settings: { ...data.settings, showOvulation } })
@@ -777,7 +778,6 @@ export default function App() {
                 </View>
                 <ThemeSwitch
                   value={data.settings.themeMode}
-                  theme={theme}
                   language={language}
                   onChange={(themeMode) =>
                     persist({ ...data, settings: { ...data.settings, themeMode } })
@@ -869,71 +869,53 @@ export default function App() {
 
 function PlanSwitch({
   value,
-  theme,
+  appearance,
   language,
   onChange,
 }: {
   value: AccessTier;
-  theme: Theme;
+  appearance: 'light' | 'dark';
   language: Language;
   onChange: (tier: AccessTier) => void;
 }) {
   return (
-    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
-      {(['free', 'pro'] as const).map((tier) => {
-        const active = value === tier;
-        return (
-          <Pressable
-            key={tier}
-            onPress={() => {
-              if (tier === value) return;
-              void Haptics.selectionAsync();
-              onChange(tier);
-            }}
-            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
-          >
-            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
-              {tier === 'pro' ? t(language, 'proPlan') : t(language, 'freePlan')}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <SegmentedControl
+      values={[t(language, 'freePlan'), t(language, 'proPlan')]}
+      selectedIndex={planSegmentIndex(value)}
+      onChange={(event) => {
+        const next: AccessTier = event.nativeEvent.selectedSegmentIndex === 1 ? 'pro' : 'free';
+        if (next === value) return;
+        void Haptics.selectionAsync();
+        onChange(next);
+      }}
+      appearance={appearance}
+      style={styles.nativeSegment}
+    />
   );
 }
 
 function ThemeSwitch({
   value,
-  theme,
   language,
   onChange,
 }: {
   value: 'light' | 'dark';
-  theme: Theme;
   language: Language;
   onChange: (mode: 'light' | 'dark') => void;
 }) {
   return (
-    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
-      {(['light', 'dark'] as const).map((mode) => {
-        const active = value === mode;
-        return (
-          <Pressable
-            key={mode}
-            onPress={() => {
-              if (mode === value) return;
-              void Haptics.selectionAsync();
-              onChange(mode);
-            }}
-            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
-          >
-            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
-              {mode === 'dark' ? t(language, 'themeDark') : t(language, 'themeLight')}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <SegmentedControl
+      values={[t(language, 'themeLight'), t(language, 'themeDark')]}
+      selectedIndex={themeSegmentIndex(value)}
+      onChange={(event) => {
+        const next: 'light' | 'dark' = event.nativeEvent.selectedSegmentIndex === 1 ? 'dark' : 'light';
+        if (next === value) return;
+        void Haptics.selectionAsync();
+        onChange(next);
+      }}
+      appearance={value}
+      style={styles.nativeSegment}
+    />
   );
 }
 
@@ -948,13 +930,11 @@ function PlusBadge({ theme, language }: { theme: Theme; language: Language }) {
 function BrightSwitch({
   value,
   onValueChange,
-  theme,
   readyRef,
   disabled = false,
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
-  theme: Theme;
   readyRef: MutableRefObject<boolean>;
   disabled?: boolean;
 }) {
@@ -966,9 +946,6 @@ function BrightSwitch({
         if (!readyRef.current || disabled) return;
         onValueChange(next);
       }}
-      trackColor={{ false: theme.faint, true: theme.accent }}
-      thumbColor="#FFFFFF"
-      ios_backgroundColor={theme.faint}
     />
   );
 }
@@ -1342,21 +1319,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  planSwitch: {
-    flexDirection: 'row',
-    borderRadius: radius.control,
-    borderWidth: 1,
-    padding: 2,
-    gap: 2,
-  },
-  planSwitchBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.switch,
-  },
-  planSwitchText: {
-    fontSize: 13,
-    fontWeight: '700',
+  nativeSegment: {
+    minWidth: 148,
   },
   lockPill: {
     minWidth: 56,

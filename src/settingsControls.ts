@@ -30,3 +30,13 @@ export function calendarSyncNowState(
     disabled: syncing,
   };
 }
+
+/** Native segmented control index for Free / Plus. */
+export function planSegmentIndex(tier: 'free' | 'pro'): number {
+  return tier === 'pro' ? 1 : 0;
+}
+
+/** Native segmented control index for Light / Dark. */
+export function themeSegmentIndex(mode: 'light' | 'dark'): number {
+  return mode === 'dark' ? 1 : 0;
+}

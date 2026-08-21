@@ -4,7 +4,9 @@ import { describe, it } from 'node:test';
 import {
   calendarSyncNowState,
   cycleInsightToggleState,
+  planSegmentIndex,
   scheduleInsightToggleState,
+  themeSegmentIndex,
 } from './settingsControls';
 
 describe('cycleInsightToggleState', () => {
@@ -35,5 +37,14 @@ describe('calendarSyncNowState', () => {
   it('shows Sync when calendar sync is on and disables it while syncing', () => {
     assert.deepEqual(calendarSyncNowState(true, false), { visible: true, disabled: false });
     assert.deepEqual(calendarSyncNowState(true, true), { visible: true, disabled: true });
+  });
+});
+
+describe('native settings segments', () => {
+  it('maps plan and theme to segmented-control indexes', () => {
+    assert.equal(planSegmentIndex('free'), 0);
+    assert.equal(planSegmentIndex('pro'), 1);
+    assert.equal(themeSegmentIndex('light'), 0);
+    assert.equal(themeSegmentIndex('dark'), 1);
   });
 });
