@@ -37,6 +37,7 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
+import { scheduleInsightToggleState } from './src/settingsControls';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -180,6 +181,10 @@ export default function App() {
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
+  const scheduleInsightToggle = scheduleInsightToggleState(
+    data.settings.calendarSync,
+    data.settings.showScheduleInsight,
+  );
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
@@ -597,7 +602,7 @@ export default function App() {
                       }
                     />
                   </View>
-                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card, opacity: scheduleInsightToggle.disabled ? 0.45 : 1 }]}>
                     <View style={styles.settingText}>
                       <Text style={[styles.settingTitle, { color: theme.ink }]}>
                         {t(language, 'scheduleInsight')}
@@ -607,7 +612,8 @@ export default function App() {
                       </Text>
                     </View>
                     <BrightSwitch
-                      value={data.settings.showScheduleInsight}
+                      value={scheduleInsightToggle.value}
+                      disabled={scheduleInsightToggle.disabled}
                       theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showScheduleInsight) =>
@@ -843,17 +849,20 @@ function BrightSwitch({
   onValueChange,
   theme,
   readyRef,
+  disabled = false,
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
   theme: Theme;
   readyRef: MutableRefObject<boolean>;
+  disabled?: boolean;
 }) {
   return (
     <Switch
       value={value}
+      disabled={disabled}
       onValueChange={(next) => {
-        if (!readyRef.current) return;
+        if (!readyRef.current || disabled) return;
         onValueChange(next);
       }}
       trackColor={{ false: theme.faint, true: theme.accent }}
