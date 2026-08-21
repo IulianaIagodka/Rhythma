@@ -52,6 +52,10 @@ function parseCalendarDate(value: Date | string): Date {
   return value instanceof Date ? new Date(value.getTime()) : new Date(value);
 }
 
+function isValidDate(date: Date): boolean {
+  return Number.isFinite(date.getTime());
+}
+
 function calendarDayISO(date: Date, allDay: boolean): string {
   if (!allDay) return toISODate(date);
   const localMidnight =
@@ -75,6 +79,7 @@ export function daysSpannedByEvent(
 ): string[] {
   const allDay = Boolean(event.allDay);
   const start = parseCalendarDate(event.startDate);
+  if (!isValidDate(start)) return [];
   const first = calendarDayISO(start, allDay);
   if (first < rangeStart || first > rangeEnd) return [];
   return [first];
@@ -117,12 +122,13 @@ export function itemsFromCalendarEvents(
 ): CalendarItem[] {
   const items: CalendarItem[] = [];
   events.forEach((event, index) => {
+    const start = parseCalendarDate(event.startDate);
+    if (!isValidDate(start)) return;
     const title = event.title?.trim() || (lang === 'uk' ? 'Подія' : 'Event');
     const activity = classifyActivity(title);
     const kind = activity === 'event' ? 'event' : 'workout';
     const eventId = event.id?.trim() || `event-${index}`;
     const allDay = Boolean(event.allDay);
-    const start = parseCalendarDate(event.startDate);
     const end = event.endDate != null ? parseCalendarDate(event.endDate) : null;
     for (const day of daysSpannedByEvent(event, rangeStart, rangeEnd)) {
       items.push({
@@ -133,7 +139,7 @@ export function itemsFromCalendarEvents(
         activity,
         allDay,
         startMs: start.getTime(),
-        endMs: end ? end.getTime() : null,
+        endMs: end && isValidDate(end) ? end.getTime() : null,
       });
     }
   });

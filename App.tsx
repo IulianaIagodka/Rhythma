@@ -617,8 +617,8 @@ export default function App() {
                     language={language}
                     onChange={(accessTier) => {
                       persist({ ...data, settings: { ...data.settings, accessTier } });
-                      if (accessTier === 'pro' && data.settings.calendarSync) refreshCalendar(true);
-                      else refreshCalendar(false);
+                      // Calendar sync is free — always refresh when enabled, never clear on Free.
+                      if (data.settings.calendarSync) refreshCalendar(true);
                     }}
                   />
                 </View>

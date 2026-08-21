@@ -2,29 +2,44 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { daysSpannedByEvent, formatEventTime, itemsFromCalendarEvents } from './calendarItems';
-import { calendarIdsForSync } from './calendarSync';
+import { calendarIdsForSync, plainCalendarEvent } from './calendarSync';
 
 describe('calendarIdsForSync', () => {
-  it('prefers visible calendars and skips blank ids', () => {
+  it('keeps every calendar id, including ones marked not visible', () => {
     assert.deepEqual(
       calendarIdsForSync([
         { id: 'a', isVisible: true },
         { id: 'b', isVisible: false },
         { id: '  ', isVisible: true },
-        { id: 'c', isVisible: true },
+        { id: 'c' },
       ]),
-      ['a', 'c'],
+      ['a', 'b', 'c'],
     );
   });
+});
 
-  it('falls back to all calendars with ids when none are marked visible', () => {
+describe('plainCalendarEvent', () => {
+  it('flattens EventKit-style records and drops events without a start', () => {
     assert.deepEqual(
-      calendarIdsForSync([
-        { id: 'a', isVisible: false },
-        { id: 'b', isVisible: false },
-      ]),
-      ['a', 'b'],
+      plainCalendarEvent(
+        {
+          id: '1',
+          title: 'Yoga',
+          startDate: '2026-08-21T10:00:00.000Z',
+          endDate: '2026-08-21T11:00:00.000Z',
+          allDay: false,
+        },
+        0,
+      ),
+      {
+        id: '1',
+        title: 'Yoga',
+        startDate: '2026-08-21T10:00:00.000Z',
+        endDate: '2026-08-21T11:00:00.000Z',
+        allDay: false,
+      },
     );
+    assert.equal(plainCalendarEvent({ title: 'No start' }, 1), null);
   });
 });
 
@@ -71,6 +86,17 @@ describe('daysSpannedByEvent', () => {
     );
     assert.deepEqual(days, ['2024-06-22']);
   });
+
+  it('skips events with an invalid start date', () => {
+    assert.deepEqual(
+      daysSpannedByEvent(
+        { id: 'x', title: 'Broken', startDate: 'not-a-date' },
+        '2024-06-17',
+        '2024-06-23',
+      ),
+      [],
+    );
+  });
 });
 
 describe('itemsFromCalendarEvents', () => {
@@ -106,7 +132,7 @@ describe('itemsFromCalendarEvents', () => {
     const items = itemsFromCalendarEvents(
       [
         {
-          id: 'h',
+          id: 'd',
           title: 'Holiday',
           allDay: true,
           startDate: new Date('2024-06-23T00:00:00.000Z'),
@@ -117,7 +143,7 @@ describe('itemsFromCalendarEvents', () => {
       '2024-06-23',
       'en',
     );
-    assert.equal(items[0]?.allDay, true);
-    assert.equal(formatEventTime(items[0]!, 'en'), 'All day');
+    assert.equal(items.length, 1);
+    assert.equal(formatEventTime(items[0], 'en'), 'All day');
   });
 });
