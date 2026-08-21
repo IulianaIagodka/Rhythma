@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { adviseLoad, capacityForPhase, cycleInsight, dayAlignmentForPhase, phaseStatusLabel, planningForPhase } from './activity';
+import {
+  activityLoad,
+  adviseLoad,
+  capacityForPhase,
+  cycleInsight,
+  dayAlignmentForPhase,
+  phaseStatusLabel,
+  planningForPhase,
+} from './activity';
 import { classifyActivity, classifyTitle, type CalendarItem } from './calendarItems';
 
 function item(
@@ -38,6 +46,27 @@ describe('classifyActivity', () => {
     assert.equal(classifyActivity('Плавання'), 'swim');
     assert.equal(classifyActivity('HIIT'), 'intense');
     assert.equal(classifyActivity('Meeting'), 'event');
+  });
+
+  it('recognizes martial arts and combat sports as intense load', () => {
+    assert.equal(classifyActivity('Джиуджитсу дзюдо'), 'intense');
+    assert.equal(classifyActivity('Jiu-Jitsu'), 'intense');
+    assert.equal(classifyActivity('Бокс'), 'intense');
+    assert.equal(classifyActivity('Karate class'), 'intense');
+    assert.equal(classifyActivity('MMA sparring'), 'intense');
+  });
+
+  it('keeps birthdays and social titles as plain events', () => {
+    assert.equal(classifyActivity('Др аніта'), 'event');
+    assert.equal(classifyActivity("Anita's birthday"), 'event');
+  });
+});
+
+describe('activityLoad', () => {
+  it('weights intense workouts higher and ignores social events', () => {
+    assert.equal(activityLoad('intense'), 2);
+    assert.equal(activityLoad('yoga'), 1);
+    assert.equal(activityLoad('event'), 0);
   });
 });
 
@@ -79,6 +108,22 @@ describe('adviseLoad', () => {
     assert.equal(gentle.fit, 'ok');
     assert.match(gentle.title, /Перегляньте плани/);
     assert.match(gentle.note, /Йога|Масаж|Плавання/);
+  });
+
+  it('treats martial arts as hard load and ignores birthdays for busiest-day pick', () => {
+    const advice = adviseLoad(
+      'menstrual',
+      [
+        item('1', 'Джиуджитсу дзюдо', '2026-08-22', 'intense'),
+        item('2', 'Др аніта', '2026-08-22', 'event'),
+        item('3', 'Call', '2026-08-21', 'event'),
+        item('4', 'Lunch', '2026-08-21', 'event'),
+      ],
+      'en',
+    );
+    assert.equal(advice.fit, 'high');
+    assert.equal(advice.busiestDayISO, '2026-08-22');
+    assert.match(advice.note, /hard training|moving/i);
   });
 
   it('says peak days can take more when the calendar is empty', () => {

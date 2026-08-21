@@ -7,11 +7,12 @@ export type WeekDayBarKind = 'period' | 'periodForecast' | 'ovulatory' | 'event'
 export function weekDayBars(opts: {
   mark: DayMark | null | undefined;
   showOvulation: boolean;
-  eventCount: number;
+  /** Physical load units for the day (from activityLoad), not raw event count. */
+  loadUnits: number;
   showCalendarLoad: boolean;
 }): WeekDayBarKind[] {
   const bars: WeekDayBarKind[] = [];
-  const { mark, showOvulation, eventCount, showCalendarLoad } = opts;
+  const { mark, showOvulation, loadUnits, showCalendarLoad } = opts;
   if (mark === 'period' || mark === 'periodForecast') {
     bars.push(mark);
   }
@@ -19,7 +20,7 @@ export function weekDayBars(opts: {
     bars.push('ovulatory');
   }
   if (showCalendarLoad) {
-    const n = Math.min(4, Math.max(0, eventCount));
+    const n = Math.min(4, Math.max(0, Math.round(loadUnits)));
     for (let i = 0; i < n; i += 1) {
       bars.push('event');
     }

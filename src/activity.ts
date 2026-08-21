@@ -22,8 +22,11 @@ export type Capacity = {
 
 export type ActivityFit = 'support' | 'harder' | 'neutral';
 
+/** Physical schedule load units — social/calendar events do not count. */
 export function activityLoad(activity: ActivityKind): number {
-  return activity === 'intense' ? 2 : 1;
+  if (activity === 'intense') return 2;
+  if (activity === 'event') return 0;
+  return 1;
 }
 
 export function activityFitForPhase(phase: PhaseId | null, activity: ActivityKind): ActivityFit {
@@ -197,11 +200,15 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   const capacity = capacityForPhase(phase, lang);
   const events = items.length;
   const intense = items.filter((item) => item.activity === 'intense').length;
-  const byDay = new Map<string, number>();
+  const loadByDay = new Map<string, number>();
+  const countByDay = new Map<string, number>();
   for (const item of items) {
-    byDay.set(item.day, (byDay.get(item.day) ?? 0) + activityLoad(item.activity));
+    loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + activityLoad(item.activity));
+    countByDay.set(item.day, (countByDay.get(item.day) ?? 0) + 1);
   }
-  const busiest = [...byDay.entries()].sort((a, b) => b[1] - a[1])[0];
+  const byLoad = [...loadByDay.entries()].filter(([, load]) => load > 0).sort((a, b) => b[1] - a[1]);
+  const byCount = [...countByDay.entries()].sort((a, b) => b[1] - a[1]);
+  const busiest = byLoad[0] ?? byCount[0];
   const busiestDayISO = busiest ? busiest[0] : null;
   const busiestDay = busiestDayISO ? weekdayName(busiestDayISO, lang) : null;
   const checks = activityChecks(phase, items, lang);
@@ -221,7 +228,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     };
   }
 
-  if (capacity.load === 'low' && (intense >= 1 || events >= 5)) fit = 'high';
+  const physicalLoad = items.reduce((sum, item) => sum + activityLoad(item.activity), 0);
+  if (capacity.load === 'low' && (intense >= 1 || physicalLoad >= 4 || events >= 5)) fit = 'high';
   else if (capacity.load === 'medium' && intense >= 4) fit = 'high';
   else if (capacity.load === 'high' && intense === 0 && events < 2) fit = 'low';
 

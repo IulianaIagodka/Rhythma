@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { activityLoad } from './activity';
 import type { CalendarItem } from './calendar';
 import { markForDate, type StoredData } from './cycle';
 import { parseISODate, weekDaysFromMonday, weekdayShort, type Language } from './dates';
@@ -22,10 +23,10 @@ type WeekStripProps = {
 
 export function WeekStrip({ today, selectedDay, data, theme, language, items, showCalendarLoad, onSelectDay }: WeekStripProps) {
   const days = weekDaysFromMonday(today);
-  const countByDay = new Map<string, number>();
+  const loadByDay = new Map<string, number>();
   if (showCalendarLoad) {
     for (const item of items) {
-      countByDay.set(item.day, (countByDay.get(item.day) ?? 0) + 1);
+      loadByDay.set(item.day, (loadByDay.get(item.day) ?? 0) + activityLoad(item.activity));
     }
   }
 
@@ -33,7 +34,7 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
     <View style={styles.row}>
       {days.map((iso) => {
         const mark = markForDate(iso, data.periodStarts, data.settings);
-        const eventCount = countByDay.get(iso) ?? 0;
+        const loadUnits = loadByDay.get(iso) ?? 0;
         const isToday = iso === today;
         const isSelected = iso === selectedDay;
         const dayNum = parseISODate(iso).getDate();
@@ -41,7 +42,7 @@ export function WeekStrip({ today, selectedDay, data, theme, language, items, sh
         const bars = weekDayBars({
           mark,
           showOvulation: data.settings.showOvulation,
-          eventCount,
+          loadUnits,
           showCalendarLoad,
         });
         return (

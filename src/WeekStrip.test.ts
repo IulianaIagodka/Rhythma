@@ -5,51 +5,63 @@ import { darkTheme } from './theme';
 import { weekDayBars, weekDayCellColors } from './weekStripLogic';
 
 describe('weekDayBars', () => {
-  it('omits gray placeholder bars when a day has no marks or events', () => {
+  it('omits gray placeholder bars when a day has no marks or load', () => {
     assert.deepEqual(
       weekDayBars({
         mark: 'follicular',
         showOvulation: true,
-        eventCount: 0,
+        loadUnits: 0,
         showCalendarLoad: true,
       }),
       [],
     );
   });
 
-  it('includes period and event bars only when present', () => {
+  it('includes period and load bars only when present', () => {
     assert.deepEqual(
       weekDayBars({
         mark: 'period',
         showOvulation: true,
-        eventCount: 2,
+        loadUnits: 2,
         showCalendarLoad: true,
       }),
       ['period', 'event', 'event'],
     );
   });
 
-  it('caps event bars at four', () => {
+  it('caps load bars at four', () => {
     assert.deepEqual(
       weekDayBars({
         mark: null,
         showOvulation: false,
-        eventCount: 9,
+        loadUnits: 9,
         showCalendarLoad: true,
       }),
       ['event', 'event', 'event', 'event'],
     );
   });
 
-  it('skips event bars when calendar load is hidden', () => {
+  it('skips load bars when calendar load is hidden', () => {
     assert.deepEqual(
       weekDayBars({
         mark: 'ovulatory',
         showOvulation: true,
-        eventCount: 3,
+        loadUnits: 3,
         showCalendarLoad: false,
       }),
       ['ovulatory'],
+    );
+  });
+
+  it('shows two bars for one intense session (load units 2)', () => {
+    assert.deepEqual(
+      weekDayBars({
+        mark: null,
+        showOvulation: false,
+        loadUnits: 2,
+        showCalendarLoad: true,
+      }),
+      ['event', 'event'],
     );
   });
 });
