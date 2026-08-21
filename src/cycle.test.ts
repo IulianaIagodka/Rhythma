@@ -30,7 +30,8 @@ describe('defaultSettings', () => {
     const settings = defaultSettings();
     assert.equal(settings.showForecast, true);
     assert.equal(settings.showOvulation, false);
-    assert.equal(settings.showEventAdvice, true);
+    assert.equal(settings.showCycleInsight, true);
+    assert.equal(settings.showScheduleInsight, true);
     assert.equal(settings.showPhaseLists, true);
     assert.equal(settings.phaseListsExpanded, false);
     assert.equal(settings.showCycleRhythm, true);
