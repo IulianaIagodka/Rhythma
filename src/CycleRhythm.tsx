@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
+import { monotoneCubicPath, monotoneCubicPathRange } from './chartPath';
 import {
   energyAtCycleDay,
   energyPercentAtCycleDay,
@@ -39,8 +40,8 @@ const PHASE_LABEL_KEY: Record<PhaseId, 'rhythmPhaseMenstrual' | 'rhythmPhaseFoll
   ovulatory: 'rhythmPhaseOvulatory',
   luteal: 'rhythmPhaseLuteal',
 };
-/** Extra samples between cycle days — denser path reads as a smooth curve. */
-const SAMPLES_PER_DAY = 8;
+/** Extra samples between cycle days — denser path for smooth cubic curves. */
+const SAMPLES_PER_DAY = 12;
 
 type Point = { x: number; y: number; day: number; phase: PhaseId };
 
@@ -87,21 +88,15 @@ function curvePoints(
 }
 
 /**
- * Dense polyline through samples. Avoids Catmull-Rom overshoot spikes that made
- * the hormone chart look jagged on plateaus and soft peaks.
+ * Smooth monotone cubic through samples — no Catmull-Rom overshoot on plateaus.
  */
 function smoothPathRange(points: Point[], start: number, end: number): string {
-  if (end <= start || points.length < 2) return '';
-  let d = `M ${points[start].x.toFixed(2)} ${points[start].y.toFixed(2)}`;
-  for (let i = start + 1; i <= end; i += 1) {
-    d += ` L ${points[i].x.toFixed(2)} ${points[i].y.toFixed(2)}`;
-  }
-  return d;
+  return monotoneCubicPathRange(points, start, end);
 }
 
 function smoothPath(points: Point[]): string {
   if (points.length < 2) return '';
-  return smoothPathRange(points, 0, points.length - 1);
+  return monotoneCubicPath(points);
 }
 
 function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {
@@ -173,8 +168,8 @@ function CompactChart({
             d={smoothPathRange(points, segment.start, segment.end)}
             stroke={phaseColor(segment.phase, theme)}
             strokeWidth={2.2}
-            strokeLinecap="square"
-            strokeLinejoin="miter"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             fill="none"
             opacity={segment.phase === 'menstrual' ? 1 : 0.85}
           />
@@ -274,8 +269,8 @@ function ExpandedChart({
               d={smoothPath(estrogenPoints)}
               stroke={theme.period}
               strokeWidth={1.5}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
               opacity={0.95}
             />
@@ -283,8 +278,8 @@ function ExpandedChart({
               d={smoothPath(progesteronePoints)}
               stroke={theme.rhythmLuteal}
               strokeWidth={1.5}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
               opacity={0.95}
             />
@@ -292,8 +287,8 @@ function ExpandedChart({
               d={smoothPath(energyPoints)}
               stroke={theme.teal}
               strokeWidth={3.4}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
             />
             <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke="#FFFFFF" />
@@ -411,13 +406,7 @@ export function CycleRhythm({
             />
 
             <View style={styles.legend}>
-              <LegendDot
-                color={theme.teal}
-                label={`${t(language, 'rhythmEnergy')} · ${t(language, 'rhythmEnergyPercent', {
-                  value: energyPercentAtCycleDay(cycleDay, cycleLength, settings),
-                })}`}
-                ink={theme.ink}
-              />
+              <LegendDot color={theme.teal} label={t(language, 'rhythmEnergy')} ink={theme.ink} />
               <LegendDot color={theme.period} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
               <LegendDot
                 color={theme.rhythmLuteal}

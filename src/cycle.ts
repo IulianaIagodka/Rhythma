@@ -204,19 +204,19 @@ export function energyAtCycleDay(
   const peak = ovulationDayForCycle(cycleLength, settings);
   // Circular distance to ovulation peak
   const delta = Math.min(Math.abs(day - peak), cycleLength - Math.abs(day - peak));
-  const width = Math.max(cycleLength * 0.38, 7);
+  const width = Math.max(cycleLength * 0.42, 8);
   const t = Math.min(1, delta / width);
-  // Smoothstep bell — softer shoulders than a hard cos kink
-  const smooth = t * t * (3 - 2 * t);
+  // Quintic smoothstep — flatter floor, softer takeoff than cubic
+  const smooth = t * t * t * (t * (t * 6 - 15) + 10);
   const bell = Math.cos(smooth * Math.PI) * 0.5 + 0.5;
   // Soft menstrual dip that eases out after the period instead of a step
   const periodEnd = settings.periodLength;
   let menstrualDip = 0;
-  if (day <= periodEnd) {
-    menstrualDip = 0.16 * (1 - (day - 1) / Math.max(1, periodEnd));
-  } else if (day <= periodEnd + 3) {
-    const fade = (day - periodEnd) / 3;
-    menstrualDip = 0.04 * (1 - fade);
+  if (day <= periodEnd + 3) {
+    const inPeriod = Math.max(0, Math.min(1, (periodEnd - day + 1) / Math.max(1, periodEnd)));
+    const fade = day <= periodEnd ? 1 : Math.max(0, 1 - (day - periodEnd) / 3);
+    const blend = fade * fade * (3 - 2 * fade);
+    menstrualDip = (0.12 * inPeriod + 0.04 * (1 - inPeriod)) * blend;
   }
   return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
 }
@@ -263,7 +263,11 @@ export function estrogenAtCycleDay(
     const t = Math.max(0, Math.min(1, (day - ovulation) / 2.5));
     lutealBump = lutealRaw * (t * t * (3 - 2 * t));
   }
-  const floor = day <= settings.periodLength ? 0.06 : 0.1;
+  // Soft floor — no step at the period boundary
+  const periodEnd = settings.periodLength;
+  const floorT = Math.max(0, Math.min(1, (day - periodEnd) / 2.5));
+  const floorBlend = floorT * floorT * (3 - 2 * floorT);
+  const floor = 0.06 + 0.04 * floorBlend;
   return Math.max(0, Math.min(1, floor + primary * 0.9 + lutealBump));
 }
 
