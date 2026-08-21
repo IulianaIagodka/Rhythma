@@ -7,7 +7,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
+import Svg, { Line, Path, Rect } from 'react-native-svg';
 
 import {
   energyAtCycleDay,
@@ -152,16 +152,17 @@ function CompactChart({
             d={smoothPathRange(points, segment.start, segment.end)}
             stroke={phaseColor(segment.phase, theme)}
             strokeWidth={2.2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
             fill="none"
             opacity={segment.phase === 'menstrual' ? 1 : 0.85}
           />
         ))}
-        <Circle
-          cx={today.x}
-          cy={today.y}
-          r={5.5}
+        <Rect
+          x={today.x - 5}
+          y={today.y - 5}
+          width={10}
+          height={10}
           fill={theme.teal}
           stroke={theme.card}
           strokeWidth={2}
@@ -260,8 +261,8 @@ function ExpandedChart({
               d={smoothPath(estrogenPoints)}
               stroke={theme.period}
               strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
               fill="none"
               opacity={0.95}
             />
@@ -269,8 +270,8 @@ function ExpandedChart({
               d={smoothPath(progesteronePoints)}
               stroke={theme.rhythmLuteal}
               strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
               fill="none"
               opacity={0.95}
             />
@@ -278,14 +279,15 @@ function ExpandedChart({
               d={smoothPath(energyPoints)}
               stroke={theme.teal}
               strokeWidth={3.4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
               fill="none"
             />
-            <Circle
-              cx={today.x}
-              cy={today.y}
-              r={6}
+            <Rect
+              x={today.x - 5.5}
+              y={today.y - 5.5}
+              width={11}
+              height={11}
               fill={theme.teal}
               stroke="#FFFFFF"
               strokeWidth={2}
@@ -468,7 +470,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
-    borderRadius: 24,
+    borderRadius: 0,
     borderWidth: 1,
     paddingHorizontal: 18,
     paddingTop: 20,
@@ -535,7 +537,7 @@ const styles = StyleSheet.create({
   legendSwatch: {
     width: 10,
     height: 10,
-    borderRadius: 5,
+    borderRadius: 0,
   },
   legendLabel: {
     fontSize: 13,
@@ -547,7 +549,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     minHeight: 48,
-    borderRadius: 14,
+    borderRadius: 0,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

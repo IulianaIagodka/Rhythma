@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   day: {
     flex: 1,
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 0,
     borderWidth: 1.5,
     borderColor: 'transparent',
     paddingVertical: 10,
@@ -112,6 +112,6 @@ const styles = StyleSheet.create({
   bar: {
     width: 18,
     height: 4,
-    borderRadius: 2,
+    borderRadius: 0,
   },
 });
