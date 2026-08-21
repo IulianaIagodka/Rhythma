@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from 'react-native';
@@ -841,27 +842,16 @@ function BrightSwitch({
   readyRef: MutableRefObject<boolean>;
 }) {
   return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityState={{ checked: value }}
-      onPress={() => {
+    <Switch
+      value={value}
+      onValueChange={(next) => {
         if (!readyRef.current) return;
-        onValueChange(!value);
+        onValueChange(next);
       }}
-      style={[
-        styles.squareSwitch,
-        { backgroundColor: value ? theme.accent : theme.faint },
-      ]}
-      hitSlop={8}
-    >
-      <View
-        style={[
-          styles.squareSwitchThumb,
-          value ? styles.squareSwitchThumbOn : styles.squareSwitchThumbOff,
-          { backgroundColor: '#FFFFFF' },
-        ]}
-      />
-    </Pressable>
+      trackColor={{ false: theme.faint, true: theme.accent }}
+      thumbColor="#FFFFFF"
+      ios_backgroundColor={theme.faint}
+    />
   );
 }
 
@@ -1228,24 +1218,6 @@ const styles = StyleSheet.create({
   planSwitchText: {
     fontSize: 13,
     fontWeight: '700',
-  },
-  squareSwitch: {
-    width: 50,
-    height: 30,
-    borderRadius: radius.switch,
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-  },
-  squareSwitchThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: radius.switch,
-  },
-  squareSwitchThumbOn: {
-    alignSelf: 'flex-end',
-  },
-  squareSwitchThumbOff: {
-    alignSelf: 'flex-start',
   },
   lockPill: {
     minWidth: 56,
