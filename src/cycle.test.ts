@@ -8,6 +8,7 @@ import {
   DEFAULT_CYCLE_LENGTH,
   defaultSettings,
   forecastStarts,
+  isPredictedCycleDate,
   loggedPeriodDays,
   marksForYear,
   energyAtCycleDay,
@@ -140,6 +141,21 @@ describe('cycleDayOnDate', () => {
       cycleDayOnDate('2026-02-10', ['2026-01-01', '2026-03-01'], defaultSettings()),
       41,
     );
+  });
+});
+
+describe('isPredictedCycleDate', () => {
+  it('is false inside the open cycle after the last logged start', () => {
+    assert.equal(isPredictedCycleDate('2026-08-20', ['2026-08-01']), false);
+  });
+
+  it('is true once the date wraps past one cycle length', () => {
+    // Aug 1 + 54 days ≈ Sep 23 → wrapped projected cycle
+    assert.equal(isPredictedCycleDate('2026-09-23', ['2026-08-01']), true);
+  });
+
+  it('is false between two logged period starts', () => {
+    assert.equal(isPredictedCycleDate('2026-02-10', ['2026-01-01', '2026-03-01']), false);
   });
 });
 

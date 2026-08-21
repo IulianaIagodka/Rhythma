@@ -12,6 +12,7 @@ type ConfirmDialogProps = {
   confirmLabel: string;
   destructive?: boolean;
   cycleLine?: string;
+  ovulationLine?: string;
   eventsLabel?: string;
   events?: CalendarItem[];
   emptyEventsLabel?: string;
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   cancelLabel,
   confirmLabel,
   cycleLine,
+  ovulationLine,
   eventsLabel,
   events,
   emptyEventsLabel,
@@ -43,6 +45,9 @@ export function ConfirmDialog({
           <Text style={[styles.message, { color: theme.muted }]}>{message}</Text>
           {cycleLine ? (
             <Text style={[styles.cycleLine, { color: theme.accent }]}>{cycleLine}</Text>
+          ) : null}
+          {ovulationLine ? (
+            <Text style={[styles.ovulationLine, { color: theme.teal }]}>{ovulationLine}</Text>
           ) : null}
           {showEvents ? (
             <View style={styles.eventsBlock}>
@@ -115,6 +120,10 @@ const styles = StyleSheet.create({
   },
   cycleLine: {
     fontSize: 16,
+    fontWeight: '600',
+  },
+  ovulationLine: {
+    fontSize: 15,
     fontWeight: '600',
   },
   eventsBlock: {
