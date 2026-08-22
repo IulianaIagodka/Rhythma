@@ -7,7 +7,6 @@ import {
   capacityForPhase,
   cycleInsight,
   dayAlignmentForPhase,
-  joinPlanItems,
   phaseStatusLabel,
   planningForPhase,
 } from './activity';
@@ -99,7 +98,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(heavy.fit, 'high');
     assert.match(heavy.title, /Перегляньте плани/);
-    assert.match(heavy.note, /Підходить|уникати|перенести/);
+    assert.match(heavy.note, /Gym|Run|HIIT|важко|перенести/i);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -108,7 +107,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
     assert.match(gentle.title, /Перегляньте плани/);
-    assert.match(gentle.note, /Йога|Масаж|Плавання/);
+    assert.match(gentle.note, /Йога|Масаж|Плавання|легш/i);
   });
 
   it('treats martial arts as hard load and ignores birthdays for busiest-day pick', () => {
@@ -124,15 +123,30 @@ describe('adviseLoad', () => {
     );
     assert.equal(advice.fit, 'high');
     assert.equal(advice.busiestDayISO, '2026-08-22');
-    assert.match(advice.note, /hard training|moving/i);
+    assert.match(advice.note, /Jiu|judo|period|moving|ease/i);
+    assert.match(advice.note, /Др|аніт/i);
+  });
+
+  it('writes human copy for a mixed training and social day', () => {
+    const advice = adviseLoad(
+      'follicular',
+      [
+        item('1', 'Джиуджитсу дзюдо', '2026-08-22', 'intense'),
+        item('2', 'Др аніта', '2026-08-22', 'event'),
+      ],
+      'uk',
+    );
+    assert.equal(advice.busiestDayISO, '2026-08-22');
+    assert.match(advice.note, /Джиуджитсу|дзюдо/i);
+    assert.match(advice.note, /аніт|Др/i);
+    assert.doesNotMatch(advice.note, /Підходить:|Нові старти|брейншторм|Fits well/i);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
     const advice = adviseLoad('ovulatory', [], 'uk');
     assert.equal(advice.title, 'Що пасує цього тижня');
-    assert.match(advice.note, /додати тренування/);
-    assert.match(advice.note, /Підходить|Ключові розмови/);
-    assert.doesNotMatch(advice.note, /естроген|прогестерон/);
+    assert.match(advice.note, /вільний|ключов|тренуван/i);
+    assert.doesNotMatch(advice.note, /естроген|прогестерон|Підходить:/i);
   });
 
   it('titles the insight around the busiest day', () => {
@@ -142,8 +156,8 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
-    assert.match(advice.note, /Fits well|Ease off|moving|Massage/i);
-    assert.doesNotMatch(advice.note, /progesterone|estrogen/i);
+    assert.match(advice.note, /Massage|Gym|luteal|heavy/i);
+    assert.doesNotMatch(advice.note, /progesterone|estrogen|Fits well/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 
@@ -153,8 +167,8 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.match(advice.note, /Підходить|уникати|перенести|Масаж/);
-    assert.doesNotMatch(advice.note, /прогестерон|естроген/);
+    assert.match(advice.note, /Масаж|Gym|лютеїн|важч/i);
+    assert.doesNotMatch(advice.note, /прогестерон|естроген|Підходить:/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
 });
@@ -215,25 +229,5 @@ describe('planningForPhase', () => {
     const plan = planningForPhase('menstrual', 'uk');
     assert.match(plan.best.join(' '), /Відновлен/);
     assert.match(plan.avoid.join(' '), /інтенсивн|графік|вечор/);
-  });
-});
-
-describe('joinPlanItems', () => {
-  it('keeps the first chip capitalized and lowercases later chips after commas', () => {
-    assert.equal(
-      joinPlanItems(['Recovery', 'Light movement', 'Meeting buffers']),
-      'Recovery, light movement, meeting buffers',
-    );
-    assert.equal(
-      joinPlanItems(['Відновлення', 'Легкий рух', 'Буфер між зустрічами']),
-      'Відновлення, легкий рух, буфер між зустрічами',
-    );
-  });
-
-  it('shows lowercased chips in schedule insight copy', () => {
-    const advice = adviseLoad('menstrual', [], 'en');
-    assert.match(advice.note, /Fits well: Recovery, light movement, meeting buffers/);
-    assert.match(advice.note, /Ease off: High intensity, packed schedule, late nights/);
-    assert.doesNotMatch(advice.note, /Recovery, Light|High intensity, Packed/);
   });
 });

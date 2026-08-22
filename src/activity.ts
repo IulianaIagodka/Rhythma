@@ -48,37 +48,6 @@ export function activityFitLabel(
   return null;
 }
 
-function activityChecks(phase: PhaseId | null, items: CalendarItem[], lang: Language): string[] {
-  const kinds = new Set(items.map((item) => item.activity));
-  const uk = lang === 'uk';
-  const checks: string[] = [];
-  const restful = phase === 'menstrual' || phase === 'luteal';
-
-  if (kinds.has('yoga')) checks.push(uk ? 'Йога — ок' : 'Yoga is okay');
-  if (kinds.has('massage')) checks.push(uk ? 'Масаж — ок' : 'Massage is okay');
-  if (kinds.has('swim')) checks.push(uk ? 'Плавання — ок' : 'Swimming is okay');
-  if (kinds.has('gentle')) checks.push(uk ? 'Легкий рух — ок' : 'Light movement is okay');
-
-  if (restful && kinds.has('intense')) {
-    checks.push(uk ? 'Силове тренування краще перенести' : 'Consider moving hard training');
-  } else if (!restful && kinds.has('intense')) {
-    checks.push(uk ? 'Тренування пасує до фази' : 'Training fits this phase');
-  }
-
-  const hasGentleMove = kinds.has('yoga') || kinds.has('swim') || kinds.has('gentle') || kinds.has('massage');
-  if (restful && !kinds.has('intense') && !hasGentleMove) {
-    checks.push(uk ? 'Можна додати легке тренування' : 'You could add a light session');
-  }
-  if (!restful && phase === 'ovulatory' && !kinds.has('intense')) {
-    checks.push(uk ? 'Можна додати тренування' : 'You could add training');
-  }
-  if (!restful && phase === 'follicular' && !kinds.has('intense') && !hasGentleMove) {
-    checks.push(uk ? 'Можна додати тренування' : 'You could add training');
-  }
-
-  return checks;
-}
-
 export type PhasePlan = {
   best: string[];
   avoid: string[];
@@ -181,19 +150,183 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
   };
 }
 
-function schedulePlanLine(phase: PhaseId | null, lang: Language): string {
-  const plan = planningForPhase(phase, lang);
-  if (!plan.best.length && !plan.avoid.length) return '';
+function workoutInsightSentence(
+  phase: PhaseId | null,
+  item: CalendarItem,
+  lang: Language,
+): string {
+  const title = item.title.trim();
   if (lang === 'uk') {
-    const parts: string[] = [];
-    if (plan.best.length) parts.push(`Підходить: ${joinPlanItems(plan.best)}`);
-    if (plan.avoid.length) parts.push(`Краще уникати: ${joinPlanItems(plan.avoid)}`);
-    return parts.join('. ');
+    if (phase === 'menstrual' && item.activity === 'intense') {
+      return `${title} — доволі важко під час місячних; можливо, варто полегшити або перенести`;
+    }
+    if (phase === 'menstrual') {
+      return `${title} — легший варіант, добре зараз`;
+    }
+    if (phase === 'luteal' && item.activity === 'intense') {
+      return `${title} може відчуватися важче в лютеїновій фазі — не форсіть`;
+    }
+    if (phase === 'follicular' && item.activity === 'intense') {
+      return `${title} добре лягає на фолікулярну фазу — енергія зростає, тренування доречні`;
+    }
+    if (phase === 'ovulatory' && item.activity === 'intense') {
+      return `${title} — хороший момент для інтенсивного навантаження`;
+    }
+    if (item.activity === 'intense') {
+      return `${title} пасує до поточної фази`;
+    }
+    if (item.activity === 'yoga' || item.activity === 'massage' || item.activity === 'swim') {
+      return `${title} — м’який рух, добре зараз`;
+    }
+    return `${title} — ок для цієї фази`;
   }
+
+  if (phase === 'menstrual' && item.activity === 'intense') {
+    return `${title} is a lot during your period — consider easing up or moving it`;
+  }
+  if (phase === 'menstrual') {
+    return `${title} is a gentler option that fits right now`;
+  }
+  if (phase === 'luteal' && item.activity === 'intense') {
+    return `${title} may feel heavy in the luteal phase — ease off if needed`;
+  }
+  if (phase === 'follicular' && item.activity === 'intense') {
+    return `${title} fits your follicular phase — energy is building, so training works well`;
+  }
+  if (phase === 'ovulatory' && item.activity === 'intense') {
+    return `${title} is a good moment for harder training`;
+  }
+  if (item.activity === 'intense') {
+    return `${title} fits this phase`;
+  }
+  if (item.activity === 'yoga' || item.activity === 'massage' || item.activity === 'swim') {
+    return `${title} is gentle movement — a good fit now`;
+  }
+  return `${title} works for this phase`;
+}
+
+function socialInsightSentence(
+  items: CalendarItem[],
+  hasWorkoutSameDay: boolean,
+  lang: Language,
+): string {
+  if (!items.length) return '';
+  const titles = items.map((item) => item.title.trim());
+  const joined =
+    titles.length === 1
+      ? titles[0]
+      : titles.length === 2
+        ? `${titles[0]} і ${titles[1]}`
+        : `${titles[0]} і ще ${titles.length - 1}`;
+
+  if (lang === 'uk') {
+    if (hasWorkoutSameDay) {
+      return `${joined} — легкий план; після тренування не ускладнюйте день`;
+    }
+    return `${joined} — спокійний соціальний план без зайвого навантаження`;
+  }
+
+  if (hasWorkoutSameDay) {
+    if (titles.length === 1) {
+      return `${titles[0]} is light — keep the rest of the day easy after training`;
+    }
+    return `${titles.join(' and ')} are light — keep the rest of the day easy after training`;
+  }
+  if (titles.length === 1) {
+    return `${titles[0]} is an easy social plan`;
+  }
+  return `${titles.join(' and ')} are easy social plans`;
+}
+
+function emptyWeekInsight(phase: PhaseId | null, lang: Language): string {
+  if (lang === 'uk') {
+    if (phase === 'menstrual') {
+      return 'Календар поки порожній — час для відновлення й легкого руху, без щільних днів';
+    }
+    if (phase === 'follicular') {
+      return 'Мало планів цього тижня — енергія зростає, можна додати тренування або новий старт';
+    }
+    if (phase === 'ovulatory') {
+      return 'Тиждень майже вільний — зараз добрий час для ключових справ чи інтенсивного тренування';
+    }
+    if (phase === 'luteal') {
+      return 'Мало подій — закрийте відките й не набивайте дні зайвим';
+    }
+    return capacityForPhase(phase, lang).calendarHint;
+  }
+
+  if (phase === 'menstrual') {
+    return 'Your calendar is quiet — favor recovery and light movement over packed days';
+  }
+  if (phase === 'follicular') {
+    return 'Not much on this week yet — energy is rising, so you could add training or a new start';
+  }
+  if (phase === 'ovulatory') {
+    return 'A light week — a good window for key plans or harder training';
+  }
+  if (phase === 'luteal') {
+    return 'Few plans so far — close what is open and avoid overfilling the week';
+  }
+  return capacityForPhase(phase, lang).calendarHint;
+}
+
+function weekLoadHint(
+  phase: PhaseId | null,
+  items: CalendarItem[],
+  busiestDayISO: string | null,
+  lang: Language,
+): string | null {
+  const otherIntense = items.filter(
+    (item) => item.activity === 'intense' && item.day !== busiestDayISO,
+  );
+  if (otherIntense.length === 0) return null;
+
+  if (lang === 'uk') {
+    if (phase === 'menstrual' || phase === 'luteal') {
+      return 'Ще кілька тренувань цього тижня — залиште між ними час на відновлення';
+    }
+    return 'Ще кілька тренувань цього тижня — не забудьте про відновлення між ними';
+  }
+
+  if (phase === 'menstrual' || phase === 'luteal') {
+    return 'A few more workouts this week — leave recovery time between them';
+  }
+  return 'A few more workouts this week — build in recovery between sessions';
+}
+
+/** Human schedule insight from real calendar titles — not abstract phase lists. */
+function humanScheduleNote(
+  phase: PhaseId | null,
+  items: CalendarItem[],
+  busiestDayISO: string | null,
+  lang: Language,
+): string {
+  if (!items.length) {
+    return emptyWeekInsight(phase, lang);
+  }
+
+  const dayItems = busiestDayISO
+    ? items.filter((item) => item.day === busiestDayISO)
+    : items;
+  const workouts = dayItems.filter((item) => item.activity !== 'event');
+  const social = dayItems.filter((item) => item.activity === 'event');
   const parts: string[] = [];
-  if (plan.best.length) parts.push(`Fits well: ${joinPlanItems(plan.best)}`);
-  if (plan.avoid.length) parts.push(`Ease off: ${joinPlanItems(plan.avoid)}`);
-  return parts.join('. ');
+
+  for (const workout of workouts) {
+    parts.push(workoutInsightSentence(phase, workout, lang));
+  }
+  if (social.length) {
+    parts.push(socialInsightSentence(social, workouts.length > 0, lang));
+  }
+
+  const weekHint = weekLoadHint(phase, items, busiestDayISO, lang);
+  if (weekHint) parts.push(weekHint);
+
+  if (!parts.length) {
+    return emptyWeekInsight(phase, lang);
+  }
+
+  return joinAdviceParts(parts);
 }
 
 export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: Language): LoadAdvice {
@@ -211,9 +344,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   const busiest = byLoad[0] ?? byCount[0];
   const busiestDayISO = busiest ? busiest[0] : null;
   const busiestDay = busiestDayISO ? weekdayName(busiestDayISO, lang) : null;
-  const checks = activityChecks(phase, items, lang);
-  const planLine = schedulePlanLine(phase, lang);
-  const scheduleNote = joinAdviceParts([...checks, planLine || capacity.calendarHint]);
+  const scheduleNote = humanScheduleNote(phase, items, busiestDayISO, lang);
   const emptyTitle = lang === 'uk' ? 'Що пасує цього тижня' : 'What fits this week';
 
   let fit: Fit = 'ok';
@@ -267,19 +398,7 @@ function capitalizeSentence(text: string): string {
   return text.charAt(0).toLocaleUpperCase() + text.slice(1);
 }
 
-/** After a comma, keep lowercase unless the caller already used a proper noun. */
-function lowerSentenceStart(text: string): string {
-  if (!text) return text;
-  return text.charAt(0).toLocaleLowerCase() + text.slice(1);
-}
-
-/** Join plan chips: first item keeps its capital; later items are lowercased. */
-export function joinPlanItems(items: string[]): string {
-  return items
-    .map((item, index) => (index === 0 ? item : lowerSentenceStart(item)))
-    .join(', ');
-}
-
+/** Join advice sentences with consistent punctuation. */
 function joinAdviceParts(parts: string[]): string {
   const cleaned = parts
     .map((part) => part.trim())
