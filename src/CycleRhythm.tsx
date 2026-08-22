@@ -7,14 +7,13 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Stop } from 'react-native-svg';
 
-import { monotoneCubicPath, monotoneCubicPathRange } from './chartPath';
+import { monotoneCubicPath } from './chartPath';
 import {
   energyAtCycleDay,
   energyPercentAtCycleDay,
   estrogenAtCycleDay,
-  phaseIdForCycleDay,
   phaseWindows,
   progesteroneAtCycleDay,
   wrappedCycleDay,
@@ -41,9 +40,9 @@ const PHASE_LABEL_KEY: Record<PhaseId, 'rhythmPhaseMenstrual' | 'rhythmPhaseFoll
   luteal: 'rhythmPhaseLuteal',
 };
 /** Extra samples between cycle days — denser path for smooth cubic curves. */
-const SAMPLES_PER_DAY = 12;
+const SAMPLES_PER_DAY = 24;
 
-type Point = { x: number; y: number; day: number; phase: PhaseId };
+type Point = { x: number; y: number; day: number };
 
 type CycleRhythmProps = {
   cycleDay: number;
@@ -52,12 +51,6 @@ type CycleRhythmProps = {
   theme: Theme;
   language: Language;
 };
-
-function phaseColor(phase: PhaseId, theme: Theme): string {
-  // Compact curve: pink only for period; cyan elsewhere — no violet recommendation tint.
-  if (phase === 'menstrual') return theme.period;
-  return theme.teal;
-}
 
 function curvePoints(
   cycleLength: number,
@@ -75,11 +68,9 @@ function curvePoints(
 
   for (let i = 0; i < steps; i += 1) {
     const dayFloat = 1 + (i / (steps - 1)) * (cycleLength - 1);
-    const dayFloor = Math.min(cycleLength, Math.max(1, Math.round(dayFloat)));
     const value = valueAtDay(dayFloat);
     points.push({
-      day: dayFloor,
-      phase: phaseIdForCycleDay(dayFloor, cycleLength, settings),
+      day: dayFloat,
       x: padX + ((dayFloat - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
       y: padY + (1 - value) * innerHeight,
     });
@@ -87,29 +78,9 @@ function curvePoints(
   return points;
 }
 
-/**
- * Smooth monotone cubic through samples — no Catmull-Rom overshoot on plateaus.
- */
-function smoothPathRange(points: Point[], start: number, end: number): string {
-  return monotoneCubicPathRange(points, start, end);
-}
-
 function smoothPath(points: Point[]): string {
   if (points.length < 2) return '';
   return monotoneCubicPath(points);
-}
-
-function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {
-  const segments: { phase: PhaseId; start: number; end: number }[] = [];
-  for (let i = 0; i < points.length; i += 1) {
-    const last = segments[segments.length - 1];
-    if (last && last.phase === points[i].phase) {
-      last.end = i;
-    } else {
-      segments.push({ phase: points[i].phase, start: i, end: i });
-    }
-  }
-  return segments.filter((segment) => segment.end > segment.start);
 }
 
 function todayPoint(points: Point[], cycleDay: number, cycleLength: number, width: number, padX: number): Point {
@@ -156,24 +127,35 @@ function CompactChart({
     [cycleLength, settings],
   );
   const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
-  const segments = useMemo(() => phaseSegments(points), [points]);
   const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
+  const periodBlend = Math.max(0.1, Math.min(0.4, settings.periodLength / Math.max(1, cycleLength)));
 
   return (
     <View style={styles.compactWrap}>
       <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
-        {segments.map((segment) => (
-          <Path
-            key={`${segment.phase}-${segment.start}`}
-            d={smoothPathRange(points, segment.start, segment.end)}
-            stroke={phaseColor(segment.phase, theme)}
-            strokeWidth={2.2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            opacity={segment.phase === 'menstrual' ? 1 : 0.85}
-          />
-        ))}
+        <Defs>
+          <LinearGradient
+            id="rhythmaCompactEnergy"
+            x1={PAD_X}
+            y1="0"
+            x2={CHART_WIDTH - PAD_X}
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
+            <Stop offset="0" stopColor={theme.period} />
+            <Stop offset={String(periodBlend)} stopColor={theme.period} />
+            <Stop offset={String(Math.min(1, periodBlend + 0.1))} stopColor={theme.teal} />
+            <Stop offset="1" stopColor={theme.teal} />
+          </LinearGradient>
+        </Defs>
+        <Path
+          d={smoothPath(points)}
+          stroke="url(#rhythmaCompactEnergy)"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
         <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke={theme.card} />
       </Svg>
       <Text style={[styles.compactPercent, { color: theme.teal }]}>

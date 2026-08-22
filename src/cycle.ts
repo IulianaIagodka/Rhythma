@@ -195,34 +195,27 @@ export function nextRhythmMarker(
   return { kind: 'period', phase: 'menstrual', days: cycleLength - day + 1 };
 }
 
+/** Illustrative relative energy — smooth Gaussians, no steps or hard clamps. */
 export function energyAtCycleDay(
   cycleDay: number,
   cycleLength: number,
   settings: Settings,
 ): number {
-  const day = wrappedCycleDay(cycleDay, cycleLength);
+  let day = cycleDay;
+  if (day < 1) day = 1;
+  if (day > cycleLength) day = wrappedCycleDay(cycleDay, cycleLength);
+
   const peak = ovulationDayForCycle(cycleLength, settings);
-  // Circular distance to ovulation peak
-  const delta = Math.min(Math.abs(day - peak), cycleLength - Math.abs(day - peak));
-  const width = Math.max(cycleLength * 0.42, 8);
-  const t = Math.min(1, delta / width);
-  // Quintic smoothstep — flatter floor, softer takeoff than cubic
-  const smooth = t * t * t * (t * (t * 6 - 15) + 10);
-  const bell = Math.cos(smooth * Math.PI) * 0.5 + 0.5;
-  // Menstrual dip fades gradually into early follicular — no spike at phase edge
   const periodEnd = settings.periodLength;
-  const dipTail = Math.max(6, Math.round(cycleLength * 0.12));
-  const dipEnd = periodEnd + dipTail;
-  let menstrualDip = 0;
-  if (day <= dipEnd) {
-    const inPeriod = Math.max(0, Math.min(1, (periodEnd - day + 1) / Math.max(1, periodEnd)));
-    const postPeriod = day > periodEnd ? (day - periodEnd) / dipTail : 0;
-    const fade = 1 - postPeriod * postPeriod * (3 - 2 * postPeriod);
-    menstrualDip = (0.16 * inPeriod + 0.12 * (1 - inPeriod)) * fade;
-  }
-  const earlyCycle = day <= dipEnd;
-  const bellWeight = earlyCycle ? 0.42 : 0.68;
-  return Math.max(0.2, Math.min(1, 0.3 + bellWeight * bell - menstrualDip));
+
+  const peakSigma = Math.max(cycleLength * 0.2, 5);
+  const ovulatory = Math.exp(-0.5 * ((day - peak) / peakSigma) ** 2);
+
+  const bleedCenter = (1 + periodEnd) * 0.5;
+  const bleedSigma = Math.max(periodEnd * 0.9 + 1.5, 2);
+  const menstrual = Math.exp(-0.5 * ((day - bleedCenter) / bleedSigma) ** 2);
+
+  return 0.3 + ovulatory * 0.65 - menstrual * 0.16;
 }
 
 /** Peak relative energy for this cycle length (ovulation window). */

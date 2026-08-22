@@ -247,19 +247,41 @@ describe('hormone curves', () => {
     assert.ok(midLuteal > lateLuteal);
   });
 
-  it('keeps menstrual energy from spiking at the follicular boundary', () => {
+  it('keeps menstrual energy rising smoothly into follicular', () => {
     const settings = defaultSettings();
-    const day5 = energyAtCycleDay(5, 28, settings);
-    const day6 = energyAtCycleDay(6, 28, settings);
-    const day7 = energyAtCycleDay(7, 28, settings);
-    assert.ok(day6 - day5 < 0.06, 'energy should rise gradually after period, not jump');
-    assert.ok(day7 >= day6);
+    const samples = [5, 5.25, 5.5, 5.75, 6, 6.25, 6.5, 6.75, 7];
+    let prev = energyAtCycleDay(samples[0], 28, settings);
+    for (let i = 1; i < samples.length; i += 1) {
+      const value = energyAtCycleDay(samples[i], 28, settings);
+      assert.ok(value > prev, `energy should rise toward day ${samples[i]}`);
+      assert.ok(value - prev < 0.02, `smooth rise at day ${samples[i]}`);
+      prev = value;
+    }
+  });
+
+  it('avoids flat steps and sharp jumps in the energy curve', () => {
+    const settings = defaultSettings();
+    const length = 28;
+    const steps = (length - 1) * 24 + 1;
+    let prev = energyAtCycleDay(1, length, settings);
+    let prevSlope = 0;
+    for (let i = 1; i < steps; i += 1) {
+      const day = 1 + (i / (steps - 1)) * (length - 1);
+      const value = energyAtCycleDay(day, length, settings);
+      const slope = value - prev;
+      assert.ok(Math.abs(slope) < 0.06, `energy jump at day ${day.toFixed(2)}`);
+      if (i > 1) {
+        assert.ok(Math.abs(slope - prevSlope) < 0.025, `energy kink at day ${day.toFixed(2)}`);
+      }
+      prevSlope = slope;
+      prev = value;
+    }
   });
 
   it('keeps estrogen and energy free of post-ovulation notches', () => {
     const settings = defaultSettings();
     const length = 28;
-    const steps = (length - 1) * 8 + 1;
+    const steps = (length - 1) * 24 + 1;
     let estrogenNotches = 0;
     let energyNotches = 0;
     let prevEs = estrogenAtCycleDay(1, length, settings);
