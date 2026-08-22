@@ -98,7 +98,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(heavy.fit, 'high');
     assert.match(heavy.title, /Перегляньте плани/);
-    assert.match(heavy.note, /Gym|Run|HIIT|важко|перенести/i);
+    assert.match(heavy.note, /«Gym»|«Run»|«HIIT»|важко|перенести/i);
 
     const gentle = adviseLoad('menstrual', [
       item('1', 'Йога', '2026-08-18', 'yoga'),
@@ -107,7 +107,7 @@ describe('adviseLoad', () => {
     ], 'uk');
     assert.equal(gentle.fit, 'ok');
     assert.match(gentle.title, /Перегляньте плани/);
-    assert.match(gentle.note, /Йога|Масаж|Плавання|легш/i);
+    assert.match(gentle.note, /«Йога»|«Масаж»|«Плавання»|легш/i);
   });
 
   it('treats martial arts as hard load and ignores birthdays for busiest-day pick', () => {
@@ -123,8 +123,8 @@ describe('adviseLoad', () => {
     );
     assert.equal(advice.fit, 'high');
     assert.equal(advice.busiestDayISO, '2026-08-22');
-    assert.match(advice.note, /Jiu|judo|period|moving|ease/i);
-    assert.match(advice.note, /Др|аніт/i);
+    assert.match(advice.note, /"Джиуджитсу дзюдо".*period|moving|ease/i);
+    assert.match(advice.note, /"Др аніта"/);
   });
 
   it('writes human copy for a mixed training and social day', () => {
@@ -137,9 +137,16 @@ describe('adviseLoad', () => {
       'uk',
     );
     assert.equal(advice.busiestDayISO, '2026-08-22');
-    assert.match(advice.note, /Джиуджитсу|дзюдо/i);
-    assert.match(advice.note, /аніт|Др/i);
+    assert.match(advice.note, /«Джиуджитсу дзюдо»/);
+    assert.match(advice.note, /«Др аніта»/);
     assert.doesNotMatch(advice.note, /Підходить:|Нові старти|брейншторм|Fits well/i);
+  });
+
+  it('wraps calendar event titles in language-appropriate quotes', () => {
+    const uk = adviseLoad('luteal', [item('1', 'Gym', '2026-08-23', 'intense')], 'uk');
+    assert.match(uk.note, /«Gym»/);
+    const en = adviseLoad('luteal', [item('1', 'Gym', '2026-08-23', 'intense')], 'en');
+    assert.match(en.note, /"Gym"/);
   });
 
   it('says peak days can take more when the calendar is empty', () => {
@@ -156,7 +163,7 @@ describe('adviseLoad', () => {
       item('3', 'Call', '2026-08-20', 'event'),
     ], 'en');
     assert.equal(advice.title, "Review your Sunday's plans");
-    assert.match(advice.note, /Massage|Gym|luteal|heavy/i);
+    assert.match(advice.note, /"Massage"|"Gym"|luteal|heavy/i);
     assert.doesNotMatch(advice.note, /progesterone|estrogen|Fits well/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });
@@ -167,7 +174,7 @@ describe('adviseLoad', () => {
       item('2', 'Gym', '2026-08-23', 'intense'),
     ], 'uk');
     assert.equal(advice.title, 'Перегляньте плани на неділю');
-    assert.match(advice.note, /Масаж|Gym|лютеїн|важч/i);
+    assert.match(advice.note, /«Масаж»|«Gym»|лютеїн|важч/i);
     assert.doesNotMatch(advice.note, /прогестерон|естроген|Підходить:/i);
     assert.equal(advice.busiestDayISO, '2026-08-23');
   });

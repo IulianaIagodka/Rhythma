@@ -150,12 +150,19 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
   };
 }
 
+/** Quote a calendar event title in insight copy (uk «…», en “…”). */
+function quotedEventTitle(title: string, lang: Language): string {
+  const trimmed = title.trim();
+  if (lang === 'uk') return `«${trimmed}»`;
+  return `"${trimmed}"`;
+}
+
 function workoutInsightSentence(
   phase: PhaseId | null,
   item: CalendarItem,
   lang: Language,
 ): string {
-  const title = item.title.trim();
+  const title = quotedEventTitle(item.title, lang);
   if (lang === 'uk') {
     if (phase === 'menstrual' && item.activity === 'intense') {
       return `${title} — доволі важко під час місячних; можливо, варто полегшити або перенести`;
@@ -211,7 +218,7 @@ function socialInsightSentence(
   lang: Language,
 ): string {
   if (!items.length) return '';
-  const titles = items.map((item) => item.title.trim());
+  const titles = items.map((item) => quotedEventTitle(item.title, lang));
   const joined =
     titles.length === 1
       ? titles[0]
