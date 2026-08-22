@@ -247,6 +247,15 @@ describe('hormone curves', () => {
     assert.ok(midLuteal > lateLuteal);
   });
 
+  it('keeps menstrual energy from spiking at the follicular boundary', () => {
+    const settings = defaultSettings();
+    const day5 = energyAtCycleDay(5, 28, settings);
+    const day6 = energyAtCycleDay(6, 28, settings);
+    const day7 = energyAtCycleDay(7, 28, settings);
+    assert.ok(day6 - day5 < 0.06, 'energy should rise gradually after period, not jump');
+    assert.ok(day7 >= day6);
+  });
+
   it('keeps estrogen and energy free of post-ovulation notches', () => {
     const settings = defaultSettings();
     const length = 28;

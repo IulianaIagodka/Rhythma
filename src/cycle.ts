@@ -209,16 +209,20 @@ export function energyAtCycleDay(
   // Quintic smoothstep — flatter floor, softer takeoff than cubic
   const smooth = t * t * t * (t * (t * 6 - 15) + 10);
   const bell = Math.cos(smooth * Math.PI) * 0.5 + 0.5;
-  // Soft menstrual dip that eases out after the period instead of a step
+  // Menstrual dip fades gradually into early follicular — no spike at phase edge
   const periodEnd = settings.periodLength;
+  const dipTail = Math.max(6, Math.round(cycleLength * 0.12));
+  const dipEnd = periodEnd + dipTail;
   let menstrualDip = 0;
-  if (day <= periodEnd + 3) {
+  if (day <= dipEnd) {
     const inPeriod = Math.max(0, Math.min(1, (periodEnd - day + 1) / Math.max(1, periodEnd)));
-    const fade = day <= periodEnd ? 1 : Math.max(0, 1 - (day - periodEnd) / 3);
-    const blend = fade * fade * (3 - 2 * fade);
-    menstrualDip = (0.12 * inPeriod + 0.04 * (1 - inPeriod)) * blend;
+    const postPeriod = day > periodEnd ? (day - periodEnd) / dipTail : 0;
+    const fade = 1 - postPeriod * postPeriod * (3 - 2 * postPeriod);
+    menstrualDip = (0.16 * inPeriod + 0.12 * (1 - inPeriod)) * fade;
   }
-  return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
+  const earlyCycle = day <= dipEnd;
+  const bellWeight = earlyCycle ? 0.42 : 0.68;
+  return Math.max(0.2, Math.min(1, 0.3 + bellWeight * bell - menstrualDip));
 }
 
 /** Peak relative energy for this cycle length (ovulation window). */

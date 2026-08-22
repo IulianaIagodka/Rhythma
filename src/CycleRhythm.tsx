@@ -223,12 +223,6 @@ function ExpandedChart({
     [cycleLength, settings, plotWidth],
   );
   const today = todayPoint(energyPoints, cycleDay, cycleLength, plotWidth, EXPANDED_PAD_X);
-  const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
-  const labelWidth = language === 'uk' ? 72 : 44;
-  const labelLeft = Math.max(
-    0,
-    Math.min(plotWidth - labelWidth, today.x - labelWidth / 2),
-  );
   const windows = useMemo(() => phaseWindows(cycleLength, settings), [cycleLength, settings]);
   const axisX = EXPANDED_PAD_X;
   const axisYTop = EXPANDED_PAD_Y;
@@ -293,34 +287,6 @@ function ExpandedChart({
             />
             <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke="#FFFFFF" />
           </Svg>
-          <Text
-            style={[
-              styles.todayLabel,
-              styles.expandedTodayLabel,
-              {
-                color: theme.teal,
-                left: labelLeft,
-                top: Math.max(0, today.y - 34),
-                width: labelWidth,
-              },
-            ]}
-          >
-            {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
-          </Text>
-          <Text
-            style={[
-              styles.todayLabel,
-              styles.expandedTodayLabel,
-              {
-                color: theme.teal,
-                left: labelLeft,
-                top: Math.max(14, today.y - 20),
-                width: labelWidth,
-              },
-            ]}
-          >
-            {t(language, 'rhythmToday')}
-          </Text>
         </View>
       </View>
       <View
@@ -445,15 +411,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: -0.2,
-  },
-  todayLabel: {
-    position: 'absolute',
-    fontSize: 11,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  expandedTodayLabel: {
-    fontSize: 12,
   },
   overlay: {
     flex: 1,
