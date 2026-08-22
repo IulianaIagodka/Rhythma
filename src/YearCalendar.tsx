@@ -11,8 +11,11 @@ import {
 
 import type { DayMark } from './cycle';
 import { daysInMonth, mondayIndex, monthName, type Language } from './dates';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 import {
+  YEAR_CALENDAR_TITLE_GAP,
+  monthBlockHeight,
+  monthWeekRows,
   yearCalendarMetrics,
   yearCalendarScrollOffset,
   type YearCalendarMetrics,
@@ -48,6 +51,14 @@ const MARK_COLORS = (theme: Theme): Partial<Record<DayMark, string>> => ({
   ovulatory: theme.ovulatory,
 });
 
+function chunkWeeks(cells: Array<number | null>): Array<Array<number | null>> {
+  const weeks: Array<Array<number | null>> = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
+  }
+  return weeks;
+}
+
 function MonthGrid({
   year,
   monthIndex,
@@ -65,58 +76,83 @@ function MonthGrid({
     ...Array.from({ length: count }, (_, i) => i + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
+  const weeks = chunkWeeks(cells);
   const colors = MARK_COLORS(theme);
-  const { daySize, dayFontSize, monthTitleSize, monthHeight, monthWidth } = metrics;
+  const weekRows = monthWeekRows(year, monthIndex);
+  const { daySize, markSize, dayFontSize, monthTitleSize, monthWidth, gridWidth, titleBlock } = metrics;
+  const monthHeight = monthBlockHeight(weekRows, titleBlock, daySize);
 
   return (
     <View style={[styles.month, { width: monthWidth, height: monthHeight }]}>
-      <Text style={[styles.monthTitle, { color: theme.muted, fontSize: monthTitleSize }]}>
+      <Text
+        style={[
+          styles.monthTitle,
+          {
+            color: theme.muted,
+            fontSize: monthTitleSize,
+            marginBottom: YEAR_CALENDAR_TITLE_GAP,
+            width: gridWidth,
+          },
+        ]}
+      >
         {monthName(monthIndex, language)}
       </Text>
-      <View style={styles.daysWrap}>
-        <View style={styles.days}>
-          {cells.map((day, index) => {
-            if (day == null) {
-              return <View key={`e-${index}`} style={styles.dayCell} />;
-            }
-            const iso = monthISO(year, monthIndex, day);
-            const mark = marks.get(iso);
-            const isToday = iso === today;
-            const isPeriod = mark === 'period' || mark === 'periodForecast';
-            const isOvulatory = mark === 'ovulatory';
-            const fill = mark ? colors[mark] : undefined;
-            const todayNoMark = isToday && !mark;
-            return (
-              <Pressable key={iso} onPress={() => onPressDay(iso)} style={styles.dayCell}>
-                <View
-                  style={[
-                    styles.dayFill,
-                    {
-                      width: daySize,
-                      height: daySize,
-                      borderRadius: 0,
-                    },
-                    mark && fill ? { backgroundColor: fill } : null,
-                    todayNoMark ? { backgroundColor: theme.accent } : null,
-                    isToday && mark ? { borderColor: theme.accent, borderWidth: 1.5 } : null,
-                  ]}
+      <View style={[styles.daysWrap, { width: gridWidth }]}>
+        {weeks.map((week, weekIndex) => (
+          <View key={`w-${weekIndex}`} style={[styles.weekRow, { width: gridWidth, height: daySize }]}>
+            {week.map((day, dayIndex) => {
+              if (day == null) {
+                return (
+                  <View
+                    key={`e-${weekIndex}-${dayIndex}`}
+                    style={[styles.dayCell, { width: daySize, height: daySize }]}
+                  />
+                );
+              }
+              const iso = monthISO(year, monthIndex, day);
+              const mark = marks.get(iso);
+              const isToday = iso === today;
+              const isPeriod = mark === 'period' || mark === 'periodForecast';
+              const isOvulatory = mark === 'ovulatory';
+              const fill = mark ? colors[mark] : undefined;
+              const todayNoMark = isToday && !mark;
+              return (
+                <Pressable
+                  key={iso}
+                  onPress={() => onPressDay(iso)}
+                  style={[styles.dayCell, { width: daySize, height: daySize }]}
+                  hitSlop={4}
                 >
-                  <Text
+                  <View
                     style={[
-                      styles.dayText,
-                      { color: theme.muted, fontSize: dayFontSize },
-                      (isPeriod || isOvulatory) && styles.dayPeriod,
-                      todayNoMark && styles.dayPeriod,
-                      isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
+                      styles.dayFill,
+                      {
+                        width: markSize,
+                        height: markSize,
+                        borderRadius: radius.day,
+                      },
+                      mark && fill ? { backgroundColor: fill } : null,
+                      todayNoMark ? { backgroundColor: theme.accent } : null,
+                      isToday && mark ? { borderColor: theme.accent, borderWidth: 1.5 } : null,
                     ]}
                   >
-                    {day}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
+                    <Text
+                      style={[
+                        styles.dayText,
+                        { color: theme.muted, fontSize: dayFontSize },
+                        (isPeriod || isOvulatory) && styles.dayPeriod,
+                        todayNoMark && styles.dayPeriod,
+                        isToday && mark ? { color: '#FFFFFF', fontWeight: '700' } : null,
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -137,8 +173,10 @@ export function YearCalendar(props: YearCalendarProps) {
     setMetrics((prev) => {
       const next = yearCalendarMetrics(width, height);
       if (
-        Math.abs(prev.monthHeight - next.monthHeight) < 1 &&
-        Math.abs(prev.monthWidth - next.monthWidth) < 1
+        Math.abs(prev.daySize - next.daySize) < 1 &&
+        Math.abs(prev.monthWidth - next.monthWidth) < 1 &&
+        Math.abs(prev.gridWidth - next.gridWidth) < 1 &&
+        Math.abs(prev.markSize - next.markSize) < 1
       ) {
         return prev;
       }
@@ -147,12 +185,12 @@ export function YearCalendar(props: YearCalendarProps) {
   };
 
   useEffect(() => {
-    const y = yearCalendarScrollOffset(currentMonthIndex, metrics.monthHeight, metrics.rowGap);
+    const y = yearCalendarScrollOffset(currentMonthIndex, props.year, metrics);
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({ y, animated: false });
     }, 0);
     return () => clearTimeout(timer);
-  }, [currentMonthIndex, props.year, metrics.monthHeight, metrics.rowGap]);
+  }, [currentMonthIndex, props.year, metrics]);
 
   return (
     <View style={styles.viewport} onLayout={onViewportLayout}>
@@ -162,7 +200,7 @@ export function YearCalendar(props: YearCalendarProps) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.year,
-          { rowGap: metrics.rowGap, columnGap: metrics.colGap },
+          { rowGap: metrics.rowGap },
         ]}
       >
         {Array.from({ length: 12 }, (_, monthIndex) => (
@@ -182,30 +220,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   year: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    alignItems: 'center',
     paddingBottom: 8,
   },
   month: {
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
   monthTitle: {
     fontWeight: '600',
-    marginBottom: 6,
     textTransform: 'capitalize',
+    textAlign: 'left',
+    alignSelf: 'center',
   },
   daysWrap: {
-    flex: 1,
-    justifyContent: 'center',
+    alignSelf: 'center',
   },
-  days: {
+  weekRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
   },
   dayCell: {
-    width: `${100 / 7}%`,
-    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

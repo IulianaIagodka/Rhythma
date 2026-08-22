@@ -1,26 +1,50 @@
-export const YEAR_CALENDAR_COLS = 3;
-export const YEAR_CALENDAR_VISIBLE_MONTHS = 9;
-export const YEAR_CALENDAR_VISIBLE_ROWS = YEAR_CALENDAR_VISIBLE_MONTHS / YEAR_CALENDAR_COLS;
-export const YEAR_CALENDAR_ROW_GAP = 14;
-export const YEAR_CALENDAR_COL_GAP = 10;
+import { daysInMonth, mondayIndex } from './dates';
 
-/** Fallback when layout has not been measured yet (compact phones). */
-export const YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT = 150;
+export const YEAR_CALENDAR_COLS = 1;
+/** Target how many months stay in view when scrolling to “today”. */
+export const YEAR_CALENDAR_VISIBLE_MONTHS = 3;
+export const YEAR_CALENDAR_VISIBLE_ROWS = YEAR_CALENDAR_VISIBLE_MONTHS / YEAR_CALENDAR_COLS;
+export const YEAR_CALENDAR_ROW_GAP = 22;
+export const YEAR_CALENDAR_COL_GAP = 0;
+export const YEAR_CALENDAR_MAX_WEEKS = 6;
+export const YEAR_CALENDAR_TITLE_GAP = 8;
+
+/** Comfortable tap target without oversized month blocks. */
+export const YEAR_CALENDAR_MIN_DAY_SIZE = 36;
+export const YEAR_CALENDAR_MAX_DAY_SIZE = 44;
+/** Mark chip inside each day cell — keeps the grid looking even. */
+export const YEAR_CALENDAR_MARK_SCALE = 0.72;
 
 export type YearCalendarMetrics = {
+  /** Max month height (6 weeks) — used for conservative layout estimates. */
   monthHeight: number;
   monthWidth: number;
+  /** Width of the 7-day grid (may be narrower than monthWidth when days are capped). */
+  gridWidth: number;
   daySize: number;
+  markSize: number;
   dayFontSize: number;
   monthTitleSize: number;
+  titleBlock: number;
   rowGap: number;
   colGap: number;
   viewportHeight: number;
 };
 
+export function monthWeekRows(year: number, monthIndex: number): number {
+  const leading = mondayIndex(year, monthIndex, 1);
+  const count = daysInMonth(year, monthIndex);
+  return Math.ceil((leading + count) / 7);
+}
+
+export function monthBlockHeight(weekRows: number, titleBlock: number, daySize: number): number {
+  return titleBlock + weekRows * daySize;
+}
+
 /**
- * Size the 3×3 year grid to the available viewport so months fill the screen
- * instead of leaving empty space under a fixed short grid.
+ * One full-width month column with normalized day cells:
+ * capped size, inset marks, height follows each month’s real week count.
+ * Day size always fits seven columns; the grid is centered when narrower than the column.
  */
 export function yearCalendarMetrics(
   viewportWidth: number,
@@ -30,31 +54,69 @@ export function yearCalendarMetrics(
   const height = Math.max(0, viewportHeight);
   const rowGap = YEAR_CALENDAR_ROW_GAP;
   const colGap = YEAR_CALENDAR_COL_GAP;
-  const monthWidth = (width - colGap * (YEAR_CALENDAR_COLS - 1)) / YEAR_CALENDAR_COLS;
-  const monthHeight = Math.max(
-    YEAR_CALENDAR_FALLBACK_MONTH_HEIGHT,
-    (height - rowGap * (YEAR_CALENDAR_VISIBLE_ROWS - 1)) / YEAR_CALENDAR_VISIBLE_ROWS,
+  const monthWidth = width;
+  const monthTitleSize = Math.max(13, Math.min(15, Math.round(monthWidth * 0.042)));
+  const titleBlock = monthTitleSize + YEAR_CALENDAR_TITLE_GAP;
+
+  // Floor so seven cells never exceed the column (avoids flexWrap dropping to 6 columns).
+  const fittingDay = Math.max(1, Math.floor(monthWidth / 7));
+  const daySize = Math.min(
+    YEAR_CALENDAR_MAX_DAY_SIZE,
+    Math.max(YEAR_CALENDAR_MIN_DAY_SIZE, fittingDay),
+    fittingDay,
   );
-  // Seven weekday columns; leave a hair of padding inside the cell.
-  const daySize = Math.max(14, Math.floor(monthWidth / 7) - 1);
-  const dayFontSize = Math.max(9, Math.round(daySize * 0.62));
-  const monthTitleSize = Math.max(11, Math.min(14, Math.round(monthWidth * 0.11)));
+  const gridWidth = daySize * 7;
+  const markSize = Math.max(18, Math.min(daySize - 2, Math.round(daySize * YEAR_CALENDAR_MARK_SCALE)));
+  const dayFontSize = Math.max(11, Math.min(15, Math.round(markSize * 0.48)));
+  const monthHeight = monthBlockHeight(YEAR_CALENDAR_MAX_WEEKS, titleBlock, daySize);
 
   return {
     monthHeight,
     monthWidth,
+    gridWidth,
     daySize,
+    markSize,
     dayFontSize,
     monthTitleSize,
+    titleBlock,
     rowGap,
     colGap,
     viewportHeight: height,
   };
 }
 
-export function yearCalendarScrollOffset(monthIndex: number, monthHeight: number, rowGap: number): number {
-  const rowIndex = Math.floor(monthIndex / YEAR_CALENDAR_COLS);
-  const maxStartRow = Math.max(0, 12 / YEAR_CALENDAR_COLS - YEAR_CALENDAR_VISIBLE_ROWS);
-  const centeredRow = Math.min(maxStartRow, Math.max(0, rowIndex - 1));
-  return centeredRow * (monthHeight + rowGap);
+export function yearCalendarScrollOffset(
+  monthIndex: number,
+  year: number,
+  metrics: Pick<YearCalendarMetrics, 'titleBlock' | 'daySize' | 'rowGap'>,
+): number {
+  const { titleBlock, daySize, rowGap } = metrics;
+  const heights = Array.from({ length: 12 }, (_, i) =>
+    monthBlockHeight(monthWeekRows(year, i), titleBlock, daySize),
+  );
+  const total = heights.reduce((sum, h, i) => sum + h + (i < 11 ? rowGap : 0), 0);
+  const approxViewport =
+    heights[monthIndex] +
+    (heights[monthIndex - 1] ?? 0) +
+    (heights[monthIndex + 1] ?? 0) +
+    rowGap * 2;
+
+  let start = Math.max(0, monthIndex - 1);
+  let y = 0;
+  for (let i = 0; i < start; i++) y += heights[i] + rowGap;
+
+  // Keep the last months reachable without overscrolling past content.
+  const maxY = Math.max(0, total - approxViewport);
+  return Math.min(y, maxY);
+}
+
+/** True when a month block can hold its day grid without overflowing. */
+export function yearCalendarMonthFitsGrid(
+  metrics: YearCalendarMetrics,
+  weekRows: number = YEAR_CALENDAR_MAX_WEEKS,
+): boolean {
+  return (
+    monthBlockHeight(weekRows, metrics.titleBlock, metrics.daySize) + 0.01 >=
+    metrics.titleBlock + weekRows * metrics.daySize
+  );
 }

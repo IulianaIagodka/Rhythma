@@ -1,17 +1,19 @@
 import {
   EntityTypes,
-  getCalendarPermissions,
-  getCalendars,
-  listEvents,
-  requestCalendarPermissions,
+  getCalendarPermissionsAsync,
+  getCalendarsAsync,
+  getEventsAsync,
+  requestCalendarPermissionsAsync,
   type PermissionResponse,
-} from 'expo-calendar';
+} from 'expo-calendar/legacy';
 
-import { itemsFromCalendarEvents, type CalendarItem } from './calendarItems';
-import type { Language } from './dates';
+import { itemsFromCalendarEvents, type CalendarEventLike, type CalendarItem } from './calendarItems';
+import { calendarIdsForSync, plainCalendarEvent } from './calendarSync';
+import { todayISO, weekRangeContaining, type Language } from './dates';
 
 export type { CalendarItem } from './calendarItems';
 export { classifyTitle, itemsFromCalendarEvents } from './calendarItems';
+export { calendarIdsForSync, plainCalendarEvent } from './calendarSync';
 
 export type CalendarLoadResult = {
   items: CalendarItem[];
@@ -20,9 +22,9 @@ export type CalendarLoadResult = {
 };
 
 async function ensurePermission(): Promise<PermissionResponse> {
-  const current = await getCalendarPermissions();
+  const current = await getCalendarPermissionsAsync();
   if (current.status === 'granted') return current;
-  return requestCalendarPermissions();
+  return requestCalendarPermissionsAsync();
 }
 
 export async function loadCalendarItems(
@@ -41,8 +43,9 @@ export async function loadCalendarItems(
       };
     }
 
-    const calendars = await getCalendars(EntityTypes.EVENT);
-    if (!calendars.length) {
+    const calendars = await getCalendarsAsync(EntityTypes.EVENT);
+    const calendarIds = calendarIdsForSync(calendars);
+    if (!calendarIds.length) {
       return {
         items: [],
         error: lang === 'uk' ? 'Не знайдено жодного календаря на телефоні.' : 'No calendars were found on this phone.',
@@ -50,9 +53,16 @@ export async function loadCalendarItems(
       };
     }
 
+    // Local day bounds — EventKit matches inclusively on these instants.
     const start = new Date(`${rangeStart}T00:00:00`);
-    const end = new Date(`${rangeEnd}T23:59:59`);
-    const events = await listEvents(calendars, start, end);
+    const end = new Date(`${rangeEnd}T23:59:59.999`);
+    // Legacy getEventsAsync returns plain serialized events (reliable startDate strings).
+    const rawEvents = await getEventsAsync(calendarIds, start, end);
+    const events: CalendarEventLike[] = [];
+    rawEvents.forEach((event, index) => {
+      const plain = plainCalendarEvent(event as unknown as Record<string, unknown>, index);
+      if (plain) events.push(plain);
+    });
 
     const items = itemsFromCalendarEvents(events, rangeStart, rangeEnd, lang);
 
@@ -81,4 +91,9 @@ export async function loadWeekItems(
   lang: Language,
 ): Promise<CalendarLoadResult> {
   return loadCalendarItems(weekStart, weekEnd, lang);
+}
+
+export async function loadCurrentWeekItems(lang: Language): Promise<CalendarLoadResult> {
+  const { start, end } = weekRangeContaining(todayISO());
+  return loadWeekItems(start, end, lang);
 }

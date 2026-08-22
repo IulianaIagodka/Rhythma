@@ -70,6 +70,12 @@ export function weekDaysFromMonday(anchor: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
 }
 
+/** Inclusive Mon–Sun range that contains the given day. */
+export function weekRangeContaining(iso: string): { start: string; end: string } {
+  const days = weekDaysFromMonday(iso);
+  return { start: days[0], end: days[6] };
+}
+
 export function weekdayShort(iso: string, lang: Language): string {
   const day = parseISODate(iso).getDay();
   const index = (day + 6) % 7;

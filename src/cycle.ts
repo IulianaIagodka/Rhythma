@@ -195,30 +195,27 @@ export function nextRhythmMarker(
   return { kind: 'period', phase: 'menstrual', days: cycleLength - day + 1 };
 }
 
+/** Illustrative relative energy — smooth Gaussians, no steps or hard clamps. */
 export function energyAtCycleDay(
   cycleDay: number,
   cycleLength: number,
   settings: Settings,
 ): number {
-  const day = wrappedCycleDay(cycleDay, cycleLength);
+  let day = cycleDay;
+  if (day < 1) day = 1;
+  if (day > cycleLength) day = wrappedCycleDay(cycleDay, cycleLength);
+
   const peak = ovulationDayForCycle(cycleLength, settings);
-  // Circular distance to ovulation peak
-  const delta = Math.min(Math.abs(day - peak), cycleLength - Math.abs(day - peak));
-  const width = Math.max(cycleLength * 0.38, 7);
-  const t = Math.min(1, delta / width);
-  // Smoothstep bell — softer shoulders than a hard cos kink
-  const smooth = t * t * (3 - 2 * t);
-  const bell = Math.cos(smooth * Math.PI) * 0.5 + 0.5;
-  // Soft menstrual dip that eases out after the period instead of a step
   const periodEnd = settings.periodLength;
-  let menstrualDip = 0;
-  if (day <= periodEnd) {
-    menstrualDip = 0.16 * (1 - (day - 1) / Math.max(1, periodEnd));
-  } else if (day <= periodEnd + 3) {
-    const fade = (day - periodEnd) / 3;
-    menstrualDip = 0.04 * (1 - fade);
-  }
-  return Math.max(0.2, Math.min(1, 0.3 + 0.68 * bell - menstrualDip));
+
+  const peakSigma = Math.max(cycleLength * 0.2, 5);
+  const ovulatory = Math.exp(-0.5 * ((day - peak) / peakSigma) ** 2);
+
+  const bleedCenter = (1 + periodEnd) * 0.5;
+  const bleedSigma = Math.max(periodEnd * 0.9 + 1.5, 2);
+  const menstrual = Math.exp(-0.5 * ((day - bleedCenter) / bleedSigma) ** 2);
+
+  return 0.3 + ovulatory * 0.65 - menstrual * 0.16;
 }
 
 /** Peak relative energy for this cycle length (ovulation window). */
@@ -263,7 +260,11 @@ export function estrogenAtCycleDay(
     const t = Math.max(0, Math.min(1, (day - ovulation) / 2.5));
     lutealBump = lutealRaw * (t * t * (3 - 2 * t));
   }
-  const floor = day <= settings.periodLength ? 0.06 : 0.1;
+  // Soft floor — no step at the period boundary
+  const periodEnd = settings.periodLength;
+  const floorT = Math.max(0, Math.min(1, (day - periodEnd) / 2.5));
+  const floorBlend = floorT * floorT * (3 - 2 * floorT);
+  const floor = 0.06 + 0.04 * floorBlend;
   return Math.max(0, Math.min(1, floor + primary * 0.9 + lutealBump));
 }
 

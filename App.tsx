@@ -1,12 +1,15 @@
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   ActivityIndicator,
+  AppState,
   Linking,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from 'react-native';
@@ -15,7 +18,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel } from './src/activity';
-import { loadCalendarItems, loadWeekItems, type CalendarItem } from './src/calendar';
+import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
+import { formatEventTime } from './src/calendarItems';
 import {
   cycleDayOnDate,
   cycleStatus,
@@ -29,12 +33,19 @@ import {
   type DayMark,
   type StoredData,
 } from './src/cycle';
-import { addDays, appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
+import { appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { loadData, saveData } from './src/storage';
-import { themeFor, type Theme } from './src/theme';
+import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
+import {
+  calendarSyncNowState,
+  cycleInsightToggleState,
+  planSegmentIndex,
+  scheduleInsightToggleState,
+  themeSegmentIndex,
+} from './src/settingsControls';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -51,6 +62,7 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
+  const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
   const switchesReady = useRef(false);
 
@@ -85,8 +97,7 @@ export default function App() {
       setCalendarPermissionDenied(false);
       return;
     }
-    const monday = addDays(todayISO(), -((new Date(todayISO()).getDay() + 6) % 7));
-    const result = await loadWeekItems(monday, addDays(monday, 6), language);
+    const result = await loadCurrentWeekItems(language);
     setItems(result.items);
     setCalendarError(result.error);
     setCalendarPermissionDenied(result.permissionDenied);
@@ -110,10 +121,62 @@ export default function App() {
   useEffect(() => {
     const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
     const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (tab === 'today' && enabled) {
+      refreshCalendar(true);
+    }
     if (tab === 'year' && enabled) {
       refreshYearEvents(true, year);
     }
-  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshYearEvents]);
+  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar, refreshYearEvents]);
+
+  // Re-read the phone calendar when returning to the app (new events often appear then).
+  useEffect(() => {
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (!enabled) return;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'active') {
+        refreshCalendar(true);
+        if (tab === 'year') refreshYearEvents(true, year);
+      }
+    });
+    return () => sub.remove();
+  }, [
+    data?.settings.accessTier,
+    data?.settings.calendarSync,
+    refreshCalendar,
+    refreshYearEvents,
+    tab,
+    year,
+  ]);
+
+  const onSyncCalendar = useCallback(async () => {
+    const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
+    const enabled = Boolean(canSync && data?.settings.calendarSync);
+    if (!enabled || calendarSyncing) return;
+    Haptics.selectionAsync().catch(() => {});
+    setCalendarSyncing(true);
+    const started = Date.now();
+    try {
+      // Clear first so the agenda visibly refreshes even if EventKit returns the same set.
+      setItems([]);
+      await refreshCalendar(true);
+      await refreshYearEvents(true, year);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    } finally {
+      const elapsed = Date.now() - started;
+      const wait = Math.max(0, 450 - elapsed);
+      if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+      setCalendarSyncing(false);
+    }
+  }, [
+    calendarSyncing,
+    data?.settings.accessTier,
+    data?.settings.calendarSync,
+    refreshCalendar,
+    refreshYearEvents,
+    year,
+  ]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -178,6 +241,12 @@ export default function App() {
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
+  const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
+  const scheduleInsightToggle = scheduleInsightToggleState(
+    data.settings.calendarSync,
+    data.settings.showScheduleInsight,
+  );
+  const syncNow = calendarSyncNowState(calendarEnabled, calendarSyncing);
   const calendarItems = calendarEnabled ? items : [];
   const selectedItems = calendarItems.filter((item) => item.day === selectedDay);
   const selectedDayMark = markForDate(selectedDay, data.periodStarts, data.settings);
@@ -262,74 +331,41 @@ export default function App() {
             <>
               <Text style={[styles.hero, { color: theme.ink }]}>{t(language, 'todayHeader')}</Text>
 
-              <View style={[styles.card, { backgroundColor: theme.card }]}>
-                <View style={styles.cardBlock}>
-                  {status.cycleDay == null ? (
-                    <>
-                      <Text style={[styles.primaryLine, { color: theme.ink }]}>{t(language, 'logCycle')}</Text>
-                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                        {t(language, 'logCycleSub')}
-                      </Text>
-                    </>
-                  ) : (
-                    <View style={showCycleRhythm ? styles.cycleHero : undefined}>
-                      <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
-                        <Text
-                          style={[
-                            styles.primaryLine,
-                            showCycleRhythm ? styles.primaryLineWithChart : null,
-                            { color: theme.ink },
-                          ]}
-                        >
-                          {t(
-                            language,
-                            todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
-                            { day: status.cycleDay },
-                          )}
-                        </Text>
-                        <Text style={[styles.phaseName, { color: theme.accent }]}>
-                          {phaseStatusLabel(status.phase, language)}
-                        </Text>
-                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                          {daysLeft == null
-                            ? t(language, 'nextAfterRecords')
-                            : daysLeft === 0
-                              ? t(language, 'nextToday')
-                              : t(language, 'nextIn', { days: daysLeft })}
-                        </Text>
-                      </View>
-                      {showCycleRhythm ? (
-                        <CycleRhythm
-                          cycleDay={status.cycleDay}
-                          cycleLength={status.cycleLength}
-                          settings={data.settings}
-                          theme={theme}
-                          language={language}
-                        />
-                      ) : null}
-                    </View>
-                  )}
-                </View>
-
-                <Pressable
-                  onPress={onFirstDay}
-                  style={[styles.cta, { backgroundColor: theme.accent }]}
-                >
-                  <Text style={styles.ctaText}>
-                    {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
-                  </Text>
-                </Pressable>
-                <Pressable onPress={() => setTab('year')} hitSlop={8}>
-                  <Text style={[styles.textLink, { color: theme.ink }]}>
-                    {t(language, 'chooseOtherDate')}
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={[styles.card, { backgroundColor: theme.card }]}>
+              <View style={[styles.card, styles.weekCard, { backgroundColor: theme.card }]}>
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.sectionLabel, { color: theme.ink }]}>{t(language, 'thisWeek')}</Text>
+                  <Text style={[styles.sectionLabel, styles.weekSectionLabel, { color: theme.ink }]}>
+                    {t(language, 'thisWeek')}
+                  </Text>
+                  {syncNow.visible ? (
+                    <Pressable
+                      onPress={() => {
+                        void onSyncCalendar();
+                      }}
+                      disabled={syncNow.disabled}
+                      hitSlop={12}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(language, 'syncNow')}
+                      style={[
+                        styles.syncNowBtn,
+                        {
+                          borderColor: theme.teal,
+                          opacity: syncNow.disabled ? 0.45 : 1,
+                        },
+                      ]}
+                    >
+                      {calendarSyncing ? (
+                        <ActivityIndicator color={theme.teal} size="small" />
+                      ) : (
+                        <Text style={[styles.syncNowLabel, { color: theme.teal }]}>
+                          {t(language, 'syncNow')}
+                        </Text>
+                      )}
+                    </Pressable>
+                  ) : null}
                 </View>
+                {calendarEnabled && calendarError && !calendarPermissionDenied ? (
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>{calendarError}</Text>
+                ) : null}
                 <WeekStrip
                   today={today}
                   data={data}
@@ -340,11 +376,14 @@ export default function App() {
                   showCalendarLoad={calendarEnabled}
                   onSelectDay={setSelectedDay}
                 />
-              </View>
-
-              {calendarEnabled ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <View style={styles.cardBlock}>
+                {calendarEnabled ? (
+                  <View
+                    style={[
+                      styles.cardBlock,
+                      styles.weekDayAgenda,
+                      { borderTopColor: theme.border },
+                    ]}
+                  >
                     <Text style={[styles.sectionLabel, { color: selectedDayTitleColor }]}>
                       {formatSelectedDayTitle(selectedDay, language)}
                     </Text>
@@ -353,16 +392,17 @@ export default function App() {
                         {selectedItems.map((item) => {
                           const fit = activityFitForPhase(status.phase, item.activity);
                           const fitLabel = activityFitLabel(status.phase, item.activity, language);
+                          const timeLabel = formatEventTime(item, language);
                           return (
                             <View key={item.id} style={styles.dayRow}>
-                              <View
-                                style={[
-                                  styles.dayBullet,
-                                  { backgroundColor: theme.teal },
-                                ]}
-                              />
+                              <View style={[styles.dayBullet, { backgroundColor: theme.teal }]} />
                               <View style={styles.dayTextWrap}>
-                                <Text style={[styles.dayTitle, { color: theme.ink }]}>{item.title}</Text>
+                                <View style={styles.dayTitleRow}>
+                                  <Text style={[styles.dayTitle, { color: theme.ink }]} numberOfLines={2}>
+                                    {item.title}
+                                  </Text>
+                                  <Text style={[styles.dayTime, { color: theme.teal }]}>{timeLabel}</Text>
+                                </View>
                                 {fitLabel ? (
                                   <Text
                                     style={[
@@ -391,8 +431,67 @@ export default function App() {
                       </Text>
                     )}
                   </View>
+                ) : null}
+              </View>
+
+              <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
+                <View style={styles.periodCardBody}>
+                  <View style={styles.periodCardText}>
+                    {status.cycleDay == null ? (
+                      <>
+                        <Text style={[styles.periodTitle, { color: theme.accent }]}>
+                          {t(language, 'logCycle')}
+                        </Text>
+                        <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                          {t(language, 'logCycleSub')}
+                        </Text>
+                      </>
+                    ) : (
+                      <View style={showCycleRhythm ? styles.cycleHero : undefined}>
+                        <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
+                          <Text style={[styles.periodTitle, { color: theme.accent }]}>
+                            {t(
+                              language,
+                              todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                              { day: status.cycleDay },
+                            )}
+                            {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
+                          </Text>
+                          <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                            {daysLeft == null
+                              ? t(language, 'nextAfterRecords')
+                              : daysLeft === 0
+                                ? t(language, 'nextToday')
+                                : t(language, 'nextIn', { days: daysLeft })}
+                          </Text>
+                        </View>
+                        {showCycleRhythm ? (
+                          <CycleRhythm
+                            cycleDay={status.cycleDay}
+                            cycleLength={status.cycleLength}
+                            settings={data.settings}
+                            theme={theme}
+                            language={language}
+                          />
+                        ) : null}
+                      </View>
+                    )}
+                  </View>
+                  <Pressable
+                    onPress={onFirstDay}
+                    style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent }]}
+                  >
+                    <Text style={styles.ctaText}>
+                      {todayIsStart ? t(language, 'cancelToday') : t(language, 'startedToday')}
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={() => setTab('year')} hitSlop={8}>
+                    <Text style={[styles.textLink, styles.periodDateLink, { color: theme.muted }]}>
+                      {t(language, 'chooseOtherDate')}
+                    </Text>
+                  </Pressable>
                 </View>
-              ) : null}
+              </View>
 
               {visibleCycleInsight ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
@@ -425,11 +524,14 @@ export default function App() {
               ) : null}
 
               {visibleScheduleAdvice ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                <View style={[styles.card, styles.insightCard, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                      {t(language, 'scheduleInsight')}
-                    </Text>
+                    <View style={styles.insightHeader}>
+                      <Text style={[styles.sectionLabel, { color: theme.teal }]}>
+                        {t(language, 'scheduleInsight')}
+                      </Text>
+                      <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                    </View>
                     {visibleScheduleAdvice.busiestDayISO ? (
                       <Pressable
                         onPress={() => {
@@ -484,9 +586,12 @@ export default function App() {
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
                   accessibilityRole="button"
                 >
-                  <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                    {t(language, 'connectCalendar')}
-                  </Text>
+                  <View style={styles.insightHeader}>
+                    <Text style={[styles.sectionLabel, { color: theme.teal }]}>
+                      {t(language, 'connectCalendar')}
+                    </Text>
+                    <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                  </View>
                   <Text style={[styles.connectCalendarHint, { color: theme.muted }]}>
                     {t(language, 'connectCalendarHint')}
                   </Text>
@@ -508,12 +613,12 @@ export default function App() {
                   </View>
                   <PlanSwitch
                     value={storedTier}
-                    theme={theme}
+                    appearance={data.settings.themeMode}
                     language={language}
                     onChange={(accessTier) => {
                       persist({ ...data, settings: { ...data.settings, accessTier } });
-                      if (accessTier === 'pro' && data.settings.calendarSync) refreshCalendar(true);
-                      else refreshCalendar(false);
+                      // Calendar sync is free — always refresh when enabled, never clear on Free.
+                      if (data.settings.calendarSync) refreshCalendar(true);
                     }}
                   />
                 </View>
@@ -552,10 +657,28 @@ export default function App() {
                   <Pressable onPress={() => Linking.openURL('https://iulianaiagodka.github.io/Rhythma/#google-calendar')} hitSlop={8}>
                     <Text style={[styles.settingLink, { color: theme.teal }]}>{t(language, 'calendarGoogleLink')}</Text>
                   </Pressable>
+                  {syncNow.visible ? (
+                    <Pressable
+                      onPress={() => {
+                        void onSyncCalendar();
+                      }}
+                      disabled={syncNow.disabled}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                    >
+                      <Text
+                        style={[
+                          styles.settingLink,
+                          { color: theme.teal, opacity: syncNow.disabled ? 0.45 : 1 },
+                        ]}
+                      >
+                        {calendarSyncing ? t(language, 'readingEvents') : t(language, 'syncNow')}
+                      </Text>
+                    </Pressable>
+                  ) : null}
                 </View>
                 <BrightSwitch
                   value={data.settings.calendarSync}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(calendarSync) => {
                     persist({ ...data, settings: { ...data.settings, calendarSync } });
@@ -577,15 +700,15 @@ export default function App() {
                       </Text>
                     </View>
                     <BrightSwitch
-                      value={data.settings.showCycleInsight}
-                      theme={theme}
+                      value={cycleInsightToggle.value}
+                      disabled={cycleInsightToggle.disabled}
                       readyRef={switchesReady}
                       onValueChange={(showCycleInsight) =>
                         persist({ ...data, settings: { ...data.settings, showCycleInsight } })
                       }
                     />
                   </View>
-                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card, opacity: scheduleInsightToggle.disabled ? 0.45 : 1 }]}>
                     <View style={styles.settingText}>
                       <Text style={[styles.settingTitle, { color: theme.ink }]}>
                         {t(language, 'scheduleInsight')}
@@ -595,8 +718,8 @@ export default function App() {
                       </Text>
                     </View>
                     <BrightSwitch
-                      value={data.settings.showScheduleInsight}
-                      theme={theme}
+                      value={scheduleInsightToggle.value}
+                      disabled={scheduleInsightToggle.disabled}
                       readyRef={switchesReady}
                       onValueChange={(showScheduleInsight) =>
                         persist({ ...data, settings: { ...data.settings, showScheduleInsight } })
@@ -610,7 +733,6 @@ export default function App() {
                     </View>
                     <BrightSwitch
                       value={data.settings.showCycleRhythm}
-                      theme={theme}
                       readyRef={switchesReady}
                       onValueChange={(showCycleRhythm) =>
                         persist({ ...data, settings: { ...data.settings, showCycleRhythm } })
@@ -629,7 +751,6 @@ export default function App() {
                 </View>
                 <BrightSwitch
                   value={data.settings.showForecast}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(showForecast) =>
                     persist({ ...data, settings: { ...data.settings, showForecast } })
@@ -645,7 +766,6 @@ export default function App() {
                 </View>
                 <BrightSwitch
                   value={data.settings.showOvulation}
-                  theme={theme}
                   readyRef={switchesReady}
                   onValueChange={(showOvulation) =>
                     persist({ ...data, settings: { ...data.settings, showOvulation } })
@@ -658,7 +778,6 @@ export default function App() {
                 </View>
                 <ThemeSwitch
                   value={data.settings.themeMode}
-                  theme={theme}
                   language={language}
                   onChange={(themeMode) =>
                     persist({ ...data, settings: { ...data.settings, themeMode } })
@@ -699,6 +818,7 @@ export default function App() {
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
+        language={language}
         title={t(language, 'periodStartTitle')}
         message={
           periodPrompt
@@ -749,71 +869,53 @@ export default function App() {
 
 function PlanSwitch({
   value,
-  theme,
+  appearance,
   language,
   onChange,
 }: {
   value: AccessTier;
-  theme: Theme;
+  appearance: 'light' | 'dark';
   language: Language;
   onChange: (tier: AccessTier) => void;
 }) {
   return (
-    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
-      {(['free', 'pro'] as const).map((tier) => {
-        const active = value === tier;
-        return (
-          <Pressable
-            key={tier}
-            onPress={() => {
-              if (tier === value) return;
-              void Haptics.selectionAsync();
-              onChange(tier);
-            }}
-            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
-          >
-            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
-              {tier === 'pro' ? t(language, 'proPlan') : t(language, 'freePlan')}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <SegmentedControl
+      values={[t(language, 'freePlan'), t(language, 'proPlan')]}
+      selectedIndex={planSegmentIndex(value)}
+      onChange={(event) => {
+        const next: AccessTier = event.nativeEvent.selectedSegmentIndex === 1 ? 'pro' : 'free';
+        if (next === value) return;
+        void Haptics.selectionAsync();
+        onChange(next);
+      }}
+      appearance={appearance}
+      style={styles.nativeSegment}
+    />
   );
 }
 
 function ThemeSwitch({
   value,
-  theme,
   language,
   onChange,
 }: {
   value: 'light' | 'dark';
-  theme: Theme;
   language: Language;
   onChange: (mode: 'light' | 'dark') => void;
 }) {
   return (
-    <View style={[styles.planSwitch, { borderColor: theme.border }]}>
-      {(['light', 'dark'] as const).map((mode) => {
-        const active = value === mode;
-        return (
-          <Pressable
-            key={mode}
-            onPress={() => {
-              if (mode === value) return;
-              void Haptics.selectionAsync();
-              onChange(mode);
-            }}
-            style={[styles.planSwitchBtn, active ? { backgroundColor: theme.accent } : null]}
-          >
-            <Text style={[styles.planSwitchText, { color: active ? '#FFFFFF' : theme.muted }]}>
-              {mode === 'dark' ? t(language, 'themeDark') : t(language, 'themeLight')}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <SegmentedControl
+      values={[t(language, 'themeLight'), t(language, 'themeDark')]}
+      selectedIndex={themeSegmentIndex(value)}
+      onChange={(event) => {
+        const next: 'light' | 'dark' = event.nativeEvent.selectedSegmentIndex === 1 ? 'dark' : 'light';
+        if (next === value) return;
+        void Haptics.selectionAsync();
+        onChange(next);
+      }}
+      appearance={value}
+      style={styles.nativeSegment}
+    />
   );
 }
 
@@ -828,36 +930,23 @@ function PlusBadge({ theme, language }: { theme: Theme; language: Language }) {
 function BrightSwitch({
   value,
   onValueChange,
-  theme,
   readyRef,
+  disabled = false,
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
-  theme: Theme;
   readyRef: MutableRefObject<boolean>;
+  disabled?: boolean;
 }) {
   return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityState={{ checked: value }}
-      onPress={() => {
-        if (!readyRef.current) return;
-        onValueChange(!value);
+    <Switch
+      value={value}
+      disabled={disabled}
+      onValueChange={(next) => {
+        if (!readyRef.current || disabled) return;
+        onValueChange(next);
       }}
-      style={[
-        styles.squareSwitch,
-        { backgroundColor: value ? theme.accent : theme.faint },
-      ]}
-      hitSlop={8}
-    >
-      <View
-        style={[
-          styles.squareSwitchThumb,
-          value ? styles.squareSwitchThumbOn : styles.squareSwitchThumbOff,
-          { backgroundColor: '#FFFFFF' },
-        ]}
-      />
-    </Pressable>
+    />
   );
 }
 
@@ -908,9 +997,9 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   brand: {
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   mainScroll: {
     flex: 1,
@@ -918,7 +1007,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 24,
-    gap: 16,
+    gap: 14,
   },
   yearPane: {
     flex: 1,
@@ -930,17 +1019,65 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: 4,
+    marginBottom: 2,
   },
   card: {
-    borderRadius: 0,
-    padding: 20,
+    borderRadius: radius.card,
+    padding: 18,
     gap: 14,
+  },
+  weekCard: {
+    paddingVertical: 20,
+    gap: 16,
+  },
+  weekSectionLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: -0.1,
+  },
+  weekDayAgenda: {
+    marginTop: 4,
+    paddingTop: 14,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  periodCard: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  periodCardBody: {
+    gap: 10,
+  },
+  periodCardText: {
+    gap: 4,
+  },
+  periodTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: -0.1,
+  },
+  periodDateLink: {
+    textAlign: 'left',
+    fontSize: 13,
+  },
+  insightCard: {
+    paddingVertical: 14,
+  },
+  insightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  insightChevron: {
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 20,
   },
   connectCalendarCard: {
     gap: 4,
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   connectCalendarHint: {
     fontSize: 12,
@@ -960,6 +1097,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  syncNowBtn: {
+    minHeight: 32,
+    minWidth: 56,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.control,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  syncNowLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   cardBlock: {
     gap: 8,
@@ -992,14 +1144,18 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   cta: {
-    borderRadius: 0,
+    borderRadius: radius.control,
     minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ctaCompact: {
+    minHeight: 40,
+    paddingVertical: 10,
+  },
   ctaText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
   textLink: {
@@ -1017,16 +1173,27 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dayBullet: {
-    width: 10,
-    height: 10,
-    borderRadius: 0,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dayTextWrap: {
     flex: 1,
   },
+  dayTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
   dayTitle: {
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
+  },
+  dayTime: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
   dayMeta: {
     fontSize: 12,
@@ -1042,7 +1209,7 @@ const styles = StyleSheet.create({
   yearNavBtn: { fontSize: 28, fontWeight: '300' },
   yearLabel: { fontSize: 18, fontWeight: '600' },
   settingRow: {
-    borderRadius: 0,
+    borderRadius: radius.card,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1061,7 +1228,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1070,7 +1237,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   paywallInline: {
-    borderRadius: 0,
+    borderRadius: radius.card,
     padding: 16,
     marginBottom: 8,
     gap: 12,
@@ -1083,7 +1250,7 @@ const styles = StyleSheet.create({
   paywallIconWrap: {
     width: 44,
     height: 44,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1109,7 +1276,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 0,
+    borderRadius: radius.control,
     backgroundColor: 'rgba(233,30,140,0.08)',
   },
   paywallInlineCheck: {
@@ -1125,7 +1292,7 @@ const styles = StyleSheet.create({
   },
   paywallInlineBtn: {
     paddingVertical: 14,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
   },
   paywallInlineBtnText: {
@@ -1146,51 +1313,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
   },
   paywallComingSoonText: {
     fontSize: 13,
     fontWeight: '600',
   },
-  planSwitch: {
-    flexDirection: 'row',
-    borderRadius: 0,
-    borderWidth: 1,
-    padding: 2,
-    gap: 2,
-  },
-  planSwitchBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 0,
-  },
-  planSwitchText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  squareSwitch: {
-    width: 50,
-    height: 30,
-    borderRadius: 0,
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-  },
-  squareSwitchThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 0,
-  },
-  squareSwitchThumbOn: {
-    alignSelf: 'flex-end',
-  },
-  squareSwitchThumbOff: {
-    alignSelf: 'flex-start',
+  nativeSegment: {
+    minWidth: 148,
   },
   lockPill: {
     minWidth: 56,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 0,
+    borderRadius: radius.control,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1221,7 +1357,7 @@ const styles = StyleSheet.create({
   },
   menuBar: {
     height: 2,
-    borderRadius: 0,
+    borderRadius: 1,
   },
   tabLabel: { fontSize: 11, fontWeight: '600' },
 });

@@ -7,13 +7,13 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import Svg, { Line, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Stop } from 'react-native-svg';
 
+import { monotoneCubicPath } from './chartPath';
 import {
   energyAtCycleDay,
   energyPercentAtCycleDay,
   estrogenAtCycleDay,
-  phaseIdForCycleDay,
   phaseWindows,
   progesteroneAtCycleDay,
   wrappedCycleDay,
@@ -21,7 +21,7 @@ import {
   type Settings,
 } from './cycle';
 import { t, type Language } from './i18n';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 
 const CHART_WIDTH = 132;
 const CHART_HEIGHT = 64;
@@ -39,10 +39,10 @@ const PHASE_LABEL_KEY: Record<PhaseId, 'rhythmPhaseMenstrual' | 'rhythmPhaseFoll
   ovulatory: 'rhythmPhaseOvulatory',
   luteal: 'rhythmPhaseLuteal',
 };
-/** Extra samples between cycle days — denser path reads as a smooth curve. */
-const SAMPLES_PER_DAY = 8;
+/** Extra samples between cycle days — denser path for smooth cubic curves. */
+const SAMPLES_PER_DAY = 24;
 
-type Point = { x: number; y: number; day: number; phase: PhaseId };
+type Point = { x: number; y: number; day: number };
 
 type CycleRhythmProps = {
   cycleDay: number;
@@ -51,12 +51,6 @@ type CycleRhythmProps = {
   theme: Theme;
   language: Language;
 };
-
-function phaseColor(phase: PhaseId, theme: Theme): string {
-  // Compact curve: pink only for period; cyan elsewhere — no violet recommendation tint.
-  if (phase === 'menstrual') return theme.period;
-  return theme.teal;
-}
 
 function curvePoints(
   cycleLength: number,
@@ -74,11 +68,9 @@ function curvePoints(
 
   for (let i = 0; i < steps; i += 1) {
     const dayFloat = 1 + (i / (steps - 1)) * (cycleLength - 1);
-    const dayFloor = Math.min(cycleLength, Math.max(1, Math.round(dayFloat)));
     const value = valueAtDay(dayFloat);
     points.push({
-      day: dayFloor,
-      phase: phaseIdForCycleDay(dayFloor, cycleLength, settings),
+      day: dayFloat,
       x: padX + ((dayFloat - 1) / Math.max(1, cycleLength - 1)) * innerWidth,
       y: padY + (1 - value) * innerHeight,
     });
@@ -86,35 +78,9 @@ function curvePoints(
   return points;
 }
 
-/**
- * Dense polyline through samples. Avoids Catmull-Rom overshoot spikes that made
- * the hormone chart look jagged on plateaus and soft peaks.
- */
-function smoothPathRange(points: Point[], start: number, end: number): string {
-  if (end <= start || points.length < 2) return '';
-  let d = `M ${points[start].x.toFixed(2)} ${points[start].y.toFixed(2)}`;
-  for (let i = start + 1; i <= end; i += 1) {
-    d += ` L ${points[i].x.toFixed(2)} ${points[i].y.toFixed(2)}`;
-  }
-  return d;
-}
-
 function smoothPath(points: Point[]): string {
   if (points.length < 2) return '';
-  return smoothPathRange(points, 0, points.length - 1);
-}
-
-function phaseSegments(points: Point[]): { phase: PhaseId; start: number; end: number }[] {
-  const segments: { phase: PhaseId; start: number; end: number }[] = [];
-  for (let i = 0; i < points.length; i += 1) {
-    const last = segments[segments.length - 1];
-    if (last && last.phase === points[i].phase) {
-      last.end = i;
-    } else {
-      segments.push({ phase: points[i].phase, start: i, end: i });
-    }
-  }
-  return segments.filter((segment) => segment.end > segment.start);
+  return monotoneCubicPath(points);
 }
 
 function todayPoint(points: Point[], cycleDay: number, cycleLength: number, width: number, padX: number): Point {
@@ -122,6 +88,27 @@ function todayPoint(points: Point[], cycleDay: number, cycleLength: number, widt
   const todayX = padX + ((todayDay - 1) / Math.max(1, cycleLength - 1)) * (width - padX * 2);
   return points.reduce((best, point) =>
     Math.abs(point.x - todayX) < Math.abs(best.x - todayX) ? point : best,
+  );
+}
+
+/** Small “today” dot with a soft glow halo on the energy curve. */
+function TodayGlowDot({
+  x,
+  y,
+  color,
+  stroke,
+}: {
+  x: number;
+  y: number;
+  color: string;
+  stroke: string;
+}) {
+  return (
+    <>
+      <Circle cx={x} cy={y} r={7} fill={color} opacity={0.16} />
+      <Circle cx={x} cy={y} r={4.5} fill={color} opacity={0.32} />
+      <Circle cx={x} cy={y} r={2.6} fill={color} stroke={stroke} strokeWidth={1.4} />
+    </>
   );
 }
 
@@ -140,33 +127,36 @@ function CompactChart({
     [cycleLength, settings],
   );
   const today = todayPoint(points, cycleDay, cycleLength, CHART_WIDTH, PAD_X);
-  const segments = useMemo(() => phaseSegments(points), [points]);
   const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
+  const periodBlend = Math.max(0.1, Math.min(0.4, settings.periodLength / Math.max(1, cycleLength)));
 
   return (
     <View style={styles.compactWrap}>
       <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
-        {segments.map((segment) => (
-          <Path
-            key={`${segment.phase}-${segment.start}`}
-            d={smoothPathRange(points, segment.start, segment.end)}
-            stroke={phaseColor(segment.phase, theme)}
-            strokeWidth={2.2}
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-            fill="none"
-            opacity={segment.phase === 'menstrual' ? 1 : 0.85}
-          />
-        ))}
-        <Rect
-          x={today.x - 5}
-          y={today.y - 5}
-          width={10}
-          height={10}
-          fill={theme.teal}
-          stroke={theme.card}
-          strokeWidth={2}
+        <Defs>
+          <LinearGradient
+            id="rhythmaCompactEnergy"
+            x1={PAD_X}
+            y1="0"
+            x2={CHART_WIDTH - PAD_X}
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
+            <Stop offset="0" stopColor={theme.period} />
+            <Stop offset={String(periodBlend)} stopColor={theme.period} />
+            <Stop offset={String(Math.min(1, periodBlend + 0.1))} stopColor={theme.teal} />
+            <Stop offset="1" stopColor={theme.teal} />
+          </LinearGradient>
+        </Defs>
+        <Path
+          d={smoothPath(points)}
+          stroke="url(#rhythmaCompactEnergy)"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
         />
+        <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke={theme.card} />
       </Svg>
       <Text style={[styles.compactPercent, { color: theme.teal }]}>
         {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
@@ -215,12 +205,6 @@ function ExpandedChart({
     [cycleLength, settings, plotWidth],
   );
   const today = todayPoint(energyPoints, cycleDay, cycleLength, plotWidth, EXPANDED_PAD_X);
-  const energyPercent = energyPercentAtCycleDay(cycleDay, cycleLength, settings);
-  const labelWidth = language === 'uk' ? 72 : 44;
-  const labelLeft = Math.max(
-    0,
-    Math.min(plotWidth - labelWidth, today.x - labelWidth / 2),
-  );
   const windows = useMemo(() => phaseWindows(cycleLength, settings), [cycleLength, settings]);
   const axisX = EXPANDED_PAD_X;
   const axisYTop = EXPANDED_PAD_Y;
@@ -261,8 +245,8 @@ function ExpandedChart({
               d={smoothPath(estrogenPoints)}
               stroke={theme.period}
               strokeWidth={1.5}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
               opacity={0.95}
             />
@@ -270,8 +254,8 @@ function ExpandedChart({
               d={smoothPath(progesteronePoints)}
               stroke={theme.rhythmLuteal}
               strokeWidth={1.5}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
               opacity={0.95}
             />
@@ -279,48 +263,12 @@ function ExpandedChart({
               d={smoothPath(energyPoints)}
               stroke={theme.teal}
               strokeWidth={3.4}
-              strokeLinecap="square"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
             />
-            <Rect
-              x={today.x - 5.5}
-              y={today.y - 5.5}
-              width={11}
-              height={11}
-              fill={theme.teal}
-              stroke="#FFFFFF"
-              strokeWidth={2}
-            />
+            <TodayGlowDot x={today.x} y={today.y} color={theme.teal} stroke="#FFFFFF" />
           </Svg>
-          <Text
-            style={[
-              styles.todayLabel,
-              styles.expandedTodayLabel,
-              {
-                color: theme.teal,
-                left: labelLeft,
-                top: Math.max(0, today.y - 34),
-                width: labelWidth,
-              },
-            ]}
-          >
-            {t(language, 'rhythmEnergyPercent', { value: energyPercent })}
-          </Text>
-          <Text
-            style={[
-              styles.todayLabel,
-              styles.expandedTodayLabel,
-              {
-                color: theme.teal,
-                left: labelLeft,
-                top: Math.max(14, today.y - 20),
-                width: labelWidth,
-              },
-            ]}
-          >
-            {t(language, 'rhythmToday')}
-          </Text>
         </View>
       </View>
       <View
@@ -406,13 +354,7 @@ export function CycleRhythm({
             />
 
             <View style={styles.legend}>
-              <LegendDot
-                color={theme.teal}
-                label={`${t(language, 'rhythmEnergy')} · ${t(language, 'rhythmEnergyPercent', {
-                  value: energyPercentAtCycleDay(cycleDay, cycleLength, settings),
-                })}`}
-                ink={theme.ink}
-              />
+              <LegendDot color={theme.teal} label={t(language, 'rhythmEnergy')} ink={theme.ink} />
               <LegendDot color={theme.period} label={t(language, 'rhythmEstrogen')} ink={theme.ink} />
               <LegendDot
                 color={theme.rhythmLuteal}
@@ -452,15 +394,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.2,
   },
-  todayLabel: {
-    position: 'absolute',
-    fontSize: 11,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  expandedTodayLabel: {
-    fontSize: 12,
-  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.62)',
@@ -470,7 +403,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
-    borderRadius: 0,
+    borderRadius: radius.card,
     borderWidth: 1,
     paddingHorizontal: 18,
     paddingTop: 20,
@@ -537,7 +470,7 @@ const styles = StyleSheet.create({
   legendSwatch: {
     width: 10,
     height: 10,
-    borderRadius: 0,
+    borderRadius: 3,
   },
   legendLabel: {
     fontSize: 13,
@@ -549,7 +482,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     minHeight: 48,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

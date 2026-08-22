@@ -1,11 +1,14 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { CalendarItem } from './calendar';
-import type { Theme } from './theme';
+import { formatEventTime } from './calendarItems';
+import type { Language } from './dates';
+import { radius, type Theme } from './theme';
 
 type ConfirmDialogProps = {
   visible: boolean;
   theme: Theme;
+  language: Language;
   title: string;
   message: string;
   cancelLabel: string;
@@ -23,6 +26,7 @@ type ConfirmDialogProps = {
 export function ConfirmDialog({
   visible,
   theme,
+  language,
   title,
   message,
   cancelLabel,
@@ -56,7 +60,7 @@ export function ConfirmDialog({
                 <View style={styles.eventList}>
                   {events.map((item) => (
                     <Text key={item.id} style={[styles.eventItem, { color: theme.ink }]}>
-                      {item.title}
+                      {`${formatEventTime(item, language)} · ${item.title}`}
                     </Text>
                   ))}
                 </View>
@@ -102,7 +106,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    borderRadius: 0,
+    borderRadius: radius.card,
     borderWidth: 1,
     paddingHorizontal: 22,
     paddingTop: 22,
@@ -155,7 +159,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     minHeight: 48,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
