@@ -2,7 +2,7 @@ import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'r
 
 import { t, type Language } from './i18n';
 import { sourceTitle, sourcesForTopic, allSourceTopics, type SourceTopic } from './sources';
-import type { Theme } from './theme';
+import { radius, type Theme } from './theme';
 
 type SourcesSheetProps = {
   visible: boolean;
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   sheet: {
     width: '100%',
     maxHeight: '80%',
-    borderRadius: 0,
+    borderRadius: radius.card,
     borderWidth: 1,
     paddingHorizontal: 18,
     paddingTop: 20,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     minHeight: 44,
-    borderRadius: 0,
+    borderRadius: radius.control,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

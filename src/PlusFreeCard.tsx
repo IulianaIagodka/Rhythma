@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { isIapPlusEnabled } from './access';
 import { t, type Language } from './i18n';
+import { radius } from './theme';
 import { useIAPPlus } from './useIAPPlus';
 
 type Theme = {
@@ -108,7 +109,7 @@ export function PlusFreeCard(props: PlusFreeCardProps) {
 
 const styles = StyleSheet.create({
   paywallInline: {
-    borderRadius: 0,
+    borderRadius: radius.card,
     padding: 20,
     gap: 14,
     marginBottom: 12,
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   paywallInlineBtn: {
-    borderRadius: 0,
+    borderRadius: radius.control,
     paddingVertical: 14,
     alignItems: 'center',
   },
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   },
   paywallComingSoonBadge: {
     alignSelf: 'flex-start',
-    borderRadius: 0,
+    borderRadius: radius.control,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
