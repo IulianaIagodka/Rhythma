@@ -11,12 +11,14 @@ type Theme = {
   muted: string;
   accent: string;
   accentSoft: string;
+  teal: string;
 };
 
 type PlusFreeCardProps = {
   theme: Theme;
   language: Language;
   onUnlock: () => void;
+  onOpenSources?: () => void;
 };
 
 const FEATURE_KEYS = ['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const;
@@ -51,12 +53,20 @@ function PlusCardShell({
   );
 }
 
-function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+function PlusComingSoonCard({ theme, language, onOpenSources }: PlusFreeCardProps) {
   return (
     <PlusCardShell theme={theme} language={language}>
       <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
         <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
       </View>
+      {onOpenSources ? (
+        <>
+          <Text style={[styles.sourcesHint, { color: theme.muted }]}>{t(language, 'sourcesComingSoonHint')}</Text>
+          <Pressable onPress={onOpenSources} hitSlop={8} accessibilityRole="button">
+            <Text style={[styles.sourcesLink, { color: theme.teal }]}>{t(language, 'sourcesLink')}</Text>
+          </Pressable>
+        </>
+      ) : null}
     </PlusCardShell>
   );
 }
@@ -173,6 +183,14 @@ const styles = StyleSheet.create({
   },
   paywallComingSoonText: {
     fontSize: 14,
+    fontWeight: '600',
+  },
+  sourcesHint: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  sourcesLink: {
+    fontSize: 13,
     fontWeight: '600',
   },
 });
