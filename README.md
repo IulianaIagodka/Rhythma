@@ -13,6 +13,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - **Predicted** labels for forecast cycle day and ovulation past the open logged cycle
 - **Calendar sync** for events from the iPhone Calendar (including Google if added in iOS Calendar settings)
 - Optional ovulation marks on the calendars
+- **Sources** links to PubMed / NCBI / ACOG references (Settings → Sources & disclaimer; Today cycle card)
 - Theme switch: Light / Dark
 - English and Ukrainian, based on the phone language
 

@@ -3,7 +3,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { isIapPlusEnabled } from './access';
 import { t, type Language } from './i18n';
-import { radius } from './theme';
 import { useIAPPlus } from './useIAPPlus';
 
 type Theme = {
@@ -12,12 +11,14 @@ type Theme = {
   muted: string;
   accent: string;
   accentSoft: string;
+  teal: string;
 };
 
 type PlusFreeCardProps = {
   theme: Theme;
   language: Language;
   onUnlock: () => void;
+  onOpenSources?: () => void;
 };
 
 const FEATURE_KEYS = ['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const;
@@ -52,12 +53,20 @@ function PlusCardShell({
   );
 }
 
-function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+function PlusComingSoonCard({ theme, language, onOpenSources }: PlusFreeCardProps) {
   return (
     <PlusCardShell theme={theme} language={language}>
       <View style={[styles.paywallComingSoonBadge, { backgroundColor: theme.accentSoft }]}>
         <Text style={[styles.paywallComingSoonText, { color: theme.accent }]}>{t(language, 'paywallComingSoon')}</Text>
       </View>
+      {onOpenSources ? (
+        <>
+          <Text style={[styles.sourcesHint, { color: theme.muted }]}>{t(language, 'sourcesComingSoonHint')}</Text>
+          <Pressable onPress={onOpenSources} hitSlop={8} accessibilityRole="button">
+            <Text style={[styles.sourcesLink, { color: theme.teal }]}>{t(language, 'sourcesLink')}</Text>
+          </Pressable>
+        </>
+      ) : null}
     </PlusCardShell>
   );
 }
@@ -108,7 +117,7 @@ export function PlusFreeCard(props: PlusFreeCardProps) {
 
 const styles = StyleSheet.create({
   paywallInline: {
-    borderRadius: radius.card,
+    borderRadius: 0,
     padding: 20,
     gap: 14,
     marginBottom: 12,
@@ -148,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   paywallInlineBtn: {
-    borderRadius: radius.control,
+    borderRadius: 0,
     paddingVertical: 14,
     alignItems: 'center',
   },
@@ -168,12 +177,20 @@ const styles = StyleSheet.create({
   },
   paywallComingSoonBadge: {
     alignSelf: 'flex-start',
-    borderRadius: radius.control,
+    borderRadius: 0,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   paywallComingSoonText: {
     fontSize: 14,
+    fontWeight: '600',
+  },
+  sourcesHint: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  sourcesLink: {
+    fontSize: 13,
     fontWeight: '600',
   },
 });

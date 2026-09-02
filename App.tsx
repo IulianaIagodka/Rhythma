@@ -39,6 +39,8 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
+import { SourcesLink, SourcesSheet } from './src/SourcesSheet';
+import type { SourceTopic } from './src/sources';
 import {
   calendarSyncNowState,
   cycleInsightToggleState,
@@ -64,6 +66,7 @@ export default function App() {
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
+  const [sourcesTopic, setSourcesTopic] = useState<SourceTopic | 'all' | null>(null);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -278,6 +281,9 @@ export default function App() {
     showScheduleInsightCard && calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
       : null;
+  const selectedDayHasActivityAdvice = calendarEnabled
+    ? selectedItems.some((item) => activityFitLabel(status.phase, item.activity, language) != null)
+    : false;
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
@@ -430,6 +436,14 @@ export default function App() {
                         {t(language, 'noEventsForDay')}
                       </Text>
                     )}
+                    {selectedDayHasActivityAdvice ? (
+                      <SourcesLink
+                        topic="activity"
+                        theme={theme}
+                        language={language}
+                        onPress={() => setSourcesTopic('activity')}
+                      />
+                    ) : null}
                   </View>
                 ) : null}
               </View>
@@ -464,6 +478,12 @@ export default function App() {
                                 ? t(language, 'nextToday')
                                 : t(language, 'nextIn', { days: daysLeft })}
                           </Text>
+                          <SourcesLink
+                            topic="cycleForecast"
+                            theme={theme}
+                            language={language}
+                            onPress={() => setSourcesTopic('all')}
+                          />
                         </View>
                         {showCycleRhythm ? (
                           <CycleRhythm
@@ -472,6 +492,7 @@ export default function App() {
                             settings={data.settings}
                             theme={theme}
                             language={language}
+                            onOpenSources={() => setSourcesTopic('energy')}
                           />
                         ) : null}
                       </View>
@@ -519,6 +540,12 @@ export default function App() {
                         {visibleCycleInsight.note}
                       </Text>
                     ) : null}
+                    <SourcesLink
+                      topic="hormones"
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('hormones')}
+                    />
                   </View>
                 </View>
               ) : null}
@@ -575,6 +602,12 @@ export default function App() {
                         {visibleScheduleAdvice.note}
                       </Text>
                     ) : null}
+                    <SourcesLink
+                      topic="activity"
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('activity')}
+                    />
                   </View>
                 </View>
               ) : null}
@@ -638,12 +671,29 @@ export default function App() {
                 <PlusFreeCard
                   theme={theme}
                   language={language}
+                  onOpenSources={() => setSourcesTopic('all')}
                   onUnlock={() => {
                     persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
                     if (data.settings.calendarSync) refreshCalendar(true);
                   }}
                 />
               )}
+
+              <Pressable
+                onPress={() => setSourcesTopic('all')}
+                style={[styles.settingRow, { backgroundColor: theme.card }]}
+                accessibilityRole="button"
+              >
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'sourcesSettingsTitle')}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'sourcesSettingsDesc')}
+                  </Text>
+                </View>
+                <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+              </Pressable>
 
               {/* Calendar sync — free for everyone */}
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
@@ -748,6 +798,12 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'forecastDesc')}
                   </Text>
+                  <SourcesLink
+                    topic="cycleForecast"
+                    theme={theme}
+                    language={language}
+                    onPress={() => setSourcesTopic('cycleForecast')}
+                  />
                 </View>
                 <BrightSwitch
                   value={data.settings.showForecast}
@@ -763,6 +819,12 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'ovulationDesc')}
                   </Text>
+                  <SourcesLink
+                    topic="ovulation"
+                    theme={theme}
+                    language={language}
+                    onPress={() => setSourcesTopic('ovulation')}
+                  />
                 </View>
                 <BrightSwitch
                   value={data.settings.showOvulation}
@@ -815,6 +877,13 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <SourcesSheet
+        visible={sourcesTopic != null}
+        topic={sourcesTopic ?? 'all'}
+        theme={theme}
+        language={language}
+        onClose={() => setSourcesTopic(null)}
+      />
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
