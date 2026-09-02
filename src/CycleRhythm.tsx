@@ -21,6 +21,7 @@ import {
   type Settings,
 } from './cycle';
 import { t, type Language } from './i18n';
+import { SourcesLink } from './SourcesSheet';
 import type { Theme } from './theme';
 
 const CHART_WIDTH = 132;
@@ -50,6 +51,7 @@ type CycleRhythmProps = {
   settings: Settings;
   theme: Theme;
   language: Language;
+  onOpenSources?: () => void;
 };
 
 function phaseColor(phase: PhaseId, theme: Theme): string {
@@ -355,6 +357,7 @@ export function CycleRhythm({
   settings,
   theme,
   language,
+  onOpenSources,
 }: CycleRhythmProps) {
   const [expanded, setExpanded] = useState(false);
   const { width: windowWidth } = useWindowDimensions();
@@ -424,6 +427,10 @@ export function CycleRhythm({
             <Text style={[styles.sheetNote, { color: theme.muted }]}>
               {t(language, 'rhythmHormoneNote')}
             </Text>
+
+            {onOpenSources ? (
+              <SourcesLink topic="energy" theme={theme} language={language} onPress={onOpenSources} />
+            ) : null}
 
             <Pressable
               onPress={() => setExpanded(false)}

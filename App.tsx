@@ -35,6 +35,8 @@ import { themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
+import { SourcesLink, SourcesSheet } from './src/SourcesSheet';
+import type { SourceTopic } from './src/sources';
 import { WeekStrip } from './src/WeekStrip';
 import { YearCalendar } from './src/YearCalendar';
 
@@ -52,6 +54,7 @@ export default function App() {
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
+  const [sourcesTopic, setSourcesTopic] = useState<SourceTopic | 'all' | null>(null);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -297,6 +300,12 @@ export default function App() {
                               ? t(language, 'nextToday')
                               : t(language, 'nextIn', { days: daysLeft })}
                         </Text>
+                        <SourcesLink
+                          topic="cycleForecast"
+                          theme={theme}
+                          language={language}
+                          onPress={() => setSourcesTopic('cycleForecast')}
+                        />
                       </View>
                       {showCycleRhythm ? (
                         <CycleRhythm
@@ -305,6 +314,7 @@ export default function App() {
                           settings={data.settings}
                           theme={theme}
                           language={language}
+                          onOpenSources={() => setSourcesTopic('energy')}
                         />
                       ) : null}
                     </View>
@@ -420,6 +430,12 @@ export default function App() {
                         {visibleCycleInsight.note}
                       </Text>
                     ) : null}
+                    <SourcesLink
+                      topic="hormones"
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('hormones')}
+                    />
                   </View>
                 </View>
               ) : null}
@@ -473,6 +489,12 @@ export default function App() {
                         {visibleScheduleAdvice.note}
                       </Text>
                     ) : null}
+                    <SourcesLink
+                      topic="activity"
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('activity')}
+                    />
                   </View>
                 </View>
               ) : null}
@@ -626,6 +648,12 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'forecastDesc')}
                   </Text>
+                  <SourcesLink
+                    topic="cycleForecast"
+                    theme={theme}
+                    language={language}
+                    onPress={() => setSourcesTopic('cycleForecast')}
+                  />
                 </View>
                 <BrightSwitch
                   value={data.settings.showForecast}
@@ -642,6 +670,12 @@ export default function App() {
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'ovulationDesc')}
                   </Text>
+                  <SourcesLink
+                    topic="ovulation"
+                    theme={theme}
+                    language={language}
+                    onPress={() => setSourcesTopic('ovulation')}
+                  />
                 </View>
                 <BrightSwitch
                   value={data.settings.showOvulation}
@@ -665,6 +699,21 @@ export default function App() {
                   }
                 />
               </View>
+              <Pressable
+                onPress={() => setSourcesTopic('all')}
+                style={[styles.settingRow, { backgroundColor: theme.card }]}
+                accessibilityRole="button"
+              >
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'sourcesSettingsTitle')}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'sourcesSettingsDesc')}
+                  </Text>
+                </View>
+                <Text style={[styles.settingChevron, { color: theme.teal }]}>›</Text>
+              </Pressable>
             </>
           ) : null}
         </ScrollView>
@@ -696,6 +745,13 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <SourcesSheet
+        visible={sourcesTopic != null}
+        topic={sourcesTopic ?? 'all'}
+        theme={theme}
+        language={language}
+        onClose={() => setSourcesTopic(null)}
+      />
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
@@ -1057,6 +1113,7 @@ const styles = StyleSheet.create({
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
   settingLink: { fontSize: 12, marginTop: 6 },
+  settingChevron: { fontSize: 22, fontWeight: '300', paddingHorizontal: 4 },
   planPill: {
     minWidth: 56,
     paddingHorizontal: 12,
