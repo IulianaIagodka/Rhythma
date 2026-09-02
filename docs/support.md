@@ -48,7 +48,7 @@ Purchase is not enabled in the first App Store release. Coming next:
 
 ### Google Calendar
 
-Rhythma does not sign in to Google. It reads calendars that are already on this iPhone.
+Rhythma does not sign in to Google and does not connect to Google Calendar directly. It reads events from calendars already added on this iPhone.
 
 1. iPhone **Settings → Calendar → Accounts** (on newer iOS: **Settings → Apps → Calendar → Calendar Accounts**).
 2. **Add Account → Google**, then sign in.
@@ -67,7 +67,7 @@ Removing a logged day: tap it again on the year calendar and confirm.
 ## Troubleshooting
 
 **Calendar events do not appear**  
-Turn on Calendar sync in Settings and allow **Full Access**. Events are shown on their start day. Google events need Google added to the iPhone Calendar first — see [Google Calendar](#google-calendar).
+Turn on Calendar sync in Settings and allow **Full Access**. Events are shown on their start day. To see Google Calendar events in Rhythma, first add the Google account to the iPhone Calendar — see [Google Calendar](#google-calendar).
 
 **Why Full Access for a cycle tracker?**  
 iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.
@@ -164,7 +164,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ### Google Календар
 
-Rhythma не входить у Google. Вона читає календарі, які вже є на цьому iPhone.
+Rhythma не виконує вхід у Google і не підключається до Google Calendar напряму. Вона читає події календарів, уже доданих на iPhone.
 
 1. **Налаштування iPhone → Календар → Облікові записи** (на новіших iOS: **Налаштування → Програми → Календар → Облікові записи календаря**).
 2. **Додати обліковий запис → Google**, потім увійдіть.
@@ -181,7 +181,7 @@ Rhythma не входить у Google. Вона читає календарі, �
 ## Якщо щось не працює
 
 **Події календаря не видно**  
-Увімкніть Синхронізацію календаря в Налаштуваннях і дозвольте **Повний доступ**. Події показуються в день початку. Події Google потрібні спочатку в Календарі iPhone — див. [Google Календар](#google-календар).
+Увімкніть Синхронізацію календаря в Налаштуваннях і дозвольте **Повний доступ**. Події показуються в день початку. Щоб бачити події Google Calendar у Rhythma, спочатку додайте Google-акаунт до Календаря iPhone — див. [Google Календар](#google-календар).
 
 **Чому «Повний доступ» для трекера циклу?**  
 iOS називає це «Повний доступ», бо немає дозволу лише на читання Календаря. Rhythma лише читає події, щоб показати їх у додатку. Вона не створює, не редагує й не видаляє ваші події календаря.

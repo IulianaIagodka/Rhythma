@@ -53,7 +53,8 @@ export const copy = {
     settings: 'Налаштування',
     calendar: 'Календар',
     calendarDesc: 'Події з календаря iPhone',
-    calendarGoogleHint: 'Події Google зʼявляться, лише якщо Google додано в Налаштуваннях iPhone → Календар → Облікові записи, і ці календарі увімкнені в програмі Календар.',
+    calendarGoogleHint:
+      'Щоб бачити події Google Calendar у Rhythma, спочатку додайте Google-акаунт у Налаштуваннях iPhone → Календар → Облікові записи, і увімкніть потрібні календарі в програмі Календар.',
     calendarGoogleLink: 'Як синхронізувати Google Calendar →',
     calendarSyncLocked: 'Доступно в Plus',
     eventAdviceLocked: 'Доступно в Plus',
@@ -202,7 +203,8 @@ export const copy = {
     settings: 'Settings',
     calendar: 'Calendar',
     calendarDesc: 'Events from the iPhone Calendar',
-    calendarGoogleHint: 'Google events appear only if Google is added in iPhone Settings → Calendar → Accounts, and those calendars are on in the Calendar app.',
+    calendarGoogleHint:
+      'To see Google Calendar events in Rhythma, first add the Google account in iPhone Settings → Calendar → Accounts, and turn on those calendars in the Calendar app.',
     calendarGoogleLink: 'How to sync Google Calendar →',
     calendarSyncLocked: 'Available in Plus',
     eventAdviceLocked: 'Available in Plus',
