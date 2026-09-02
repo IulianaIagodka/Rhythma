@@ -69,6 +69,12 @@ export function phaseStatusLabel(phase: PhaseId | null, lang: Language): string 
   return 'Cycle';
 }
 
+/** Short factual phase note for the free Today cycle card. */
+export function phaseBriefDescription(phase: PhaseId | null, lang: Language): string | null {
+  if (!phase) return null;
+  return capacityForPhase(phase, lang).hint;
+}
+
 export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacity {
   if (lang === 'uk') {
     if (phase === 'menstrual') {

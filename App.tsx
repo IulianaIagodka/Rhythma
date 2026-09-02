@@ -17,7 +17,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseStatusLabel } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
 import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
 import {
@@ -276,6 +276,8 @@ export default function App() {
     phaseOnDate(periodPrompt.iso, data.periodStarts, data.settings) === 'ovulatory';
   const todayPredicted = isPredictedCycleDate(today, data.periodStarts);
   const visibleCycleInsight = showCycleInsightCard ? cycleInsight(status.phase, language) : null;
+  const freePhaseBrief =
+    status.phase && !showCycleInsightCard ? phaseBriefDescription(status.phase, language) : null;
   const visibleScheduleAdvice =
     showScheduleInsightCard && calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
@@ -466,6 +468,11 @@ export default function App() {
                                 ? t(language, 'nextToday')
                                 : t(language, 'nextIn', { days: daysLeft })}
                           </Text>
+                          {freePhaseBrief ? (
+                            <Text style={[styles.secondaryLine, styles.phaseBrief, { color: theme.muted }]}>
+                              {freePhaseBrief}
+                            </Text>
+                          ) : null}
                         </View>
                         {showCycleRhythm ? (
                           <CycleRhythm
@@ -1158,6 +1165,9 @@ const styles = StyleSheet.create({
   secondaryLine: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  phaseBrief: {
+    marginTop: 4,
   },
   phaseName: {
     fontSize: 15,

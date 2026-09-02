@@ -7,6 +7,7 @@ import {
   capacityForPhase,
   cycleInsight,
   dayAlignmentForPhase,
+  phaseBriefDescription,
   phaseStatusLabel,
   planningForPhase,
 } from './activity';
@@ -86,6 +87,14 @@ describe('phaseStatusLabel', () => {
     assert.equal(phaseStatusLabel('follicular', 'uk'), 'Фолікулярна фаза');
     assert.equal(phaseStatusLabel('ovulatory', 'uk'), 'Овуляторна фаза');
     assert.notEqual(phaseStatusLabel('luteal', 'en'), capacityForPhase('luteal', 'en').label);
+  });
+});
+
+describe('phaseBriefDescription', () => {
+  it('returns a short hormone note for each phase', () => {
+    assert.match(phaseBriefDescription('menstrual', 'uk')!, /енергія/);
+    assert.match(phaseBriefDescription('follicular', 'en')!, /Estrogen rises/);
+    assert.equal(phaseBriefDescription(null, 'en'), null);
   });
 });
 
