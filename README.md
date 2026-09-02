@@ -56,7 +56,7 @@ npx eas-cli build --platform ios --profile production --auto-submit --non-intera
 
 ## Privacy
 
-Cycle data is stored locally with AsyncStorage. Calendar access is read-only and only used when Calendar sync is enabled.
+Cycle data is stored locally with AsyncStorage. Calendar sync is used only when enabled. iOS requires **Full Access** to read existing events (EventKit has no read-only permission; Write Only cannot read). Rhythma only reads on-device and does not create or change events.
 
 ## iOS
 

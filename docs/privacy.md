@@ -16,6 +16,8 @@ Period days, settings, and related cycle data are stored **on this iPhone only**
 
 If you turn on Calendar sync and grant permission, Rhythma reads calendar events on the device so they can be shown next to your cycle. That data stays on the iPhone. Rhythma does not send it to a server.
 
+**Why Full Access?** Apple’s EventKit has no read-only calendar permission. To read existing events, iOS requires **Full Access**. Write Only exists, but it cannot read events. Rhythma uses Full Access only to read events on this iPhone — it does not create or change calendar events.
+
 ## Analytics and ads
 
 Rhythma does not use advertising SDKs and does not sell personal data.
@@ -47,6 +49,8 @@ Rhythma **не** створює акаунт і **не** надсилає дан
 ## Календар
 
 Якщо увімкнути Синхронізацію календаря і дати дозвіл, Rhythma читає події на пристрої, щоб показати їх поруч із циклом. Ці дані залишаються на iPhone. На сервер вони не відправляються.
+
+**Чому «Повний доступ»?** У EventKit Apple немає дозволу лише на читання календаря. Щоб читати наявні події, iOS вимагає **Повний доступ**. Write Only існує, але з ним читати події не можна. Rhythma використовує Повний доступ лише щоб читати події на цьому iPhone — вона не створює й не змінює події календаря.
 
 ## Аналітика й реклама
 

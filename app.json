@@ -16,9 +16,9 @@
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCalendarsUsageDescription": "Rhythma читає події з календаря, щоб звірити навантаження з циклом.",
-        "NSCalendarsFullAccessUsageDescription": "Rhythma читає події з календаря, щоб звірити навантаження з циклом.",
-        "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma може додати позначку циклу в календар, якщо ви дозволите."
+        "NSCalendarsUsageDescription": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events.",
+        "NSCalendarsFullAccessUsageDescription": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events.",
+        "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma does not use Write Only access. Reading existing events requires Full Access."
       }
     },
     "android": {
@@ -40,7 +40,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Rhythma читає події з календаря, щоб звірити навантаження з циклом."
+          "calendarPermission": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events."
         }
       ],
       "expo-localization"

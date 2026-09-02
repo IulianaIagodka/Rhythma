@@ -126,3 +126,4 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - Copyright: © 2026 Iuliana Iagodka
 - Production profile shows **Coming soon** for Plus; TestFlight may show a Free / Plus QA switch.
 - **App Review (Guideline 1.4.1):** Citations are in-app without purchase — **Settings → Sources & disclaimer**. Reply in Resolution Center if asked.
+- **Calendar Full Access:** EventKit has no read-only permission. Reading existing events requires Full Access; Write Only cannot read. Rhythma only reads on-device and does not create or change events. Explained in Settings under Calendar sync, Privacy Policy, and Support.

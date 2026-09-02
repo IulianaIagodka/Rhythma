@@ -65,7 +65,10 @@ Removing a logged day: tap it again on the year calendar and confirm.
 ## Troubleshooting
 
 **Calendar events do not appear**  
-Turn on Calendar sync in Settings and allow calendar access. Events are shown on their start day. Google events need Google added to the iPhone Calendar first — see [Google Calendar](#google-calendar).
+Turn on Calendar sync in Settings and allow **Full Access**. Events are shown on their start day. Google events need Google added to the iPhone Calendar first — see [Google Calendar](#google-calendar).
+
+**Why Full Access for a cycle tracker?**  
+Apple has no read-only calendar permission. EventKit needs **Full Access** to read existing events; Write Only cannot read them. Rhythma only reads events on this iPhone and does not create or change them.
 
 **The cycle length looks wrong**  
 Rhythma estimates from the days you have logged. Log a few more periods; the forecast updates from that history.
@@ -83,6 +86,8 @@ Cycle data lives only on this iPhone. Deleting the app deletes that data. There 
 Your cycle data stays on this iPhone. Rhythma does not create an account and does not upload cycle data to a server.
 
 Calendar access is used only when you turn on Calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
+
+**Why does iOS ask for Full Access?** Apple’s EventKit has no read-only calendar permission. Reading existing events requires **Full Access**; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change calendar events.
 
 Full policy: [Privacy](privacy.md) · [HTML](privacy.html)
 
@@ -172,7 +177,10 @@ Rhythma не входить у Google. Вона читає календарі, �
 ## Якщо щось не працює
 
 **Події календаря не видно**  
-Увімкніть Синхронізацію календаря в Налаштуваннях і дозвольте доступ. Події показуються в день початку. Події Google потрібні спочатку в Календарі iPhone — див. [Google Календар](#google-календар).
+Увімкніть Синхронізацію календаря в Налаштуваннях і дозвольте **Повний доступ**. Події показуються в день початку. Події Google потрібні спочатку в Календарі iPhone — див. [Google Календар](#google-календар).
+
+**Чому «Повний доступ» для трекера циклу?**  
+У Apple немає дозволу лише на читання календаря. EventKit потребує **Повного доступу**, щоб читати наявні події; Write Only цього не дозволяє. Rhythma лише читає події на цьому iPhone і не створює й не змінює їх.
 
 **Довжина циклу виглядає неправильно**  
 Rhythma рахує оцінку з днів, які ви вже позначили. Позначте ще кілька циклів — прогноз оновиться.
@@ -188,6 +196,8 @@ Rhythma бере мову з iPhone (англійська або українс�
 Дані циклу залишаються на цьому iPhone. Rhythma не створює акаунт і не надсилає цикл на сервер.
 
 Доступ до календаря потрібен лише якщо увімкнути Синхронізацію календаря. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
+
+**Чому iOS просить «Повний доступ»?** У EventKit Apple немає дозволу лише на читання. Щоб читати наявні події, потрібен **Повний доступ**; Write Only не дозволяє читати. Rhythma лише читає на цьому iPhone і не створює й не змінює події календаря.
 
 Повна політика: [Privacy](privacy.md) · [HTML](privacy.html)
 

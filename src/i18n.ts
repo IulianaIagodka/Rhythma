@@ -46,7 +46,9 @@ export const copy = {
     eventsOnWeek: '{count} подій на тижні',
     readingEvents: 'Зчитую події…',
     syncNow: 'Синк',
-    calendarPermissionHint: 'Дозвіл не надано — відкрийте Налаштування → Rhythma → Календар',
+    calendarPermissionHint: 'Дозвіл не надано — відкрийте Налаштування → Rhythma → Календар → Повний доступ',
+    calendarFullAccessHint:
+      'iOS просить «Повний доступ», бо Apple не дає дозволу лише на читання календаря. Write Only не дозволяє читати події. Rhythma лише читає їх на цьому iPhone і нічого не створює й не змінює.',
     cycleCalendar: 'Календар циклу',
     settings: 'Налаштування',
     calendar: 'Календар',
@@ -193,7 +195,9 @@ export const copy = {
     eventsOnWeek: '{count} events this week',
     readingEvents: 'Reading events…',
     syncNow: 'Sync',
-    calendarPermissionHint: 'Permission denied — open Settings → Rhythma → Calendars',
+    calendarPermissionHint: 'Permission denied — open Settings → Rhythma → Calendars → Full Access',
+    calendarFullAccessHint:
+      'iOS asks for Full Access because Apple has no read-only calendar permission. Write Only cannot read events. Rhythma only reads events on this iPhone and does not create or change them.',
     cycleCalendar: 'Cycle calendar',
     settings: 'Settings',
     calendar: 'Calendar',

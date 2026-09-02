@@ -658,6 +658,9 @@ export default function App() {
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'proCalendarSync')}</Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'calendarFullAccessHint')}
+                  </Text>
                   {calendarPermissionDenied ? (
                     <Text style={[styles.settingMeta, { color: theme.muted }]}>
                       {t(language, 'calendarPermissionHint')}
