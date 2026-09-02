@@ -89,7 +89,7 @@ Your cycle data stays on this iPhone. Rhythma does not create an account and doe
 
 Calendar access is used only when you turn on Calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
 
-**Why does iOS ask for Full Access?** Apple’s EventKit has no read-only calendar permission. Reading existing events requires **Full Access**; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change calendar events.
+**Why does iOS ask for Full Access?** iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.
 
 Full policy: [Privacy](privacy.md) · [HTML](privacy.html)
 
@@ -184,7 +184,7 @@ Rhythma не входить у Google. Вона читає календарі, �
 Увімкніть Синхронізацію календаря в Налаштуваннях і дозвольте **Повний доступ**. Події показуються в день початку. Події Google потрібні спочатку в Календарі iPhone — див. [Google Календар](#google-календар).
 
 **Чому «Повний доступ» для трекера циклу?**  
-У Apple немає дозволу лише на читання календаря. EventKit потребує **Повного доступу**, щоб читати наявні події; Write Only цього не дозволяє. Rhythma лише читає події на цьому iPhone і не створює й не змінює їх.
+iOS називає це «Повний доступ», бо немає дозволу лише на читання Календаря. Rhythma лише читає події, щоб показати їх у додатку. Вона не створює, не редагує й не видаляє ваші події календаря.
 
 **Довжина циклу виглядає неправильно**  
 Rhythma рахує оцінку з днів, які ви вже позначили. Позначте ще кілька циклів — прогноз оновиться.
@@ -201,7 +201,7 @@ Rhythma бере мову з iPhone (англійська або українс�
 
 Доступ до календаря потрібен лише якщо увімкнути Синхронізацію календаря. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
 
-**Чому iOS просить «Повний доступ»?** У EventKit Apple немає дозволу лише на читання. Щоб читати наявні події, потрібен **Повний доступ**; Write Only не дозволяє читати. Rhythma лише читає на цьому iPhone і не створює й не змінює події календаря.
+**Чому iOS просить «Повний доступ»?** iOS називає це «Повний доступ», бо немає дозволу лише на читання Календаря. Rhythma лише читає події, щоб показати їх у додатку. Вона не створює, не редагує й не видаляє ваші події календаря.
 
 Повна політика: [Privacy](privacy.md) · [HTML](privacy.html)
 
