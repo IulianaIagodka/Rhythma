@@ -16,6 +16,24 @@ describe('sources', () => {
     }
   });
 
+  it('uses verified PubMed and NCBI accession IDs', () => {
+    const expected: Record<string, string> = {
+      'bull-2019': '31482137',
+      'wilcox-1995': '7477165',
+      'mcnulty-2020': '32661839',
+      'hackney-2025': '40704904',
+      'reed-endotext': 'NBK279054',
+      'statpearls-cycle': 'NBK500020',
+      'gnrh-endotext': 'NBK279070',
+    };
+    for (const list of Object.values(sourcesByTopic)) {
+      for (const source of list) {
+        const token = expected[source.id];
+        if (token) assert.ok(source.url.includes(token), `${source.id} should include ${token}`);
+      }
+    }
+  });
+
   it('picks localized titles', () => {
     const [first] = sourcesByTopic.hormones;
     assert.notEqual(sourceTitle(first, 'en'), sourceTitle(first, 'uk'));

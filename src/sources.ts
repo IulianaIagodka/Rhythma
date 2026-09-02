@@ -21,7 +21,7 @@ export const sourcesByTopic: Record<SourceTopic, Source[]> = {
       id: 'bull-2019',
       titleEn: 'Bull JR et al. — Real-world menstrual cycle characteristics (npj Digital Medicine, 2019)',
       titleUk: 'Bull JR та ін. — Характеристики менструального циклу в реальних умовах (npj Digital Medicine, 2019)',
-      url: 'https://pubmed.ncbi.nlm.nih.gov/31515401/',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/31482137/',
     },
     {
       id: 'reed-endotext',
@@ -33,9 +33,9 @@ export const sourcesByTopic: Record<SourceTopic, Source[]> = {
   ovulation: [
     {
       id: 'wilcox-1995',
-      titleEn: 'Wilcox AJ et al. — Timing of ovulation relative to the luteal phase (NEJM, 1995)',
+      titleEn: 'Wilcox AJ et al. — Timing of sexual intercourse in relation to ovulation (NEJM, 1995)',
       titleUk: 'Wilcox AJ та ін. — Час овуляції відносно лютеїнової фази (NEJM, 1995)',
-      url: 'https://pubmed.ncbi.nlm.nih.gov/8995515/',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/7477165/',
     },
     {
       id: 'acog-fabm',
@@ -53,9 +53,9 @@ export const sourcesByTopic: Record<SourceTopic, Source[]> = {
   phases: [
     {
       id: 'statpearls-cycle',
-      titleEn: 'Thiyagarajan DK et al. — Physiology, Menstrual Cycle (StatPearls / NCBI)',
-      titleUk: 'Thiyagarajan DK та ін. — Фізіологія менструального циклу (StatPearls / NCBI)',
-      url: 'https://www.ncbi.nlm.nih.gov/books/NBK560572/',
+      titleEn: 'Thiyagarajan DJ et al. — Physiology, Menstrual Cycle (StatPearls / NCBI)',
+      titleUk: 'Thiyagarajan DJ та ін. — Фізіологія менструального циклу (StatPearls / NCBI)',
+      url: 'https://www.ncbi.nlm.nih.gov/books/NBK500020/',
     },
     {
       id: 'reed-endotext-phases',
@@ -72,10 +72,10 @@ export const sourcesByTopic: Record<SourceTopic, Source[]> = {
       url: 'https://www.ncbi.nlm.nih.gov/books/NBK279054/',
     },
     {
-      id: 'marshall-hormones',
-      titleEn: 'Marshall JC — Neuroendocrine control of ovulation (Endotext)',
-      titleUk: 'Marshall JC — Нейроендокринний контроль овуляції (Endotext)',
-      url: 'https://www.ncbi.nlm.nih.gov/books/NBK279062/',
+      id: 'gnrh-endotext',
+      titleEn: 'Endotext — Physiology of GnRH and gonadotrophin secretion',
+      titleUk: 'Endotext — Фізіологія GnRH і секреції гонадотропінів',
+      url: 'https://www.ncbi.nlm.nih.gov/books/NBK279070/',
     },
   ],
   activity: [
@@ -86,10 +86,10 @@ export const sourcesByTopic: Record<SourceTopic, Source[]> = {
       url: 'https://pubmed.ncbi.nlm.nih.gov/32661839/',
     },
     {
-      id: 'hackney-2021',
-      titleEn: 'Hackney AC — Menstrual cycle hormonal fluctuations and exercise (review)',
-      titleUk: 'Hackney AC — Гормональні коливання циклу та фізичні навантаження (огляд)',
-      url: 'https://pubmed.ncbi.nlm.nih.gov/33978219/',
+      id: 'hackney-2025',
+      titleEn: 'Hackney AC et al. — Menstrual cycle effects on sports performance (Scand J Med Sci Sports, 2025)',
+      titleUk: 'Hackney AC та ін. — Вплив циклу на спортивну продуктивність (Scand J Med Sci Sports, 2025)',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/40704904/',
     },
   ],
   energy: [
