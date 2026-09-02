@@ -57,8 +57,7 @@ iuliana.iagodka@gmail.com
 • Switch Light / Dark theme
 • On TestFlight builds: use the Free / Plus switch; check Cycle insight, Schedule insight, and Energy curve on Plus
 • Confirm the app follows English or Ukrainian from the iPhone language
-• Open **Sources** on the Today cycle card and in **Settings → Sources & disclaimer** (no Plus purchase required)
-• On the Plus **Coming soon** card, confirm **Sources** opens the citation list
+• Open **Settings → Sources & disclaimer** (no Plus purchase required)
 
 No sign-in. Reviewers can open the app and use it immediately.
 
@@ -126,4 +125,4 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - iPhone only (iPad support is off).
 - Copyright: © 2026 Iuliana Iagodka
 - Production profile shows **Coming soon** for Plus; TestFlight may show a Free / Plus QA switch.
-- **App Review (Guideline 1.4.1):** Citations are in-app without purchase — Today cycle card **Sources**, **Settings → Sources & disclaimer**, Plus **Coming soon** card **Sources**. Reply in Resolution Center if asked.
+- **App Review (Guideline 1.4.1):** Citations are in-app without purchase — **Settings → Sources & disclaimer**. Reply in Resolution Center if asked.

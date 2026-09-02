@@ -94,10 +94,7 @@ Rhythma links to published references (PubMed, NCBI Bookshelf, ACOG) for cycle f
 
 In the app:
 
-- **Today** cycle card → **Sources**
-- **Settings** → **Sources & disclaimer** (full list)
-- **Plus — Coming soon** card → **Sources** for upcoming Plus features
-- Calendar activity hints and forecast/ovulation toggles also link to relevant sources
+- **Settings** → **Sources & disclaimer** (full list, no purchase required)
 
 Rhythma is not medical advice. External links open in Safari.
 
