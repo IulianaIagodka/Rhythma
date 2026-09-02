@@ -56,6 +56,8 @@ Rhythma does not sign in to Google. It reads calendars that are already on this 
 4. Open the **Calendar** app → **Calendars** → check the Google calendars you want.
 5. In **Rhythma → Settings**, turn on **Calendar sync** and allow Full Access.
 
+   iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.
+
 The same steps work for iCloud, Outlook, or any other account in the iPhone Calendar.
 
 Removing a logged day: tap it again on the year calendar and confirm.
@@ -68,7 +70,7 @@ Removing a logged day: tap it again on the year calendar and confirm.
 Turn on Calendar sync in Settings and allow **Full Access**. Events are shown on their start day. Google events need Google added to the iPhone Calendar first — see [Google Calendar](#google-calendar).
 
 **Why Full Access for a cycle tracker?**  
-Apple has no read-only calendar permission. EventKit needs **Full Access** to read existing events; Write Only cannot read them. Rhythma only reads events on this iPhone and does not create or change them.
+iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.
 
 **The cycle length looks wrong**  
 Rhythma estimates from the days you have logged. Log a few more periods; the forecast updates from that history.
@@ -169,6 +171,8 @@ Rhythma не входить у Google. Вона читає календарі, �
 3. Увімкніть **Календарі** для цього акаунта.
 4. Відкрийте програму **Календар → Календарі** і поставте галочки на потрібних Google-календарях.
 5. У **Rhythma → Налаштування** увімкніть **Синхронізація календаря** і дайте повний доступ.
+
+   iOS називає це «Повний доступ», бо немає дозволу лише на читання Календаря. Rhythma лише читає події, щоб показати їх у додатку. Вона не створює, не редагує й не видаляє ваші події календаря.
 
 Так само працюють iCloud, Outlook та будь-який інший акаунт у Календарі iPhone.
 

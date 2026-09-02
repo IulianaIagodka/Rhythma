@@ -16,8 +16,8 @@
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCalendarsUsageDescription": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events.",
-        "NSCalendarsFullAccessUsageDescription": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events.",
+        "NSCalendarsUsageDescription": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
+        "NSCalendarsFullAccessUsageDescription": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
         "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma does not use Write Only access. Reading existing events requires Full Access."
       }
     },
@@ -40,7 +40,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Rhythma needs Full Access to read existing calendar events and show them next to your cycle. Apple has no read-only calendar permission; Write Only cannot read events. Rhythma only reads on this iPhone and does not create or change events."
+          "calendarPermission": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events."
         }
       ],
       "expo-localization"
