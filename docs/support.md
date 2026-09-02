@@ -88,6 +88,21 @@ Full policy: [Privacy](privacy.md) · [HTML](privacy.html)
 
 ---
 
+## Sources
+
+Rhythma links to published references (PubMed, NCBI Bookshelf, ACOG) for cycle forecasts, phases, ovulation estimates, and activity context. No purchase is required to open them.
+
+In the app:
+
+- **Today** cycle card → **Sources**
+- **Settings** → **Sources & disclaimer** (full list)
+- **Plus — Coming soon** card → **Sources** for upcoming Plus features
+- Calendar activity hints and forecast/ovulation toggles also link to relevant sources
+
+Rhythma is not medical advice. External links open in Safari.
+
+---
+
 ## Disclaimer
 
 Rhythma provides cycle estimates for personal planning. It is not medical advice, a diagnostic tool, or a fertility or contraception product. If you have health questions, talk to a clinician.
@@ -178,6 +193,19 @@ Rhythma бере мову з iPhone (англійська або українс�
 Доступ до календаря потрібен лише якщо увімкнути Синхронізацію календаря. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
 
 Повна політика: [Privacy](privacy.md) · [HTML](privacy.html)
+
+## Джерела
+
+Rhythma дає посилання на опубліковані джерела (PubMed, NCBI Bookshelf, ACOG) для прогнозів циклу, фаз, овуляції та контексту активності. Покупка не потрібна.
+
+У додатку:
+
+- **Today** → картка циклу → **Джерела**
+- **Налаштування** → **Джерела та відмова** (повний список)
+- **Plus — Незабаром** → **Джерела** для майбутніх функцій Plus
+- Підказки активності в календарі та перемикачі прогнозу/овуляції теж мають посилання
+
+Це не медична порада. Зовнішні посилання відкриваються в Safari.
 
 ## Відмова від відповідальності
 
