@@ -39,7 +39,8 @@ import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
 import { CycleRhythm } from './src/CycleRhythm';
 import { detectLanguage, t, type Language } from './src/i18n';
-import { SourcesSheet } from './src/SourcesSheet';
+import { SourcesInfoButton, SourcesSheet } from './src/SourcesSheet';
+import type { SourceTopic } from './src/sources';
 import {
   calendarSyncNowState,
   cycleInsightToggleState,
@@ -65,7 +66,7 @@ export default function App() {
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
   const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [sourcesTopic, setSourcesTopic] = useState<SourceTopic | 'all' | null>(null);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -461,17 +462,33 @@ export default function App() {
                             )}
                             {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
                           </Text>
-                          <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                            {daysLeft == null
-                              ? t(language, 'nextAfterRecords')
-                              : daysLeft === 0
-                                ? t(language, 'nextToday')
-                                : t(language, 'nextIn', { days: daysLeft })}
-                          </Text>
-                          {freePhaseBrief ? (
-                            <Text style={[styles.secondaryLine, styles.phaseBrief, { color: theme.muted }]}>
-                              {freePhaseBrief}
+                          <View style={styles.estimateRow}>
+                            <Text style={[styles.secondaryLine, styles.estimateText, { color: theme.muted }]}>
+                              {daysLeft == null
+                                ? t(language, 'nextAfterRecords')
+                                : daysLeft === 0
+                                  ? t(language, 'nextToday')
+                                  : t(language, 'nextIn', { days: daysLeft })}
                             </Text>
+                            {daysLeft != null ? (
+                              <SourcesInfoButton
+                                theme={theme}
+                                language={language}
+                                onPress={() => setSourcesTopic('cycleForecast')}
+                              />
+                            ) : null}
+                          </View>
+                          {freePhaseBrief ? (
+                            <View style={styles.estimateRow}>
+                              <Text style={[styles.secondaryLine, styles.phaseBrief, styles.estimateText, { color: theme.muted }]}>
+                                {freePhaseBrief}
+                              </Text>
+                              <SourcesInfoButton
+                                theme={theme}
+                                language={language}
+                                onPress={() => setSourcesTopic('phases')}
+                              />
+                            </View>
                           ) : null}
                         </View>
                         {showCycleRhythm ? (
@@ -481,6 +498,7 @@ export default function App() {
                             settings={data.settings}
                             theme={theme}
                             language={language}
+                            onOpenSources={() => setSourcesTopic('energy')}
                           />
                         ) : null}
                       </View>
@@ -505,9 +523,16 @@ export default function App() {
               {visibleCycleInsight ? (
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
-                    <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                      {t(language, 'cycleInsight')}
-                    </Text>
+                    <View style={styles.insightHeader}>
+                      <Text style={[styles.sectionLabel, { color: theme.accent }]}>
+                        {t(language, 'cycleInsight')}
+                      </Text>
+                      <SourcesInfoButton
+                        theme={theme}
+                        language={language}
+                        onPress={() => setSourcesTopic('hormones')}
+                      />
+                    </View>
                     <Text
                       style={[
                         styles.sectionLabel,
@@ -539,7 +564,14 @@ export default function App() {
                       <Text style={[styles.sectionLabel, { color: theme.teal }]}>
                         {t(language, 'scheduleInsight')}
                       </Text>
-                      <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                      <View style={styles.insightHeaderActions}>
+                        <SourcesInfoButton
+                          theme={theme}
+                          language={language}
+                          onPress={() => setSourcesTopic('activity')}
+                        />
+                        <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+                      </View>
                     </View>
                     {visibleScheduleAdvice.busiestDayISO ? (
                       <Pressable
@@ -756,7 +788,16 @@ export default function App() {
 
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'periodForecast')}</Text>
+                  <View style={styles.settingTitleRow}>
+                    <Text style={[styles.settingTitle, { color: theme.ink, flex: 1 }]}>
+                      {t(language, 'periodForecast')}
+                    </Text>
+                    <SourcesInfoButton
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('cycleForecast')}
+                    />
+                  </View>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'forecastDesc')}
                   </Text>
@@ -771,7 +812,16 @@ export default function App() {
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'ovulationMark')}</Text>
+                  <View style={styles.settingTitleRow}>
+                    <Text style={[styles.settingTitle, { color: theme.ink, flex: 1 }]}>
+                      {t(language, 'ovulationMark')}
+                    </Text>
+                    <SourcesInfoButton
+                      theme={theme}
+                      language={language}
+                      onPress={() => setSourcesTopic('ovulation')}
+                    />
+                  </View>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'ovulationDesc')}
                   </Text>
@@ -785,7 +835,7 @@ export default function App() {
                 />
               </View>
               <Pressable
-                onPress={() => setSourcesOpen(true)}
+                onPress={() => setSourcesTopic('all')}
                 style={[styles.settingRow, { backgroundColor: theme.card }]}
                 accessibilityRole="button"
               >
@@ -843,11 +893,11 @@ export default function App() {
         </SafeAreaView>
       </SafeAreaView>
       <SourcesSheet
-        visible={sourcesOpen}
-        topic="all"
+        visible={sourcesTopic != null}
+        topic={sourcesTopic ?? 'all'}
         theme={theme}
         language={language}
-        onClose={() => setSourcesOpen(false)}
+        onClose={() => setSourcesTopic(null)}
       />
       <ConfirmDialog
         visible={periodPrompt != null}
@@ -1104,6 +1154,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 8,
   },
+  insightHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
   insightChevron: {
     fontSize: 20,
     fontWeight: '400',
@@ -1171,6 +1226,20 @@ const styles = StyleSheet.create({
   },
   phaseBrief: {
     marginTop: 4,
+  },
+  estimateRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  estimateText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  settingTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   phaseName: {
     fontSize: 15,

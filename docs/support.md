@@ -101,9 +101,10 @@ Rhythma links to published references (PubMed, NCBI Bookshelf, ACOG) for cycle f
 
 In the app:
 
-- **Settings** → **Sources & disclaimer** (full list, no purchase required)
+- **Settings** → **Sources & Methodology** (how estimates work + research links, no purchase required)
+- Small ⓘ on period / ovulation / energy estimates opens the relevant methodology section
 
-Rhythma is not medical advice. External links open in Safari.
+Rhythma is not a medical device and does not provide medical advice. External links open in Safari.
 
 ---
 
@@ -207,16 +208,14 @@ Rhythma бере мову з iPhone (англійська або українс�
 
 ## Джерела
 
-Rhythma дає посилання на опубліковані джерела (PubMed, NCBI Bookshelf, ACOG) для прогнозів циклу, фаз, овуляції та контексту активності. Покупка не потрібна.
+Rhythma пояснює, як формуються оцінки, і дає посилання на опубліковані джерела (PubMed, NCBI Bookshelf, ACOG). Покупка не потрібна.
 
 У додатку:
 
-- **Today** → картка циклу → **Джерела**
-- **Налаштування** → **Джерела та відмова** (повний список)
-- **Plus — Незабаром** → **Джерела** для майбутніх функцій Plus
-- Підказки активності в календарі та перемикачі прогнозу/овуляції теж мають посилання
+- **Налаштування** → **Джерела та методологія**
+- Маленький ⓘ біля оцінок (прогноз, овуляція, енергія) відкриває відповідний розділ
 
-Це не медична порада. Зовнішні посилання відкриваються в Safari.
+Rhythma не є медичним виробом і не надає медичних порад. Зовнішні посилання відкриваються в Safari.
 
 ## Відмова від відповідальності
 

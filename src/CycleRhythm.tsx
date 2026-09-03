@@ -21,6 +21,7 @@ import {
   type Settings,
 } from './cycle';
 import { t, type Language } from './i18n';
+import { SourcesInfoButton } from './SourcesSheet';
 import { radius, type Theme } from './theme';
 
 const CHART_WIDTH = 132;
@@ -50,6 +51,7 @@ type CycleRhythmProps = {
   settings: Settings;
   theme: Theme;
   language: Language;
+  onOpenSources?: () => void;
 };
 
 function curvePoints(
@@ -303,6 +305,7 @@ export function CycleRhythm({
   settings,
   theme,
   language,
+  onOpenSources,
 }: CycleRhythmProps) {
   const [expanded, setExpanded] = useState(false);
   const { width: windowWidth } = useWindowDimensions();
@@ -337,9 +340,14 @@ export function CycleRhythm({
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setExpanded(false)} />
           <View style={[styles.sheet, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <Text style={[styles.sheetTitle, { color: theme.ink }]}>
-              {t(language, 'rhythmExpandedTitle')}
-            </Text>
+            <View style={styles.sheetHeader}>
+              <Text style={[styles.sheetTitle, { color: theme.ink, flex: 1 }]}>
+                {t(language, 'rhythmExpandedTitle')}
+              </Text>
+              {onOpenSources ? (
+                <SourcesInfoButton theme={theme} language={language} onPress={onOpenSources} />
+              ) : null}
+            </View>
             <Text style={[styles.sheetMeta, { color: theme.muted }]}>
               {t(language, 'rhythmExpandedDesc')}
             </Text>
@@ -414,6 +422,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     letterSpacing: -0.4,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sheetMeta: {
     fontSize: 14,
