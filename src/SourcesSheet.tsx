@@ -86,7 +86,6 @@ export function SourcesSheet({
           >
             {sections.map((sectionId, sectionIndex) => {
               const sources = sourcesForSection(sectionId);
-              const focused = focusSection === sectionId;
               return (
                 <View
                   key={sectionId}
@@ -94,7 +93,6 @@ export function SourcesSheet({
                   style={[
                     styles.section,
                     sectionIndex > 0 ? { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth } : null,
-                    focused ? { backgroundColor: theme.accentSoft } : null,
                   ]}
                 >
                   <Text style={[styles.sectionHeading, { color: theme.ink }]}>
