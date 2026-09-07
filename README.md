@@ -19,7 +19,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Rhythma Plus
 
-Monthly subscription (`app.rhythma.cycle.plus`). App Store `production` builds ship with subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`).
+Monthly subscription (`app.rhythma.cycle.plus.monthly`). App Store `production` builds ship with subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`).
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — plan and activity fit when Calendar sync is on (with a Review link into Apple Calendar when helpful); CTA to connect the calendar when sync is off

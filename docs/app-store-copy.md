@@ -108,7 +108,7 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 
 - **Type:** Auto-Renewable Subscription (monthly)
 - **Subscription Group:** Rhythma Plus (create one group if needed)
-- **Product ID:** `app.rhythma.cycle.plus`
+- **Product ID:** `app.rhythma.cycle.plus.monthly`
 - **Reference Name:** Rhythma Plus Monthly
 - **Display Name:** Rhythma Plus
 - **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. Monthly subscription, cancel anytime.
@@ -116,7 +116,7 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - **Price:** Set the monthly tier in App Store Connect (e.g. closest to ~14.99 PLN / ~$2.99)
 - **Tax category:** Fitness and Health (or Match to parent app if the app is Health & Fitness)
 - **Builds:** App Store `production` includes subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`). Attach this subscription to the version before submit.
-- **ASC tip:** Create under **Subscriptions**, not In-App Purchases → Non-Consumable. If Product ID already exists, open that subscription and finish localization / pricing instead of creating a duplicate.
+- **ASC tip:** Create under **Subscriptions**. Do not reuse `app.rhythma.cycle.plus` — that ID was used by a deleted Non-Consumable and cannot be reclaimed.
 
 ---
 

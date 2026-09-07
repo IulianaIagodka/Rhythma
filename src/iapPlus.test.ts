@@ -5,7 +5,7 @@ import { PLUS_PRODUCT_TYPE, PLUS_SKU } from './iapPlus';
 
 describe('iapPlus', () => {
   it('uses the App Store monthly subscription product id', () => {
-    assert.equal(PLUS_SKU, 'app.rhythma.cycle.plus');
+    assert.equal(PLUS_SKU, 'app.rhythma.cycle.plus.monthly');
   });
 
   it('purchases Plus as an auto-renewable subscription', () => {
