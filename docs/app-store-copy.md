@@ -23,7 +23,7 @@ With Rhythma, you can:
 • Switch between light and dark themes
 • Use the app in English or Ukrainian
 
-Rhythma Plus (monthly subscription) unlocks Cycle insight, Schedule insight, and the Energy curve for phase-aware planning.
+Rhythma Plus (monthly or yearly subscription) unlocks Cycle insight, Schedule insight, and the Energy curve for phase-aware planning.
 
 Your calendar shows what you have planned. Rhythma adds the context of how you may feel.
 
@@ -89,7 +89,7 @@ All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complex
 Connect your iPhone calendar to see events alongside your cycle.
 
 #### RHYTHMA PLUS
-Unlock Cycle insight, Schedule insight, and Energy curve with a monthly subscription. Restore anytime. Cancel in Apple ID settings.
+Unlock Cycle insight, Schedule insight, and Energy curve with a monthly or yearly subscription. Restore anytime. Cancel in Apple ID settings.
 
 #### LIGHT OR DARK THEME
 Personalise your appearance. Available in English and Ukrainian.
@@ -106,17 +106,17 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 
 ## In-App Purchase / Subscription
 
-- **Type:** Auto-Renewable Subscription (monthly)
-- **Subscription Group:** Rhythma Plus (create one group if needed)
-- **Product ID:** `app.rhythma.cycle.plus.monthly`
-- **Reference Name:** Rhythma Plus Monthly
+- **Type:** Auto-Renewable Subscriptions (same subscription group)
+- **Subscription Group:** Rhythma Plus
+- **Products:**
+  - **Monthly** — Product ID `app.rhythma.cycle.plus.monthly`, duration 1 month
+  - **Yearly** — Product ID `app.rhythma.cycle.plus.yearly`, duration 1 year
 - **Display Name:** Rhythma Plus
-- **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. Monthly subscription, cancel anytime.
-- **Duration:** 1 month
-- **Price:** Set the monthly tier in App Store Connect (e.g. closest to ~14.99 PLN / ~$2.99)
+- **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. Cancel anytime.
+- **Price:** Set monthly and yearly tiers in App Store Connect (e.g. ~14.99 PLN / month and a discounted yearly tier)
 - **Tax category:** Fitness and Health (or Match to parent app if the app is Health & Fitness)
-- **Builds:** App Store `production` includes subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`). Attach this subscription to the version before submit.
-- **ASC tip:** Create under **Subscriptions**. Do not reuse `app.rhythma.cycle.plus` — that ID was used by a deleted Non-Consumable and cannot be reclaimed.
+- **Builds:** App Store `production` includes subscribe UI with Monthly / Yearly picker (`EXPO_PUBLIC_IAP_PLUS=1`). Attach **both** subscriptions to the version before submit.
+- **ASC tip:** Do not reuse `app.rhythma.cycle.plus` — that ID was used by a deleted Non-Consumable and cannot be reclaimed.
 
 ---
 
@@ -129,6 +129,6 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - iPhone only (iPad support is off).
 - Copyright: © 2026 Iuliana Iagodka
-- Production profile shows **Rhythma Plus** monthly subscribe + Restore; TestFlight may show a Free / Plus QA switch.
+- Production profile shows **Rhythma Plus** Monthly / Yearly subscribe + Restore; TestFlight may show a Free / Plus QA switch.
 - **App Review (Guideline 1.4.1):** Citations are in-app without purchase — **Settings → Sources & Methodology** (methodology-first sheet with short tappable citations). Reply in Resolution Center if asked.
 - **Calendar Full Access:** iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events. Explained under the allow Full Access step in Support, in Settings, and in Privacy Policy.

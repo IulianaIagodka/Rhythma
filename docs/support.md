@@ -31,7 +31,7 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Rhythma Plus
 
-Monthly subscription in Settings unlocks:
+Monthly or yearly subscription in Settings unlocks:
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — what fits your plans and activities when Calendar sync is on
@@ -152,7 +152,7 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Rhythma Plus
 
-Щомісячна підписка в Налаштуваннях відкриває:
+Щомісячна або річна підписка в Налаштуваннях відкриває:
 
 - **Підказка циклу** — коротка інформація про фазу й гормони
 - **Підказка розкладу** — що пасує до планів і активностей, коли синхронізація календаря увімкнена
