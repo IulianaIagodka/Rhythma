@@ -67,6 +67,17 @@ describe('access', () => {
     }
   });
 
+  it('keeps Plus purchase UI off unless the IAP feature flag is set', () => {
+    const previous = process.env.EXPO_PUBLIC_IAP_PLUS;
+    delete process.env.EXPO_PUBLIC_IAP_PLUS;
+    try {
+      assert.equal(isIapPlusEnabled(), false);
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_IAP_PLUS;
+      else process.env.EXPO_PUBLIC_IAP_PLUS = previous;
+    }
+  });
+
   it('enables Plus purchase UI when the IAP feature flag is on', () => {
     const previous = process.env.EXPO_PUBLIC_IAP_PLUS;
     process.env.EXPO_PUBLIC_IAP_PLUS = '1';

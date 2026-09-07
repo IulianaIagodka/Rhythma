@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -38,7 +39,17 @@ function FeatureList({ theme, language }: { theme: Theme; language: Language }) 
   );
 }
 
-function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+function PlusAccentShell({
+  theme,
+  language,
+  headerAccessory,
+  children,
+}: {
+  theme: Theme;
+  language: Language;
+  headerAccessory?: ReactNode;
+  children?: ReactNode;
+}) {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   return (
@@ -87,6 +98,21 @@ function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
           <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
           <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
         </View>
+        {headerAccessory}
+      </View>
+
+      <FeatureList theme={theme} language={language} />
+      {children}
+    </View>
+  );
+}
+
+function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+  return (
+    <PlusAccentShell
+      theme={theme}
+      language={language}
+      headerAccessory={
         <View
           style={[
             styles.comingSoonPill,
@@ -98,10 +124,8 @@ function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
             {t(language, 'paywallComingSoon')}
           </Text>
         </View>
-      </View>
-
-      <FeatureList theme={theme} language={language} />
-    </View>
+      }
+    />
   );
 }
 
@@ -109,14 +133,7 @@ function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
   const iap = useIAPPlus({ onUnlock });
 
   return (
-    <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
-      <View style={styles.paywallInlineHeader}>
-        <View style={styles.paywallTitleBlock}>
-          <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
-          <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
-        </View>
-      </View>
-      <FeatureList theme={theme} language={language} />
+    <PlusAccentShell theme={theme} language={language}>
       {iap.status === 'error' && iap.error ? (
         <Text style={[styles.paywallInlineError, { color: theme.accent }]}>{iap.error}</Text>
       ) : null}
@@ -128,6 +145,7 @@ function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
         ]}
         onPress={iap.purchase}
         disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+        accessibilityRole="button"
       >
         <Text style={styles.paywallInlineBtnText}>
           {iap.status === 'purchasing'
@@ -142,12 +160,13 @@ function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
         onPress={iap.restore}
         disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
         hitSlop={12}
+        accessibilityRole="button"
       >
         <Text style={[styles.paywallInlineRestore, { color: theme.muted }]}>
           {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
         </Text>
       </Pressable>
-    </View>
+    </PlusAccentShell>
   );
 }
 
