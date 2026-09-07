@@ -113,7 +113,10 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
   - **Yearly** — Product ID `app.rhythma.cycle.plus.yearly`, duration 1 year
 - **Display Name:** Rhythma Plus
 - **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. Cancel anytime.
-- **Price:** Set monthly and yearly tiers in App Store Connect (e.g. ~14.99 PLN / month and a discounted yearly tier)
+- **Price (USD base):**
+  - Monthly: **$2.99**
+  - Yearly: **$14.99**
+  - In ASC pick the matching price tiers; other storefronts will localize automatically.
 - **Tax category:** Fitness and Health (or Match to parent app if the app is Health & Fitness)
 - **Builds:** App Store `production` includes subscribe UI with Monthly / Yearly picker (`EXPO_PUBLIC_IAP_PLUS=1`). Attach **both** subscriptions to the version before submit.
 - **ASC tip:** Do not reuse `app.rhythma.cycle.plus` — that ID was used by a deleted Non-Consumable and cannot be reclaimed.
