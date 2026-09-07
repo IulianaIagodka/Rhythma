@@ -155,7 +155,7 @@ function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
               : t(language, 'getPlus')}
         </Text>
       </Pressable>
-      <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallLifetime')}</Text>
+      <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallSubscription')}</Text>
       <Pressable
         onPress={iap.restore}
         disabled={iap.status === 'purchasing' || iap.status === 'restoring'}

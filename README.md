@@ -19,7 +19,7 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 
 ## Rhythma Plus
 
-One-time in-app purchase (`app.rhythma.cycle.plus`). App Store `production` builds ship with purchase UI (`EXPO_PUBLIC_IAP_PLUS=1`).
+Monthly subscription (`app.rhythma.cycle.plus`). App Store `production` builds ship with subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`).
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — plan and activity fit when Calendar sync is on (with a Review link into Apple Calendar when helpful); CTA to connect the calendar when sync is off
@@ -27,7 +27,7 @@ One-time in-app purchase (`app.rhythma.cycle.plus`). App Store `production` buil
 
 ## Builds
 
-- `production` — App Store. Rhythma Plus purchase + Restore. No Free / Plus QA switch for App Store installs.
+- `production` — App Store. Rhythma Plus **monthly subscription** + Restore. No Free / Plus QA switch for App Store installs.
 - `testflight` — same product bits as production, with an explicit Free / Plus switch (`EXPO_PUBLIC_PLAN_SWITCH=1`). TestFlight installs may also detect as TestFlight and show the switch.
 - `plus` — alias of `production` (IAP already on).
 - `preview` / `internal` — Free / Plus switch via env.

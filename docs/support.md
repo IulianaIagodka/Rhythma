@@ -31,13 +31,13 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 
 ## Rhythma Plus
 
-One-time purchase in Settings unlocks:
+Monthly subscription in Settings unlocks:
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — what fits your plans and activities when Calendar sync is on
 - **Energy curve** — tap the sparkline for energy with estrogen and progesterone
 
-Use **Restore purchase** on a new device if you already bought Plus.
+Use **Restore purchase** on a new device if you already subscribed. Cancel anytime in iPhone Settings → Apple ID → Subscriptions.
 
 ---
 
@@ -152,13 +152,13 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Rhythma Plus
 
-Одноразова покупка в Налаштуваннях відкриває:
+Щомісячна підписка в Налаштуваннях відкриває:
 
 - **Підказка циклу** — коротка інформація про фазу й гормони
 - **Підказка розкладу** — що пасує до планів і активностей, коли синхронізація календаря увімкнена
 - **Крива енергії** — натисніть міні-графік, щоб відкрити енергію з естрогеном і прогестероном
 
-На новому пристрої скористайтесь **Відновити покупку**, якщо Plus уже куплено.
+На новому пристрої скористайтесь **Відновити покупку**, якщо Plus уже оформлено. Скасування: Налаштування iPhone → Apple ID → Підписки.
 
 ## Як користуватись
 

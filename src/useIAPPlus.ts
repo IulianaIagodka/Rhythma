@@ -5,7 +5,6 @@ import {
   finishTransaction,
   getAvailablePurchases,
   initConnection,
-  OpenIapEvent,
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestPurchase,
@@ -13,13 +12,35 @@ import {
 } from 'expo-iap';
 import type { Purchase } from 'expo-iap';
 
-export const PLUS_SKU = 'app.rhythma.cycle.plus';
+import { PLUS_PRODUCT_TYPE, PLUS_SKU } from './iapPlus';
+
+export { PLUS_PRODUCT_TYPE, PLUS_SKU } from './iapPlus';
 
 export type IAPStatus = 'idle' | 'loading' | 'purchasing' | 'restoring' | 'error';
 
 type UseIAPPlusOptions = {
   onUnlock: () => void;
 };
+
+function localizedPrice(product: unknown): string | null {
+  if (!product || typeof product !== 'object') return null;
+  const record = product as Record<string, unknown>;
+  if (typeof record.localizedPrice === 'string' && record.localizedPrice) {
+    return record.localizedPrice;
+  }
+  if (typeof record.displayPrice === 'string' && record.displayPrice) {
+    return record.displayPrice;
+  }
+  if (typeof record.price === 'string' || typeof record.price === 'number') {
+    const currency = typeof record.currencyCode === 'string' ? record.currencyCode : '';
+    return currency ? `${record.price} ${currency}` : String(record.price);
+  }
+  return null;
+}
+
+function isPlusPurchase(purchase: Purchase): boolean {
+  return purchase.productId === PLUS_SKU;
+}
 
 export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
   const [status, setStatus] = useState<IAPStatus>('idle');
@@ -36,23 +57,16 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
         if (cancelled) return;
         connected.current = true;
 
-        const products = await fetchProducts({ skus: [PLUS_SKU], type: 'in-app' });
+        const products = await fetchProducts({ skus: [PLUS_SKU], type: PLUS_PRODUCT_TYPE });
         if (cancelled) return;
         if (products && products.length > 0) {
-          const product = products![0];
-          const localPrice =
-            'localizedPrice' in product && product.localizedPrice
-              ? (product.localizedPrice as string)
-              : 'currencyCode' in product && 'price' in product
-                ? `${product.price} ${product.currencyCode}`
-                : null;
-          setPrice(localPrice);
+          setPrice(localizedPrice(products[0]));
         }
 
-        // Restore any existing purchase silently on mount
+        // Restore any existing subscription silently on mount
         const existing = await getAvailablePurchases();
         if (cancelled) return;
-        if (existing.some((p) => p.productId === PLUS_SKU)) {
+        if (existing.some(isPlusPurchase)) {
           onUnlock();
         }
       } catch {
@@ -63,7 +77,7 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     connect();
 
     const purchaseSub = purchaseUpdatedListener(async (purchase: Purchase) => {
-      if (purchase.productId !== PLUS_SKU) return;
+      if (!isPlusPurchase(purchase)) return;
       try {
         await finishTransaction({ purchase, isConsumable: false });
         onUnlock();
@@ -99,7 +113,7 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     try {
       await requestPurchase({
         request: { apple: { sku: PLUS_SKU }, google: { skus: [PLUS_SKU] } },
-        type: 'in-app',
+        type: PLUS_PRODUCT_TYPE,
       });
       // Result arrives via purchaseUpdatedListener
     } catch (err: unknown) {
@@ -119,7 +133,7 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     try {
       await restorePurchases();
       const purchases = await getAvailablePurchases();
-      if (purchases.some((p) => p.productId === PLUS_SKU)) {
+      if (purchases.some(isPlusPurchase)) {
         onUnlock();
         setStatus('idle');
       } else {
