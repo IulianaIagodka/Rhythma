@@ -46,6 +46,7 @@ import { SourcesInfoButton, SourcesSheet } from './src/SourcesSheet';
 import type { SourceTopic } from './src/sources';
 import {
   calendarSyncNowState,
+  connectCalendarCtaVisible,
   cycleInsightToggleState,
   planSegmentIndex,
   scheduleInsightToggleState,
@@ -444,71 +445,67 @@ export default function App() {
 
               <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
                 <View style={styles.periodCardBody}>
-                  <View style={styles.periodCardText}>
-                    {status.cycleDay == null ? (
-                      <>
+                  {status.cycleDay == null ? (
+                    <View style={styles.periodCardText}>
+                      <Text style={[styles.periodTitle, { color: theme.accent }]}>
+                        {t(language, 'logCycle')}
+                      </Text>
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {t(language, 'logCycleSub')}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={showCycleRhythm ? styles.cycleHero : undefined}>
+                      <View
+                        style={[
+                          showCycleRhythm ? styles.cycleHeroText : undefined,
+                          (daysLeft != null || freePhaseBrief) && styles.blockWithCornerInfo,
+                        ]}
+                      >
+                        {(daysLeft != null || freePhaseBrief) ? (
+                          <View style={styles.blockInfoCorner}>
+                            <SourcesInfoButton
+                              theme={theme}
+                              language={language}
+                              onPress={() =>
+                                setSourcesTopic(freePhaseBrief ? 'phases' : 'cycleForecast')
+                              }
+                            />
+                          </View>
+                        ) : null}
                         <Text style={[styles.periodTitle, { color: theme.accent }]}>
-                          {t(language, 'logCycle')}
+                          {t(
+                            language,
+                            todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                            { day: status.cycleDay },
+                          )}
+                          {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
                         </Text>
                         <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                          {t(language, 'logCycleSub')}
+                          {daysLeft == null
+                            ? t(language, 'nextAfterRecords')
+                            : daysLeft === 0
+                              ? t(language, 'nextToday')
+                              : t(language, 'nextIn', { days: daysLeft })}
                         </Text>
-                      </>
-                    ) : (
-                      <View style={showCycleRhythm ? styles.cycleHero : undefined}>
-                        <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
-                          <View style={styles.settingTitleRow}>
-                            <Text style={[styles.periodTitle, styles.estimateText, { color: theme.accent }]}>
-                              {t(
-                                language,
-                                todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
-                                { day: status.cycleDay },
-                              )}
-                              {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
-                            </Text>
-                            {daysLeft != null ? (
-                              <SourcesInfoButton
-                                theme={theme}
-                                language={language}
-                                onPress={() => setSourcesTopic('cycleForecast')}
-                              />
-                            ) : null}
-                          </View>
-                          <View style={styles.estimateRow}>
-                            <Text style={[styles.secondaryLine, styles.estimateText, { color: theme.muted }]}>
-                              {daysLeft == null
-                                ? t(language, 'nextAfterRecords')
-                                : daysLeft === 0
-                                  ? t(language, 'nextToday')
-                                  : t(language, 'nextIn', { days: daysLeft })}
-                            </Text>
-                          </View>
-                          {freePhaseBrief ? (
-                            <View style={styles.estimateRow}>
-                              <Text style={[styles.secondaryLine, styles.phaseBrief, styles.estimateText, { color: theme.muted }]}>
-                                {freePhaseBrief}
-                              </Text>
-                              <SourcesInfoButton
-                                theme={theme}
-                                language={language}
-                                onPress={() => setSourcesTopic('phases')}
-                              />
-                            </View>
-                          ) : null}
-                        </View>
-                        {showCycleRhythm ? (
-                          <CycleRhythm
-                            cycleDay={status.cycleDay}
-                            cycleLength={status.cycleLength}
-                            settings={data.settings}
-                            theme={theme}
-                            language={language}
-                            onOpenSources={() => setSourcesTopic('energy')}
-                          />
+                        {freePhaseBrief ? (
+                          <Text style={[styles.secondaryLine, styles.phaseBrief, { color: theme.muted }]}>
+                            {freePhaseBrief}
+                          </Text>
                         ) : null}
                       </View>
-                    )}
-                  </View>
+                      {showCycleRhythm ? (
+                        <CycleRhythm
+                          cycleDay={status.cycleDay}
+                          cycleLength={status.cycleLength}
+                          settings={data.settings}
+                          theme={theme}
+                          language={language}
+                          onOpenSources={() => setSourcesTopic('energy')}
+                        />
+                      ) : null}
+                    </View>
+                  )}
                   <Pressable
                     onPress={onFirstDay}
                     style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent }]}
@@ -529,16 +526,14 @@ export default function App() {
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
                     <View style={styles.insightHeader}>
-                      <View style={styles.settingTitleRow}>
-                        <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                          {t(language, 'cycleInsight')}
-                        </Text>
-                        <SourcesInfoButton
-                          theme={theme}
-                          language={language}
-                          onPress={() => setSourcesTopic('hormones')}
-                        />
-                      </View>
+                      <Text style={[styles.sectionLabel, { color: theme.accent, flex: 1 }]}>
+                        {t(language, 'cycleInsight')}
+                      </Text>
+                      <SourcesInfoButton
+                        theme={theme}
+                        language={language}
+                        onPress={() => setSourcesTopic('hormones')}
+                      />
                     </View>
                     <Text
                       style={[
@@ -568,19 +563,14 @@ export default function App() {
                 <View style={[styles.card, styles.insightCard, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
                     <View style={styles.insightHeader}>
-                      <View style={styles.settingTitleRow}>
-                        <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                          {t(language, 'scheduleInsight')}
-                        </Text>
-                        <SourcesInfoButton
-                          theme={theme}
-                          language={language}
-                          onPress={() => setSourcesTopic('activity')}
-                        />
-                      </View>
-                      <View style={styles.insightHeaderActions}>
-                        <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
-                      </View>
+                      <Text style={[styles.sectionLabel, { color: theme.teal, flex: 1 }]}>
+                        {t(language, 'scheduleInsight')}
+                      </Text>
+                      <SourcesInfoButton
+                        theme={theme}
+                        language={language}
+                        onPress={() => setSourcesTopic('activity')}
+                      />
                     </View>
                     {visibleScheduleAdvice.busiestDayISO ? (
                       <Pressable
@@ -629,8 +619,7 @@ export default function App() {
                 </View>
               ) : null}
 
-              {!calendarEnabled &&
-              (!hasEventLoadAdvice || data.settings.showScheduleInsight) ? (
+              {connectCalendarCtaVisible(calendarEnabled) ? (
                 <Pressable
                   onPress={() => setTab('settings')}
                   style={[styles.card, styles.connectCalendarCard, { backgroundColor: theme.card }]}
@@ -1156,6 +1145,16 @@ const styles = StyleSheet.create({
   },
   periodCardText: {
     gap: 4,
+  },
+  blockWithCornerInfo: {
+    position: 'relative',
+    paddingRight: 32,
+  },
+  blockInfoCorner: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+    zIndex: 1,
   },
   periodTitle: {
     fontSize: 15,

@@ -345,7 +345,15 @@ export function CycleRhythm({
                 {t(language, 'rhythmExpandedTitle')}
               </Text>
               {onOpenSources ? (
-                <SourcesInfoButton theme={theme} language={language} onPress={onOpenSources} />
+                <SourcesInfoButton
+                  theme={theme}
+                  language={language}
+                  onPress={() => {
+                    // Close this modal first — stacked RN Modals often hide SourcesSheet.
+                    setExpanded(false);
+                    setTimeout(() => onOpenSources(), 280);
+                  }}
+                />
               ) : null}
             </View>
             <Text style={[styles.sheetMeta, { color: theme.muted }]}>
@@ -426,6 +434,7 @@ const styles = StyleSheet.create({
   sheetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 8,
   },
   sheetMeta: {

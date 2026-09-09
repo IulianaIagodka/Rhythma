@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
   calendarSyncNowState,
+  connectCalendarCtaVisible,
   cycleInsightToggleState,
   planSegmentIndex,
   scheduleInsightToggleState,
@@ -37,6 +38,16 @@ describe('calendarSyncNowState', () => {
   it('shows Sync when calendar sync is on and disables it while syncing', () => {
     assert.deepEqual(calendarSyncNowState(true, false), { visible: true, disabled: false });
     assert.deepEqual(calendarSyncNowState(true, true), { visible: true, disabled: true });
+  });
+});
+
+describe('connectCalendarCtaVisible', () => {
+  it('shows the Today connect-calendar suggestion whenever sync is off', () => {
+    assert.equal(connectCalendarCtaVisible(false), true);
+  });
+
+  it('hides the suggestion once calendar sync is on', () => {
+    assert.equal(connectCalendarCtaVisible(true), false);
   });
 });
 
