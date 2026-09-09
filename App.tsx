@@ -457,21 +457,14 @@ export default function App() {
                     ) : (
                       <View style={showCycleRhythm ? styles.cycleHero : undefined}>
                         <View style={showCycleRhythm ? styles.cycleHeroText : undefined}>
-                          <Text style={[styles.periodTitle, { color: theme.accent }]}>
-                            {t(
-                              language,
-                              todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
-                              { day: status.cycleDay },
-                            )}
-                            {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
-                          </Text>
-                          <View style={styles.estimateRow}>
-                            <Text style={[styles.secondaryLine, styles.estimateText, { color: theme.muted }]}>
-                              {daysLeft == null
-                                ? t(language, 'nextAfterRecords')
-                                : daysLeft === 0
-                                  ? t(language, 'nextToday')
-                                  : t(language, 'nextIn', { days: daysLeft })}
+                          <View style={styles.settingTitleRow}>
+                            <Text style={[styles.periodTitle, styles.estimateText, { color: theme.accent }]}>
+                              {t(
+                                language,
+                                todayPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
+                                { day: status.cycleDay },
+                              )}
+                              {status.phase ? ` · ${phaseStatusLabel(status.phase, language)}` : ''}
                             </Text>
                             {daysLeft != null ? (
                               <SourcesInfoButton
@@ -480,6 +473,15 @@ export default function App() {
                                 onPress={() => setSourcesTopic('cycleForecast')}
                               />
                             ) : null}
+                          </View>
+                          <View style={styles.estimateRow}>
+                            <Text style={[styles.secondaryLine, styles.estimateText, { color: theme.muted }]}>
+                              {daysLeft == null
+                                ? t(language, 'nextAfterRecords')
+                                : daysLeft === 0
+                                  ? t(language, 'nextToday')
+                                  : t(language, 'nextIn', { days: daysLeft })}
+                            </Text>
                           </View>
                           {freePhaseBrief ? (
                             <View style={styles.estimateRow}>
