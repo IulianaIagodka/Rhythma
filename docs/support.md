@@ -15,6 +15,8 @@ It is **not** a fertility, ovulation, or medical app. Predictions are estimates 
 
 Please include your iOS version, Rhythma build number (Settings), and a short description of what happened.
 
+Or use **Settings → Send feedback** in the app — it opens Mail with version details prefilled.
+
 ---
 
 ## Free
@@ -103,6 +105,7 @@ In the app:
 
 - **Settings** → **Sources & Methodology** (how estimates work + research links, no purchase required)
 - Small ⓘ on period / ovulation / energy estimates opens the relevant methodology section
+- **Settings** → **Send feedback** opens an email to support with app version details prefilled
 
 Rhythma is not a medical device and does not provide medical advice. External links open in Safari.
 
@@ -135,6 +138,8 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 - GitHub issues: [github.com/IulianaIagodka/Rhythma/issues](https://github.com/IulianaIagodka/Rhythma/issues)
 
 Напишіть версію iOS, номер білду Rhythma (Налаштування) і коротко, що сталось.
+
+Або **Налаштування → Надіслати відгук** у додатку — відкриє Mail із уже підставленою версією.
 
 ## Безкоштовно
 
@@ -214,6 +219,7 @@ Rhythma пояснює, як формуються оцінки, і дає пос
 
 - **Налаштування** → **Джерела та методологія**
 - Маленький ⓘ біля оцінок (прогноз, овуляція, енергія) відкриває відповідний розділ
+- **Налаштування** → **Надіслати відгук** відкриває лист на пошту підтримки з версією додатку
 
 Rhythma не є медичним виробом і не надає медичних порад. Зовнішні посилання відкриваються в Safari.
 
