@@ -444,7 +444,26 @@ export default function App() {
               </View>
 
               <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
-                <View style={styles.periodCardBody}>
+                {(status.cycleDay != null && (daysLeft != null || freePhaseBrief)) ? (
+                  <View style={styles.blockInfoCorner} pointerEvents="box-none">
+                    <SourcesInfoButton
+                      theme={theme}
+                      language={language}
+                      onPress={() =>
+                        setSourcesTopic(freePhaseBrief ? 'phases' : 'cycleForecast')
+                      }
+                    />
+                  </View>
+                ) : null}
+                <View
+                  style={[
+                    styles.periodCardBody,
+                    status.cycleDay != null &&
+                      (daysLeft != null || freePhaseBrief) &&
+                      !showCycleRhythm &&
+                      styles.periodCardBodyWithInfo,
+                  ]}
+                >
                   {status.cycleDay == null ? (
                     <View style={styles.periodCardText}>
                       <Text style={[styles.periodTitle, { color: theme.accent }]}>
@@ -456,23 +475,7 @@ export default function App() {
                     </View>
                   ) : (
                     <View style={showCycleRhythm ? styles.cycleHero : undefined}>
-                      <View
-                        style={[
-                          showCycleRhythm ? styles.cycleHeroText : undefined,
-                          (daysLeft != null || freePhaseBrief) && styles.blockWithCornerInfo,
-                        ]}
-                      >
-                        {(daysLeft != null || freePhaseBrief) ? (
-                          <View style={styles.blockInfoCorner}>
-                            <SourcesInfoButton
-                              theme={theme}
-                              language={language}
-                              onPress={() =>
-                                setSourcesTopic(freePhaseBrief ? 'phases' : 'cycleForecast')
-                              }
-                            />
-                          </View>
-                        ) : null}
+                      <View style={showCycleRhythm ? styles.cycleHeroText : styles.periodCardText}>
                         <Text style={[styles.periodTitle, { color: theme.accent }]}>
                           {t(
                             language,
@@ -1136,6 +1139,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   periodCard: {
+    position: 'relative',
     paddingVertical: 14,
     paddingHorizontal: 16,
     gap: 10,
@@ -1143,18 +1147,17 @@ const styles = StyleSheet.create({
   periodCardBody: {
     gap: 10,
   },
+  periodCardBodyWithInfo: {
+    paddingRight: 28,
+  },
   periodCardText: {
     gap: 4,
   },
-  blockWithCornerInfo: {
-    position: 'relative',
-    paddingRight: 32,
-  },
   blockInfoCorner: {
     position: 'absolute',
-    top: -2,
-    right: -4,
-    zIndex: 1,
+    top: 10,
+    right: 10,
+    zIndex: 2,
   },
   periodTitle: {
     fontSize: 15,
