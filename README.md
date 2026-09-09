@@ -4,6 +4,8 @@ A private cycle tracker that helps you plan life around your rhythm — events a
 
 This is not a fertility app. The focus is logging your cycle and adapting your calendar to the current phase.
 
+**New agents / LLMs:** start with [`CONTEXT.md`](CONTEXT.md) — full project briefing to work from zero.
+
 ## Free
 
 - Record your period from Today, or confirm a date on the year calendar
