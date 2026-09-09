@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   AppState,
   Linking,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
@@ -34,6 +36,7 @@ import {
   type StoredData,
 } from './src/cycle';
 import { appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
+import { buildFeedbackMailto } from './src/feedback';
 import { loadData, saveData } from './src/storage';
 import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
@@ -845,6 +848,32 @@ export default function App() {
                   </Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'sourcesSettingsDesc')}
+                  </Text>
+                </View>
+                <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  const url = buildFeedbackMailto({
+                    language,
+                    appVersion: Constants.expoConfig?.version ?? null,
+                    buildNumber:
+                      Constants.nativeBuildVersion ??
+                      (Constants.expoConfig?.ios as { buildNumber?: string } | undefined)?.buildNumber ??
+                      null,
+                    systemVersion: String(Platform.Version),
+                  });
+                  Linking.openURL(url).catch(() => {});
+                }}
+                style={[styles.settingRow, { backgroundColor: theme.card }]}
+                accessibilityRole="button"
+              >
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'sendFeedback')}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'sendFeedbackDesc')}
                   </Text>
                 </View>
                 <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
