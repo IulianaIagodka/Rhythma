@@ -791,16 +791,9 @@ export default function App() {
 
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <View style={styles.settingTitleRow}>
-                    <Text style={[styles.settingTitle, { color: theme.ink, flex: 1 }]}>
-                      {t(language, 'periodForecast')}
-                    </Text>
-                    <SourcesInfoButton
-                      theme={theme}
-                      language={language}
-                      onPress={() => setSourcesTopic('cycleForecast')}
-                    />
-                  </View>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'periodForecast')}
+                  </Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'forecastDesc')}
                   </Text>
@@ -815,16 +808,9 @@ export default function App() {
               </View>
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
-                  <View style={styles.settingTitleRow}>
-                    <Text style={[styles.settingTitle, { color: theme.ink, flex: 1 }]}>
-                      {t(language, 'ovulationMark')}
-                    </Text>
-                    <SourcesInfoButton
-                      theme={theme}
-                      language={language}
-                      onPress={() => setSourcesTopic('ovulation')}
-                    />
-                  </View>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'ovulationMark')}
+                  </Text>
                   <Text style={[styles.settingMeta, { color: theme.muted }]}>
                     {t(language, 'ovulationDesc')}
                   </Text>
