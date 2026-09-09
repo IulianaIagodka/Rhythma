@@ -31,6 +31,11 @@ export function calendarSyncNowState(
   };
 }
 
+/** Today CTA to connect calendar — show whenever sync is off. */
+export function connectCalendarCtaVisible(calendarEnabled: boolean): boolean {
+  return !calendarEnabled;
+}
+
 /** Native segmented control index for Free / Plus. */
 export function planSegmentIndex(tier: 'free' | 'pro'): number {
   return tier === 'pro' ? 1 : 0;

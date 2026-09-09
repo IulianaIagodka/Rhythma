@@ -23,7 +23,7 @@ With Rhythma, you can:
 • Switch between light and dark themes
 • Use the app in English or Ukrainian
 
-Rhythma Plus (coming soon) will unlock Cycle insight, Schedule insight, and the Energy curve for phase-aware planning.
+Rhythma Plus (monthly or yearly subscription) unlocks Cycle insight, Schedule insight, and the Energy curve for phase-aware planning.
 
 Your calendar shows what you have planned. Rhythma adds the context of how you may feel.
 
@@ -56,6 +56,7 @@ iuliana.iagodka@gmail.com
 • Turn on Calendar sync; confirm events appear next to the cycle
 • Switch Light / Dark theme
 • On TestFlight builds: use the Free / Plus switch; check Cycle insight, Schedule insight, and Energy curve on Plus
+• On App Store / production builds: open Settings → **Rhythma Plus** → purchase or Restore (Sandbox tester)
 • Confirm the app follows English or Ukrainian from the iPhone language
 • Open **Settings → Sources & Methodology** (no Plus purchase required)
 
@@ -87,8 +88,8 @@ All data stays on your iPhone. No sign-up, no cloud sync, no unnecessary complex
 #### CALENDAR SYNC — FREE
 Connect your iPhone calendar to see events alongside your cycle.
 
-#### RHYTHMA PLUS — COMING SOON
-Cycle insight, Schedule insight, and Energy curve. Available in a future update.
+#### RHYTHMA PLUS
+Unlock Cycle insight, Schedule insight, and Energy curve with a monthly or yearly subscription. Restore anytime. Cancel in Apple ID settings.
 
 #### LIGHT OR DARK THEME
 Personalise your appearance. Available in English and Ukrainian.
@@ -103,15 +104,22 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 
 ---
 
-## In-App Purchase (future)
+## In-App Purchase / Subscription
 
-- **Type:** Non-Consumable (one-time purchase)
-- **Product ID:** `app.rhythma.cycle.plus`
-- **Reference Name:** Rhythma Plus
+- **Type:** Auto-Renewable Subscriptions (same subscription group)
+- **Subscription Group:** Rhythma Plus
+- **Products:**
+  - **Monthly** — Product ID `app.rhythma.cycle.plus.monthly`, duration 1 month
+  - **Yearly** — Product ID `app.rhythma.cycle.plus.yearly`, duration 1 year
 - **Display Name:** Rhythma Plus
-- **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. One-time purchase, lifetime access.
-- **Price:** Set to the tier closest to 39.99 PLN in App Store Connect
-- **Note:** Not enabled in the first App Store release (Coming soon). Enable with `EXPO_PUBLIC_IAP_PLUS=1` / EAS profile `plus`.
+- **Description:** Unlock Cycle insight, Schedule insight, and Energy curve. Cancel anytime.
+- **Price (USD base):**
+  - Monthly: **$2.99**
+  - Yearly: **$14.99**
+  - In ASC pick the matching price tiers; other storefronts will localize automatically.
+- **Tax category:** Fitness and Health (or Match to parent app if the app is Health & Fitness)
+- **Builds:** App Store `production` includes subscribe UI with Monthly / Yearly picker (`EXPO_PUBLIC_IAP_PLUS=1`). Attach **both** subscriptions to the version before submit.
+- **ASC tip:** Do not reuse `app.rhythma.cycle.plus` — that ID was used by a deleted Non-Consumable and cannot be reclaimed.
 
 ---
 
@@ -124,6 +132,6 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - iPhone only (iPad support is off).
 - Copyright: © 2026 Iuliana Iagodka
-- Production profile shows **Coming soon** for Plus; TestFlight may show a Free / Plus QA switch.
+- Production profile shows **Rhythma Plus** Monthly / Yearly subscribe + Restore; TestFlight may show a Free / Plus QA switch.
 - **App Review (Guideline 1.4.1):** Citations are in-app without purchase — **Settings → Sources & Methodology** (methodology-first sheet with short tappable citations). Reply in Resolution Center if asked.
 - **Calendar Full Access:** iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events. Explained under the allow Full Access step in Support, in Settings, and in Privacy Policy.

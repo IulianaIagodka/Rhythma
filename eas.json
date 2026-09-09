@@ -12,7 +12,10 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_IAP_PLUS": "1"
+      }
     },
     "testflight": {
       "extends": "production",
@@ -21,11 +24,9 @@
       }
     },
     "plus": {
-      "extends": "production",
-      "env": {
-        "EXPO_PUBLIC_IAP_PLUS": "1"
-      }
+      "extends": "production"
     },
+
     "preview": {
       "extends": "production",
       "env": {

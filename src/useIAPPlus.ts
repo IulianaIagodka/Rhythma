@@ -5,7 +5,6 @@ import {
   finishTransaction,
   getAvailablePurchases,
   initConnection,
-  OpenIapEvent,
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestPurchase,
@@ -13,17 +12,65 @@ import {
 } from 'expo-iap';
 import type { Purchase } from 'expo-iap';
 
-export const PLUS_SKU = 'app.rhythma.cycle.plus';
+import {
+  isPlusSku,
+  PLUS_PLAN_SKUS,
+  PLUS_PRODUCT_TYPE,
+  PLUS_SKUS,
+  type PlusPlanId,
+} from './iapPlus';
+
+export {
+  isPlusSku,
+  PLUS_PLAN_SKUS,
+  PLUS_PRODUCT_TYPE,
+  PLUS_SKU,
+  PLUS_SKU_MONTHLY,
+  PLUS_SKU_YEARLY,
+  PLUS_SKUS,
+  plusPlanForSku,
+  type PlusPlanId,
+} from './iapPlus';
 
 export type IAPStatus = 'idle' | 'loading' | 'purchasing' | 'restoring' | 'error';
+
+export type PlusPlanPrices = Record<PlusPlanId, string | null>;
 
 type UseIAPPlusOptions = {
   onUnlock: () => void;
 };
 
+function localizedPrice(product: unknown): string | null {
+  if (!product || typeof product !== 'object') return null;
+  const record = product as Record<string, unknown>;
+  if (typeof record.localizedPrice === 'string' && record.localizedPrice) {
+    return record.localizedPrice;
+  }
+  if (typeof record.displayPrice === 'string' && record.displayPrice) {
+    return record.displayPrice;
+  }
+  if (typeof record.price === 'string' || typeof record.price === 'number') {
+    const currency = typeof record.currencyCode === 'string' ? record.currencyCode : '';
+    return currency ? `${record.price} ${currency}` : String(record.price);
+  }
+  return null;
+}
+
+function productIdOf(product: unknown): string | null {
+  if (!product || typeof product !== 'object') return null;
+  const record = product as Record<string, unknown>;
+  if (typeof record.productId === 'string') return record.productId;
+  if (typeof record.id === 'string') return record.id;
+  return null;
+}
+
+function isPlusPurchase(purchase: Purchase): boolean {
+  return isPlusSku(purchase.productId);
+}
+
 export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
   const [status, setStatus] = useState<IAPStatus>('idle');
-  const [price, setPrice] = useState<string | null>(null);
+  const [prices, setPrices] = useState<PlusPlanPrices>({ monthly: null, yearly: null });
   const [error, setError] = useState<string | null>(null);
   const connected = useRef(false);
 
@@ -36,23 +83,23 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
         if (cancelled) return;
         connected.current = true;
 
-        const products = await fetchProducts({ skus: [PLUS_SKU], type: 'in-app' });
+        const products = await fetchProducts({
+          skus: [...PLUS_SKUS],
+          type: PLUS_PRODUCT_TYPE,
+        });
         if (cancelled) return;
-        if (products && products.length > 0) {
-          const product = products![0];
-          const localPrice =
-            'localizedPrice' in product && product.localizedPrice
-              ? (product.localizedPrice as string)
-              : 'currencyCode' in product && 'price' in product
-                ? `${product.price} ${product.currencyCode}`
-                : null;
-          setPrice(localPrice);
-        }
 
-        // Restore any existing purchase silently on mount
+        const next: PlusPlanPrices = { monthly: null, yearly: null };
+        for (const product of products ?? []) {
+          const id = productIdOf(product);
+          if (id === PLUS_PLAN_SKUS.monthly) next.monthly = localizedPrice(product);
+          if (id === PLUS_PLAN_SKUS.yearly) next.yearly = localizedPrice(product);
+        }
+        setPrices(next);
+
         const existing = await getAvailablePurchases();
         if (cancelled) return;
-        if (existing.some((p) => p.productId === PLUS_SKU)) {
+        if (existing.some(isPlusPurchase)) {
           onUnlock();
         }
       } catch {
@@ -63,7 +110,7 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     connect();
 
     const purchaseSub = purchaseUpdatedListener(async (purchase: Purchase) => {
-      if (purchase.productId !== PLUS_SKU) return;
+      if (!isPlusPurchase(purchase)) return;
       try {
         await finishTransaction({ purchase, isConsumable: false });
         onUnlock();
@@ -93,15 +140,15 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     };
   }, [onUnlock]);
 
-  async function purchase() {
+  async function purchase(plan: PlusPlanId) {
+    const sku = PLUS_PLAN_SKUS[plan];
     setStatus('purchasing');
     setError(null);
     try {
       await requestPurchase({
-        request: { apple: { sku: PLUS_SKU }, google: { skus: [PLUS_SKU] } },
-        type: 'in-app',
+        request: { apple: { sku }, google: { skus: [sku] } },
+        type: PLUS_PRODUCT_TYPE,
       });
-      // Result arrives via purchaseUpdatedListener
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       if (code !== 'E_USER_CANCELLED') {
@@ -119,7 +166,7 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     try {
       await restorePurchases();
       const purchases = await getAvailablePurchases();
-      if (purchases.some((p) => p.productId === PLUS_SKU)) {
+      if (purchases.some(isPlusPurchase)) {
         onUnlock();
         setStatus('idle');
       } else {
@@ -132,5 +179,5 @@ export function useIAPPlus({ onUnlock }: UseIAPPlusOptions) {
     }
   }
 
-  return { status, price, error, purchase, restore };
+  return { status, prices, error, purchase, restore };
 }

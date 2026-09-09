@@ -15,6 +15,8 @@ It is **not** a fertility, ovulation, or medical app. Predictions are estimates 
 
 Please include your iOS version, Rhythma build number (Settings), and a short description of what happened.
 
+Or use **Settings → Send feedback** in the app — it opens Mail with version details prefilled.
+
 ---
 
 ## Free
@@ -29,13 +31,15 @@ Please include your iOS version, Rhythma build number (Settings), and a short de
 - Light or dark appearance
 - English and Ukrainian, based on the iPhone language
 
-## Plus — Coming soon
+## Rhythma Plus
 
-Purchase is not enabled in the first App Store release. Coming next:
+Monthly or yearly subscription in Settings unlocks:
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — what fits your plans and activities when Calendar sync is on
 - **Energy curve** — tap the sparkline for energy with estrogen and progesterone
+
+Use **Restore purchase** on a new device if you already subscribed. Cancel anytime in iPhone Settings → Apple ID → Subscriptions.
 
 ---
 
@@ -103,6 +107,7 @@ In the app:
 
 - **Settings** → **Sources & Methodology** (how estimates work + research links, no purchase required)
 - Small ⓘ on period / ovulation / energy estimates opens the relevant methodology section
+- **Settings** → **Send feedback** opens an email to support with app version details prefilled
 
 Rhythma is not a medical device and does not provide medical advice. External links open in Safari.
 
@@ -136,6 +141,8 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 Напишіть версію iOS, номер білду Rhythma (Налаштування) і коротко, що сталось.
 
+Або **Налаштування → Надіслати відгук** у додатку — відкриє Mail із уже підставленою версією.
+
 ## Безкоштовно
 
 - Запишіть місячні на Today або підтвердіть дату в річному календарі
@@ -148,13 +155,15 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 - Світла або темна тема
 - Англійська та українська — за мовою iPhone
 
-## Plus — Незабаром
+## Rhythma Plus
 
-Покупка у першому релізі App Store вимкнена. Далі:
+Щомісячна або річна підписка в Налаштуваннях відкриває:
 
 - **Підказка циклу** — коротка інформація про фазу й гормони
 - **Підказка розкладу** — що пасує до планів і активностей, коли синхронізація календаря увімкнена
 - **Крива енергії** — натисніть міні-графік, щоб відкрити енергію з естрогеном і прогестероном
+
+На новому пристрої скористайтесь **Відновити покупку**, якщо Plus уже оформлено. Скасування: Налаштування iPhone → Apple ID → Підписки.
 
 ## Як користуватись
 
@@ -214,6 +223,7 @@ Rhythma пояснює, як формуються оцінки, і дає пос
 
 - **Налаштування** → **Джерела та методологія**
 - Маленький ⓘ біля оцінок (прогноз, овуляція, енергія) відкриває відповідний розділ
+- **Налаштування** → **Надіслати відгук** відкриває лист на пошту підтримки з версією додатку
 
 Rhythma не є медичним виробом і не надає медичних порад. Зовнішні посилання відкриваються в Safari.
 

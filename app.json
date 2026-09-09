@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rhythma",
     "slug": "rhythma",
-    "version": "1.0.0",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,8 +16,8 @@
       "bundleIdentifier": "app.rhythma.cycle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCalendarsUsageDescription": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
-        "NSCalendarsFullAccessUsageDescription": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
+        "NSCalendarsUsageDescription": "iOS calls this \u201cFull Access\u201d because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
+        "NSCalendarsFullAccessUsageDescription": "iOS calls this \u201cFull Access\u201d because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.",
         "NSCalendarsWriteOnlyAccessUsageDescription": "Rhythma does not use Write Only access. Reading existing events requires Full Access."
       }
     },
@@ -40,7 +40,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events."
+          "calendarPermission": "iOS calls this \u201cFull Access\u201d because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events."
         }
       ],
       "expo-localization"

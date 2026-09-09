@@ -4,6 +4,8 @@ A private cycle tracker that helps you plan life around your rhythm — events a
 
 This is not a fertility app. The focus is logging your cycle and adapting your calendar to the current phase.
 
+**New agents / LLMs:** start with [`CONTEXT.md`](CONTEXT.md) — full project briefing to work from zero.
+
 ## Free
 
 - Record your period from Today, or confirm a date on the year calendar
@@ -17,9 +19,9 @@ This is not a fertility app. The focus is logging your cycle and adapting your c
 - Theme switch: Light / Dark
 - English and Ukrainian, based on the phone language
 
-## Plus — Coming soon
+## Rhythma Plus
 
-Purchase UI is off in the App Store release (`Coming soon`). Unlock later with `EXPO_PUBLIC_IAP_PLUS=1` / EAS profile `plus`.
+Monthly or yearly subscription (`app.rhythma.cycle.plus.monthly` / `app.rhythma.cycle.plus.yearly`). App Store `production` builds ship with subscribe UI (`EXPO_PUBLIC_IAP_PLUS=1`).
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — plan and activity fit when Calendar sync is on (with a Review link into Apple Calendar when helpful); CTA to connect the calendar when sync is off
@@ -27,9 +29,9 @@ Purchase UI is off in the App Store release (`Coming soon`). Unlock later with `
 
 ## Builds
 
-- `production` — App Store. No purchase UI (**Coming soon**). No Free / Plus QA switch for App Store installs.
-- `testflight` — same product bits as production, with an explicit Free / Plus switch (`EXPO_PUBLIC_PLAN_SWITCH=1`). TestFlight installs may also detect as TestFlight and show the switch.
-- `plus` — enables in-app purchase UI (`EXPO_PUBLIC_IAP_PLUS=1`).
+- `production` — App Store. Rhythma Plus **monthly or yearly subscription** + Restore. No Free / Plus QA switch for App Store installs.
+- `testflight` — same product bits as production, with an explicit Free / Plus switch (`EXPO_PUBLIC_PLAN_SWITCH=1`). Use this profile for QA: runtime TestFlight detection is unreliable on modern iOS, so a production-profile build installed via TestFlight may still show the paywall instead of the switch.
+- `plus` — alias of `production` (IAP already on).
 - `preview` / `internal` — Free / Plus switch via env.
 - Local Expo (`__DEV__`) also shows the Free / Plus switch.
 
@@ -44,7 +46,7 @@ npx tsc --noEmit
 ```
 
 ```bash
-# App Store / Coming soon
+# App Store (includes Rhythma Plus IAP)
 npx eas-cli build --platform ios --profile production --auto-submit --non-interactive
 ```
 

@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { isIapPlusEnabled } from './access';
 import { t, type Language } from './i18n';
+import type { PlusPlanId } from './iapPlus';
 import { radius } from './theme';
 import { useIAPPlus } from './useIAPPlus';
 
@@ -25,6 +27,15 @@ type PlusFreeCardProps = {
 
 const FEATURE_KEYS = ['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const;
 
+const PLAN_OPTIONS: {
+  id: PlusPlanId;
+  titleKey: 'paywallPlanMonthly' | 'paywallPlanYearly';
+  hintKey: 'paywallPlanMonthlyHint' | 'paywallPlanYearlyHint';
+}[] = [
+  { id: 'yearly', titleKey: 'paywallPlanYearly', hintKey: 'paywallPlanYearlyHint' },
+  { id: 'monthly', titleKey: 'paywallPlanMonthly', hintKey: 'paywallPlanMonthlyHint' },
+];
+
 function FeatureList({ theme, language }: { theme: Theme; language: Language }) {
   return (
     <View style={styles.paywallInlineFeatures}>
@@ -38,7 +49,17 @@ function FeatureList({ theme, language }: { theme: Theme; language: Language }) 
   );
 }
 
-function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+function PlusAccentShell({
+  theme,
+  language,
+  headerAccessory,
+  children,
+}: {
+  theme: Theme;
+  language: Language;
+  headerAccessory?: ReactNode;
+  children?: ReactNode;
+}) {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   return (
@@ -87,6 +108,21 @@ function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
           <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
           <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
         </View>
+        {headerAccessory}
+      </View>
+
+      <FeatureList theme={theme} language={language} />
+      {children}
+    </View>
+  );
+}
+
+function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+  return (
+    <PlusAccentShell
+      theme={theme}
+      language={language}
+      headerAccessory={
         <View
           style={[
             styles.comingSoonPill,
@@ -98,56 +134,88 @@ function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
             {t(language, 'paywallComingSoon')}
           </Text>
         </View>
-      </View>
-
-      <FeatureList theme={theme} language={language} />
-    </View>
+      }
+    />
   );
 }
 
 function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
   const iap = useIAPPlus({ onUnlock });
+  const [selectedPlan, setSelectedPlan] = useState<PlusPlanId>('yearly');
+  const busy = iap.status === 'purchasing' || iap.status === 'restoring';
+  const selectedPrice = iap.prices[selectedPlan];
 
   return (
-    <View style={[styles.paywallInline, { backgroundColor: theme.card }]}>
-      <View style={styles.paywallInlineHeader}>
-        <View style={styles.paywallTitleBlock}>
-          <Text style={[styles.paywallCardTitle, { color: theme.ink }]}>{t(language, 'paywallTitle')}</Text>
-          <Text style={[styles.paywallCardSub, { color: theme.muted }]}>{t(language, 'paywallSubtitle')}</Text>
-        </View>
+    <PlusAccentShell theme={theme} language={language}>
+      <View style={styles.planRow}>
+        {PLAN_OPTIONS.map((plan) => {
+          const selected = selectedPlan === plan.id;
+          const price = iap.prices[plan.id];
+          return (
+            <Pressable
+              key={plan.id}
+              onPress={() => setSelectedPlan(plan.id)}
+              disabled={busy}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
+              style={[
+                styles.planOption,
+                {
+                  borderColor: selected ? theme.accent : theme.border,
+                  backgroundColor: selected ? theme.accentSoft : 'transparent',
+                },
+              ]}
+            >
+              <Text style={[styles.planOptionTitle, { color: theme.ink }]}>
+                {t(language, plan.titleKey)}
+              </Text>
+              <Text style={[styles.planOptionPrice, { color: theme.accent }]}>
+                {price ?? '—'}
+              </Text>
+              <Text style={[styles.planOptionHint, { color: theme.muted }]}>
+                {t(language, plan.hintKey)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
-      <FeatureList theme={theme} language={language} />
+
       {iap.status === 'error' && iap.error ? (
         <Text style={[styles.paywallInlineError, { color: theme.accent }]}>{iap.error}</Text>
       ) : null}
+
       <Pressable
         style={[
           styles.paywallInlineBtn,
           { backgroundColor: theme.accent },
-          (iap.status === 'purchasing' || iap.status === 'restoring') && { opacity: 0.7 },
+          busy && { opacity: 0.7 },
         ]}
-        onPress={iap.purchase}
-        disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+        onPress={() => iap.purchase(selectedPlan)}
+        disabled={busy}
+        accessibilityRole="button"
       >
         <Text style={styles.paywallInlineBtnText}>
           {iap.status === 'purchasing'
             ? t(language, 'purchasingPlus')
-            : iap.price
-              ? `${t(language, 'getPlus')} · ${iap.price}`
+            : selectedPrice
+              ? `${t(language, 'getPlus')} · ${selectedPrice}`
               : t(language, 'getPlus')}
         </Text>
       </Pressable>
-      <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>{t(language, 'paywallLifetime')}</Text>
+      <Text style={[styles.paywallInlineLifetime, { color: theme.muted }]}>
+        {t(language, 'paywallSubscription')}
+      </Text>
       <Pressable
         onPress={iap.restore}
-        disabled={iap.status === 'purchasing' || iap.status === 'restoring'}
+        disabled={busy}
         hitSlop={12}
+        accessibilityRole="button"
       >
         <Text style={[styles.paywallInlineRestore, { color: theme.muted }]}>
           {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
         </Text>
       </Pressable>
-    </View>
+    </PlusAccentShell>
   );
 }
 
@@ -218,6 +286,30 @@ const styles = StyleSheet.create({
   paywallInlineFeatureLabel: {
     fontSize: 15,
     flex: 1,
+  },
+  planRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  planOption: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: radius.control,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    gap: 4,
+  },
+  planOptionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  planOptionPrice: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  planOptionHint: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   paywallInlineError: {
     fontSize: 13,
