@@ -529,14 +529,16 @@ export default function App() {
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
                     <View style={styles.insightHeader}>
-                      <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                        {t(language, 'cycleInsight')}
-                      </Text>
-                      <SourcesInfoButton
-                        theme={theme}
-                        language={language}
-                        onPress={() => setSourcesTopic('hormones')}
-                      />
+                      <View style={styles.settingTitleRow}>
+                        <Text style={[styles.sectionLabel, { color: theme.accent }]}>
+                          {t(language, 'cycleInsight')}
+                        </Text>
+                        <SourcesInfoButton
+                          theme={theme}
+                          language={language}
+                          onPress={() => setSourcesTopic('hormones')}
+                        />
+                      </View>
                     </View>
                     <Text
                       style={[
@@ -566,15 +568,17 @@ export default function App() {
                 <View style={[styles.card, styles.insightCard, { backgroundColor: theme.card }]}>
                   <View style={styles.cardBlock}>
                     <View style={styles.insightHeader}>
-                      <Text style={[styles.sectionLabel, { color: theme.teal }]}>
-                        {t(language, 'scheduleInsight')}
-                      </Text>
-                      <View style={styles.insightHeaderActions}>
+                      <View style={styles.settingTitleRow}>
+                        <Text style={[styles.sectionLabel, { color: theme.teal }]}>
+                          {t(language, 'scheduleInsight')}
+                        </Text>
                         <SourcesInfoButton
                           theme={theme}
                           language={language}
                           onPress={() => setSourcesTopic('activity')}
                         />
+                      </View>
+                      <View style={styles.insightHeaderActions}>
                         <Text style={[styles.insightChevron, { color: theme.teal }]}>›</Text>
                       </View>
                     </View>
