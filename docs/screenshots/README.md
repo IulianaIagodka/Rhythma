@@ -21,3 +21,19 @@ Files: `iphone-6.9/`
 `held/03-settings-testflight.png` is saved but **not for App Store Connect** — it shows the TestFlight plan pill.
 
 Source captures from the phone (1206 × 2622) are in `source/`.
+
+## HTML mocks (current UI)
+
+Editable HTML mocks for the current Today / Year layout live in `mocks/`:
+
+- `01-today-dark.html` / `.png`
+- `02-year.html` / `.png`
+- `03-today-light.html` / `.png`
+
+Render (needs Chrome):
+
+```bash
+node scripts/render-screenshot-mocks.cjs
+```
+
+These are design previews for App Store refresh — replace `iphone-6.5/` / `iphone-6.9/` after you approve the set (or capture from TestFlight for final ASC uploads).
