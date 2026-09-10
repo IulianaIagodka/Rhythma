@@ -20,11 +20,12 @@ import Constants from 'expo-constants';
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import {
   firstCycleTrialJustEnded,
+  firstCycleTrialJustStarted,
   isFirstCycleTrialActive,
   isFirstCycleTrialEndingSoon,
 } from './src/firstCycleTrial';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { FirstCycleTrialCard, FirstCycleTrialEndedModal } from './src/FirstCycleTrialCard';
+import { FirstCycleTrialCard, FirstCycleTrialEndedModal, FirstCycleTrialStartedModal } from './src/FirstCycleTrialCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
 import { loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
@@ -164,13 +165,21 @@ export default function App() {
       if (!data) return;
       Haptics.selectionAsync().catch(() => {});
       const nextStarts = togglePeriodStart(data.periodStarts, iso);
-      const trialEnded =
-        data.settings.accessTier === 'free' &&
-        previewUnlockSource() === 'off' &&
-        firstCycleTrialJustEnded(data.periodStarts, nextStarts);
+      const freeUnlocked =
+        data.settings.accessTier === 'free' && previewUnlockSource() === 'off';
+      const trialStarted = freeUnlocked && firstCycleTrialJustStarted(data.periodStarts, nextStarts);
+      const trialEnded = freeUnlocked && firstCycleTrialJustEnded(data.periodStarts, nextStarts);
+      const nextSettings = trialStarted
+        ? {
+            ...data.settings,
+            firstCycleTrialStartedSeen: false,
+            firstCycleTrialEndingSeen: false,
+          }
+        : data.settings;
       persist({
         ...data,
         periodStarts: nextStarts,
+        settings: nextSettings,
       });
       if (trialEnded) setTrialEndedNotice(true);
     },
@@ -231,12 +240,14 @@ export default function App() {
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
   const unlockSource = previewUnlockSource();
   const showTrialStartedNotice =
+    !trialEndedNotice &&
     firstCycleTrialActive &&
     storedTier === 'free' &&
     unlockSource === 'off' &&
     !data.settings.firstCycleTrialStartedSeen;
   const showTrialEndingNotice =
     !showTrialStartedNotice &&
+    !trialEndedNotice &&
     isFirstCycleTrialEndingSoon(data.periodStarts, daysLeft) &&
     storedTier === 'free' &&
     unlockSource === 'off' &&
@@ -423,30 +434,8 @@ export default function App() {
                 ) : null}
               </View>
 
-              {showTrialStartedNotice ? (
-                <FirstCycleTrialCard
-                  kind="started"
-                  theme={theme}
-                  language={language}
-                  onPrimary={() =>
-                    persist({
-                      ...data,
-                      settings: { ...data.settings, firstCycleTrialStartedSeen: true },
-                    })
-                  }
-                  onSecondary={() => {
-                    persist({
-                      ...data,
-                      settings: { ...data.settings, firstCycleTrialStartedSeen: true },
-                    });
-                    setTab('settings');
-                  }}
-                />
-              ) : null}
-
               {showTrialEndingNotice ? (
                 <FirstCycleTrialCard
-                  kind="ending"
                   theme={theme}
                   language={language}
                   daysLeft={daysLeft}
@@ -928,6 +917,24 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <FirstCycleTrialStartedModal
+        visible={showTrialStartedNotice}
+        theme={theme}
+        language={language}
+        onContinueFree={() =>
+          persist({
+            ...data,
+            settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+          })
+        }
+        onSeePlus={() => {
+          persist({
+            ...data,
+            settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+          });
+          setTab('settings');
+        }}
+      />
       <FirstCycleTrialEndedModal
         visible={trialEndedNotice}
         theme={theme}

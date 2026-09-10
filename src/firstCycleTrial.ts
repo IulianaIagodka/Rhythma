@@ -17,6 +17,14 @@ export function isFirstCycleTrialEndingSoon(
   return daysUntilNextPeriod <= FIRST_CYCLE_ENDING_SOON_DAYS;
 }
 
+/** True when adding the first logged period start (0 → 1). */
+export function firstCycleTrialJustStarted(
+  previousStarts: string[],
+  nextStarts: string[],
+): boolean {
+  return sortedUnique(previousStarts).length === 0 && sortedUnique(nextStarts).length === 1;
+}
+
 /** True when adding/removing a period start ends the first-cycle trial (1 → 2 starts). */
 export function firstCycleTrialJustEnded(
   previousStarts: string[],

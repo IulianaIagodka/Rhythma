@@ -5,6 +5,7 @@ import {
   FIRST_CYCLE_ENDING_SOON_DAYS,
   firstCycleTrialEndingTitleKind,
   firstCycleTrialJustEnded,
+  firstCycleTrialJustStarted,
   isFirstCycleTrialActive,
   isFirstCycleTrialEndingSoon,
 } from './firstCycleTrial';
@@ -28,6 +29,12 @@ describe('firstCycleTrial', () => {
     assert.equal(isFirstCycleTrialEndingSoon([], 1), false);
     assert.equal(isFirstCycleTrialEndingSoon(['2026-08-17', '2026-09-14'], 1), false);
     assert.equal(FIRST_CYCLE_ENDING_SOON_DAYS, 3);
+  });
+
+  it('detects the first period start that begins the trial', () => {
+    assert.equal(firstCycleTrialJustStarted([], ['2026-08-17']), true);
+    assert.equal(firstCycleTrialJustStarted(['2026-08-17'], ['2026-08-17', '2026-09-14']), false);
+    assert.equal(firstCycleTrialJustStarted(['2026-08-17'], []), false);
   });
 
   it('detects the transition from first to second logged cycle', () => {

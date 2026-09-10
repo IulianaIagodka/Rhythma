@@ -5,10 +5,10 @@ import { t, type Language } from './i18n';
 import { firstCycleTrialEndingTitleKind } from './firstCycleTrial';
 import { radius, type Theme } from './theme';
 
-export type FirstCycleTrialCardKind = 'started' | 'ending';
+export type FirstCycleTrialCardKind = 'ending';
 
 type FirstCycleTrialCardProps = {
-  kind: FirstCycleTrialCardKind;
+  kind?: FirstCycleTrialCardKind;
   theme: Theme;
   language: Language;
   /** Days until next period — used for the ending title. */
@@ -23,6 +23,14 @@ type FirstCycleTrialEndedModalProps = {
   language: Language;
   onSeePlus: () => void;
   onContinueFree: () => void;
+};
+
+type FirstCycleTrialStartedModalProps = {
+  visible: boolean;
+  theme: Theme;
+  language: Language;
+  onContinueFree: () => void;
+  onSeePlus: () => void;
 };
 
 function endingTitle(language: Language, daysLeft: number | null | undefined): string {
@@ -120,6 +128,52 @@ function GhostButton({
   );
 }
 
+/** Blocking modal after the first period start — cannot miss the free-cycle offer. */
+export function FirstCycleTrialStartedModal({
+  visible,
+  theme,
+  language,
+  onContinueFree,
+  onSeePlus,
+}: FirstCycleTrialStartedModalProps) {
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => {}}
+    >
+      <View style={styles.modalOverlay} accessibilityViewIsModal>
+        <View style={styles.modalCardWrap}>
+          <TrialShell theme={theme} badge={t(language, 'firstCycleTrialBadge')}>
+            <Text style={[styles.title, { color: theme.ink }]}>
+              {t(language, 'firstCycleTrialStartedTitle')}
+            </Text>
+            <Text style={[styles.body, { color: theme.ink }]}>
+              {t(language, 'firstCycleTrialStartedBody')}
+            </Text>
+            <Text style={[styles.secondary, { color: theme.muted }]}>
+              {t(language, 'firstCycleTrialStartedSecondary')}
+            </Text>
+            <View style={styles.actions}>
+              <PrimaryButton
+                theme={theme}
+                label={t(language, 'firstCycleTrialContinueFree')}
+                onPress={onContinueFree}
+              />
+              <GhostButton
+                theme={theme}
+                label={t(language, 'firstCycleTrialSeePlus')}
+                onPress={onSeePlus}
+              />
+            </View>
+          </TrialShell>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 /** Blocking modal — UI behind is not tappable until See Plus or Continue with free. */
 export function FirstCycleTrialEndedModal({
   visible,
@@ -165,41 +219,12 @@ export function FirstCycleTrialEndedModal({
 }
 
 export function FirstCycleTrialCard({
-  kind,
   theme,
   language,
   daysLeft,
   onPrimary,
   onSecondary,
 }: FirstCycleTrialCardProps) {
-  if (kind === 'started') {
-    return (
-      <TrialShell theme={theme} badge={t(language, 'firstCycleTrialBadge')}>
-        <Text style={[styles.title, { color: theme.ink }]}>
-          {t(language, 'firstCycleTrialStartedTitle')}
-        </Text>
-        <Text style={[styles.body, { color: theme.ink }]}>
-          {t(language, 'firstCycleTrialStartedBody')}
-        </Text>
-        <Text style={[styles.secondary, { color: theme.muted }]}>
-          {t(language, 'firstCycleTrialStartedSecondary')}
-        </Text>
-        <View style={styles.actions}>
-          <PrimaryButton
-            theme={theme}
-            label={t(language, 'firstCycleTrialContinueFree')}
-            onPress={onPrimary}
-          />
-          <GhostButton
-            theme={theme}
-            label={t(language, 'firstCycleTrialSeePlus')}
-            onPress={onSecondary}
-          />
-        </View>
-      </TrialShell>
-    );
-  }
-
   return (
     <TrialShell theme={theme} badge={t(language, 'firstCycleTrialBadge')}>
       <Text style={[styles.title, { color: theme.ink }]}>

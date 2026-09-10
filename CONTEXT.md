@@ -99,12 +99,12 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 
 While the user has **exactly one** logged period start (and is on Free, no preview unlock), Plus features unlock until the **next** logged period start:
 
-- Notices on Today: trial started → ending soon (`daysUntilNextPeriod <= 3`) → ended on 2nd cycle log.
+- Notices: trial **started** (blocking modal on first period log) → ending soon (`daysUntilNextPeriod <= 3`, Today card) → **ended** (blocking modal on 2nd cycle log).
 - Today trial card uses a magenta-tinted accent surface (not a gray card) with clear FREE NOW → UNTIL NEXT PERIOD → PLUS AFTERWARDS hierarchy.
-- **Ended** notice is a **blocking modal** (`FirstCycleTrialEndedModal`) — rest of UI is not tappable until See Rhythma Plus or Continue with free.
+- Started/ended notices are **blocking modals** — rest of UI is not tappable until an explicit choice.
 - Calendar sync stays free and is **not** tied to this messaging.
 - Settings Plus toggles appear during the trial (`plusFeaturesUnlocked`).
-- `FirstCycleTrialCard.tsx` renders started/ending Today cards; ended uses the modal.
+- `FirstCycleTrialCard.tsx` — ending card + started/ended modals.
 
 ### Subscriptions (StoreKit)
 
