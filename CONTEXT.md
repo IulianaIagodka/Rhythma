@@ -129,7 +129,16 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 | `development` | Dev client | `EXPO_PUBLIC_UNLOCK_PRO=1` |
 | `plus` | Alias of production (IAP already on) |
 
-`cli.appVersionSource` is **remote**; `production` has `autoIncrement` for iOS build number.
+`cli.appVersionSource` is **remote**; `production` has `autoIncrement` for iOS **build number** only.
+
+### Version vs build number (important)
+
+| Field | Where | When to change |
+| --- | --- | --- |
+| **Version** (`expo.version` / CFBundleShortVersionString, e.g. `1.0.8`) | `app.json` + `package.json` | **Only** for a real App Store release that needs a new marketing version (e.g. ASC rejects reusing the previous string, or the user explicitly asks). |
+| **Build number** (CFBundleVersion, e.g. `88`) | EAS remote `autoIncrement` | Every EAS iOS build — automatic. Do **not** bump marketing version just to ship another TestFlight. |
+
+**Do not bump `1.0.x` on every TestFlight/UI polish build.** That habit (after build 78) cluttered ASC with 1.0.1…1.0.8. Keep the current version and let build number rise unless the user asks otherwise.
 
 ### Build / submit (typical QA)
 
@@ -227,16 +236,16 @@ Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedbac
 2. After behavior changes: add/update `src/*.test.ts`, run `npm test` and `npx tsc --noEmit`.
 3. Do **not** auto-start EAS builds unless the user asks (“білд”, “build”, “TestFlight”, etc.).
 4. For TestFlight QA builds use profile **`testflight`**, not `production`.
-5. Cloud agents: use branch prefix `cursor/…-a260`; open/update PRs via the ManagePullRequest tool (not `gh pr create`).
-6. Keep medical/methodology claims aligned with `sources.ts` and existing disclaimers.
-7. Ukrainian user messages are normal; UI copy lives in both `en` and `uk` in `i18n.ts`.
+5. **Do not bump marketing `version` on every build** — only build number via EAS `autoIncrement`, unless ASC requires a new version string or the user explicitly asks.
+6. Cloud agents: use branch prefix `cursor/…-a260`; open/update PRs via the ManagePullRequest tool (not `gh pr create`).
+7. Keep medical/methodology claims aligned with `sources.ts` and existing disclaimers.
+8. Ukrainian user messages are normal; UI copy lives in both `en` and `uk` in `i18n.ts`.
 
 ---
 
 ## Current release snapshot (update when stale)
 
-- App version on the Plus/IAP release line: **1.0.7**.
-- Active long-running PR theme: Rhythma Plus subscriptions + Send feedback + Today UI polish (insight ⓘ placement, calendar CTA, energy Sources modal).
-- Default git branch for new work unless told otherwise: **`main`**; long-running Plus work may still live on a `cursor/enable-iap-plus-…` branch — check `git branch -vv` and open PRs before assuming.
+- App marketing version: **1.0.8** (leave it unless a real ASC release needs a bump).
+- Default git branch for new work unless told otherwise: **`main`**.
 
 When this file drifts from the code, **trust the code and `eas.json`**, then update this briefing.
