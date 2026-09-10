@@ -40,6 +40,8 @@ describe('defaultSettings', () => {
     assert.equal(settings.showCalendarEvents, true);
     assert.equal(settings.calendarSync, true);
     assert.equal(settings.themeMode, 'dark');
+    assert.equal(settings.firstCycleTrialStartedSeen, false);
+    assert.equal(settings.firstCycleTrialEndingSeen, false);
   });
 });
 

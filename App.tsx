@@ -18,6 +18,11 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
+import {
+  firstCycleTrialJustEnded,
+  isFirstCycleTrialActive,
+  isFirstCycleTrialEndingSoon,
+} from './src/firstCycleTrial';
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
 import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
@@ -71,6 +76,7 @@ export default function App() {
   const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
   const [sourcesTopic, setSourcesTopic] = useState<SourceTopic | 'all' | null>(null);
+  const [trialEndedNotice, setTrialEndedNotice] = useState(false);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -189,10 +195,16 @@ export default function App() {
     (iso: string) => {
       if (!data) return;
       Haptics.selectionAsync().catch(() => {});
+      const nextStarts = togglePeriodStart(data.periodStarts, iso);
+      const trialEnded =
+        data.settings.accessTier === 'free' &&
+        previewUnlockSource() === 'off' &&
+        firstCycleTrialJustEnded(data.periodStarts, nextStarts);
       persist({
         ...data,
-        periodStarts: togglePeriodStart(data.periodStarts, iso),
+        periodStarts: nextStarts,
       });
+      if (trialEnded) setTrialEndedNotice(true);
     },
     [data, persist],
   );
@@ -241,13 +253,27 @@ export default function App() {
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
   const storedTier = data.settings.accessTier;
   const tier = effectiveAccessTier(storedTier);
-  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
-  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
-  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
+  const firstCycleTrialActive = isFirstCycleTrialActive(data.periodStarts);
+  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync', data.periodStarts);
+  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice', data.periodStarts);
+  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm', data.periodStarts);
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
+  const unlockSource = previewUnlockSource();
+  const showTrialStartedNotice =
+    firstCycleTrialActive &&
+    storedTier === 'free' &&
+    unlockSource === 'off' &&
+    !data.settings.firstCycleTrialStartedSeen;
+  const showTrialEndingNotice =
+    !showTrialStartedNotice &&
+    isFirstCycleTrialEndingSoon(data.periodStarts, daysLeft) &&
+    storedTier === 'free' &&
+    unlockSource === 'off' &&
+    !data.settings.firstCycleTrialEndingSeen;
+  const plusFeaturesUnlocked = storedTier === 'pro' || unlockSource !== 'off' || firstCycleTrialActive;
   const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
   const scheduleInsightToggle = scheduleInsightToggleState(
     data.settings.calendarSync,
@@ -287,7 +313,6 @@ export default function App() {
     showScheduleInsightCard && calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
       : null;
-  const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
 
@@ -442,6 +467,93 @@ export default function App() {
                   </View>
                 ) : null}
               </View>
+
+              {showTrialStartedNotice ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
+                    {t(language, 'firstCycleTrialStartedTitle')}
+                  </Text>
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                    {t(language, 'firstCycleTrialStartedBody')}
+                  </Text>
+                  <Pressable
+                    onPress={() =>
+                      persist({
+                        ...data,
+                        settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+                      })
+                    }
+                    style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent }]}
+                  >
+                    <Text style={styles.ctaText}>{t(language, 'firstCycleTrialGotIt')}</Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
+              {showTrialEndingNotice ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
+                    {t(language, 'firstCycleTrialEndingTitle')}
+                  </Text>
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                    {t(language, 'firstCycleTrialEndingBody')}
+                  </Text>
+                  <View style={styles.trialActions}>
+                    <Pressable
+                      onPress={() =>
+                        persist({
+                          ...data,
+                          settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                        })
+                      }
+                      hitSlop={8}
+                    >
+                      <Text style={[styles.textLink, { color: theme.muted }]}>
+                        {t(language, 'firstCycleTrialGotIt')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        persist({
+                          ...data,
+                          settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                        });
+                        setTab('settings');
+                      }}
+                      style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent, flex: 1 }]}
+                    >
+                      <Text style={styles.ctaText}>{t(language, 'firstCycleTrialSeePlus')}</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : null}
+
+              {trialEndedNotice ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
+                    {t(language, 'firstCycleTrialEndedTitle')}
+                  </Text>
+                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                    {t(language, 'firstCycleTrialEndedBody')}
+                  </Text>
+                  <View style={styles.trialActions}>
+                    <Pressable onPress={() => setTrialEndedNotice(false)} hitSlop={8}>
+                      <Text style={[styles.textLink, { color: theme.muted }]}>
+                        {t(language, 'firstCycleTrialGotIt')}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        setTrialEndedNotice(false);
+                        setTab('settings');
+                      }}
+                      style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent, flex: 1 }]}
+                    >
+                      <Text style={styles.ctaText}>{t(language, 'firstCycleTrialSeePlus')}</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : null}
 
               <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
                 {(status.cycleDay != null && (daysLeft != null || freePhaseBrief)) ? (
@@ -732,8 +844,8 @@ export default function App() {
                 />
               </View>
 
-              {/* Plus feature rows — only shown when unlocked */}
-              {storedTier === 'pro' || unlockSource !== 'off' ? (
+              {/* Plus feature rows — Plus sub, preview unlock, or first-cycle trial */}
+              {plusFeaturesUnlocked ? (
                 <>
                   <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                     <View style={styles.settingText}>
@@ -1281,6 +1393,12 @@ const styles = StyleSheet.create({
   ctaCompact: {
     minHeight: 40,
     paddingVertical: 10,
+  },
+  trialActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    marginTop: 2,
   },
   ctaText: {
     color: '#FFFFFF',

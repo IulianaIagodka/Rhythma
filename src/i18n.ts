@@ -29,6 +29,17 @@ export const copy = {
     cycleInsight: 'Підказка циклу',
     connectCalendar: 'Підключити календар',
     connectCalendarHint: 'Увімкніть синхронізацію — побачите, як плани пасують до циклу',
+    firstCycleTrialStartedTitle: 'Plus на перший цикл',
+    firstCycleTrialStartedBody:
+      'Підказки циклу, розкладу та крива енергії відкриті до наступних місячних. Далі — у Rhythma Plus.',
+    firstCycleTrialEndingTitle: 'Перший цикл добігає кінця',
+    firstCycleTrialEndingBody:
+      'Щоб зберегти підказки й криву енергії після наступних місячних — оформіть Rhythma Plus.',
+    firstCycleTrialEndedTitle: 'Перший цикл завершено',
+    firstCycleTrialEndedBody:
+      'Plus-фічі знову в підписці. Оформіть Rhythma Plus, щоб продовжити.',
+    firstCycleTrialGotIt: 'Зрозуміло',
+    firstCycleTrialSeePlus: 'До Plus',
     showCalendarEvents: 'Події календаря',
     showCalendarEventsDesc: 'Показувати події на календарі року',
     dayDetailEvents: 'Події',
@@ -201,6 +212,17 @@ export const copy = {
     cycleInsight: 'Cycle insight',
     connectCalendar: 'Connect calendar',
     connectCalendarHint: 'Turn on sync to see how your plans align with your cycle',
+    firstCycleTrialStartedTitle: 'Plus for your first cycle',
+    firstCycleTrialStartedBody:
+      'Cycle insight, Schedule insight, and the Energy curve stay open until your next period. After that, they’re in Rhythma Plus.',
+    firstCycleTrialEndingTitle: 'Your first cycle is ending soon',
+    firstCycleTrialEndingBody:
+      'To keep insights and the Energy curve after your next period, subscribe to Rhythma Plus.',
+    firstCycleTrialEndedTitle: 'First cycle complete',
+    firstCycleTrialEndedBody:
+      'Plus features need a subscription again. Get Rhythma Plus to continue.',
+    firstCycleTrialGotIt: 'Got it',
+    firstCycleTrialSeePlus: 'See Plus',
     showCalendarEvents: 'Calendar events',
     showCalendarEventsDesc: 'Show events on the year calendar',
     dayDetailEvents: 'Events',

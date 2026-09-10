@@ -63,6 +63,7 @@ assets/
 | File | Responsibility |
 | --- | --- |
 | `access.ts` | Free / Plus tiers, feature gates, env unlock flags |
+| `firstCycleTrial.ts` | First-cycle Plus trial (one logged period start) |
 | `iapPlus.ts`, `useIAPPlus.ts`, `PlusFreeCard.tsx` | Subscription product IDs + purchase UI |
 | `cycle.ts` | Period starts, phases, forecast, energy/hormone curves |
 | `activity.ts` | `cycleInsight()` vs `adviseLoad()` (schedule insight) |
@@ -93,6 +94,14 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 | `cycleRhythm` | pro | Energy / hormone curve |
 
 **Free Today extras when Cycle insight is off:** short `phaseBriefDescription` on the cycle card (one ⓘ only, top-right).
+
+### First-cycle Plus trial
+
+While the user has **exactly one** logged period start (and is on Free, no preview unlock), Plus features unlock until the **next** logged period start:
+
+- Notices on Today: trial started → ending soon (`daysUntilNextPeriod <= 3`) → ended on 2nd cycle log.
+- Calendar sync stays free and is **not** tied to this messaging.
+- Settings Plus toggles appear via the same unlock (`plusFeaturesUnlocked`).
 
 ### Subscriptions (StoreKit)
 
@@ -203,7 +212,7 @@ npm start                # expo start
 3. Docs/copy/metadata-only changes need no new tests but must still pass the suite.
 4. Note what was tested in the merge/PR summary.
 
-Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedback`, `iapPlus`, `settingsControls`, `sources`, `WeekStrip`, `yearCalendarLayout`.
+Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedback`, `firstCycleTrial`, `iapPlus`, `settingsControls`, `sources`, `WeekStrip`, `yearCalendarLayout`.
 
 ---
 
