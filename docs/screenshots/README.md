@@ -22,6 +22,18 @@ Files: `iphone-6.9/`
 
 Source captures from the phone (1206 × 2622) are in `source/`.
 
+## Current set (Sep 2026)
+
+Replaced from TestFlight **1.0.8** captures:
+
+| Slot | Content |
+| --- | --- |
+| `01-today-dark` | Today + week + schedule insight (dark) |
+| `02-year` | Cycle calendar (dark) |
+| `03-today-light` | Today + cycle insight (light) |
+
+Download: [rhythma-iphone-6.5.zip](rhythma-iphone-6.5.zip) · helper page [download.html](download.html)
+
 ## HTML mocks (current UI)
 
 Editable HTML mocks for the current Today / Year layout live in `mocks/`:
