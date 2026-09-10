@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { t, type Language } from './i18n';
 import { firstCycleTrialEndingTitleKind } from './firstCycleTrial';
 import { radius, type Theme } from './theme';
 
-export type FirstCycleTrialCardKind = 'started' | 'ending' | 'ended';
+export type FirstCycleTrialCardKind = 'started' | 'ending';
 
 type FirstCycleTrialCardProps = {
   kind: FirstCycleTrialCardKind;
@@ -15,6 +15,14 @@ type FirstCycleTrialCardProps = {
   daysLeft?: number | null;
   onPrimary: () => void;
   onSecondary: () => void;
+};
+
+type FirstCycleTrialEndedModalProps = {
+  visible: boolean;
+  theme: Theme;
+  language: Language;
+  onSeePlus: () => void;
+  onContinueFree: () => void;
 };
 
 function endingTitle(language: Language, daysLeft: number | null | undefined): string {
@@ -50,7 +58,6 @@ function TrialShell({
     <View
       style={[
         styles.card,
-        calm ? styles.cardCalm : null,
         {
           backgroundColor: calm ? calmTrialBackground(theme) : theme.accentSoft,
           borderColor: theme.accent,
@@ -113,6 +120,50 @@ function GhostButton({
   );
 }
 
+/** Blocking modal — UI behind is not tappable until See Plus or Continue with free. */
+export function FirstCycleTrialEndedModal({
+  visible,
+  theme,
+  language,
+  onSeePlus,
+  onContinueFree,
+}: FirstCycleTrialEndedModalProps) {
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      // Android back must not dismiss without an explicit choice.
+      onRequestClose={() => {}}
+    >
+      <View style={styles.modalOverlay} accessibilityViewIsModal>
+        <View style={styles.modalCardWrap}>
+          <TrialShell theme={theme} calm>
+            <Text style={[styles.title, { color: theme.ink }]}>
+              {t(language, 'firstCycleTrialEndedTitle')}
+            </Text>
+            <Text style={[styles.body, { color: theme.muted }]}>
+              {t(language, 'firstCycleTrialEndedBody')}
+            </Text>
+            <View style={styles.actions}>
+              <PrimaryButton
+                theme={theme}
+                label={t(language, 'firstCycleTrialSeeRhythmaPlus')}
+                onPress={onSeePlus}
+              />
+              <GhostButton
+                theme={theme}
+                label={t(language, 'firstCycleTrialContinueWithFree')}
+                onPress={onContinueFree}
+              />
+            </View>
+          </TrialShell>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export function FirstCycleTrialCard({
   kind,
   theme,
@@ -149,48 +200,23 @@ export function FirstCycleTrialCard({
     );
   }
 
-  if (kind === 'ending') {
-    return (
-      <TrialShell theme={theme} badge={t(language, 'firstCycleTrialBadge')}>
-        <Text style={[styles.title, { color: theme.ink }]}>
-          {endingTitle(language, daysLeft)}
-        </Text>
-        <Text style={[styles.body, { color: theme.ink }]}>
-          {t(language, 'firstCycleTrialEndingBody')}
-        </Text>
-        <View style={styles.actions}>
-          <PrimaryButton
-            theme={theme}
-            label={t(language, 'firstCycleTrialSeePlus')}
-            onPress={onPrimary}
-          />
-          <GhostButton
-            theme={theme}
-            label={t(language, 'firstCycleTrialMaybeLater')}
-            onPress={onSecondary}
-          />
-        </View>
-      </TrialShell>
-    );
-  }
-
   return (
-    <TrialShell theme={theme} calm>
+    <TrialShell theme={theme} badge={t(language, 'firstCycleTrialBadge')}>
       <Text style={[styles.title, { color: theme.ink }]}>
-        {t(language, 'firstCycleTrialEndedTitle')}
+        {endingTitle(language, daysLeft)}
       </Text>
-      <Text style={[styles.body, { color: theme.muted }]}>
-        {t(language, 'firstCycleTrialEndedBody')}
+      <Text style={[styles.body, { color: theme.ink }]}>
+        {t(language, 'firstCycleTrialEndingBody')}
       </Text>
       <View style={styles.actions}>
         <PrimaryButton
           theme={theme}
-          label={t(language, 'firstCycleTrialSeeRhythmaPlus')}
+          label={t(language, 'firstCycleTrialSeePlus')}
           onPress={onPrimary}
         />
         <GhostButton
           theme={theme}
-          label={t(language, 'firstCycleTrialContinueWithFree')}
+          label={t(language, 'firstCycleTrialMaybeLater')}
           onPress={onSecondary}
         />
       </View>
@@ -199,14 +225,21 @@ export function FirstCycleTrialCard({
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCardWrap: {
+    width: '100%',
+  },
   card: {
     borderRadius: radius.card,
     padding: 18,
     gap: 10,
     borderWidth: 1,
-  },
-  cardCalm: {
-    // No outer glow — border alone keeps the card distinct.
   },
   badge: {
     alignSelf: 'flex-start',

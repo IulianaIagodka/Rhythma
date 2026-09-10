@@ -101,9 +101,10 @@ While the user has **exactly one** logged period start (and is on Free, no previ
 
 - Notices on Today: trial started → ending soon (`daysUntilNextPeriod <= 3`) → ended on 2nd cycle log.
 - Today trial card uses a magenta-tinted accent surface (not a gray card) with clear FREE NOW → UNTIL NEXT PERIOD → PLUS AFTERWARDS hierarchy.
+- **Ended** notice is a **blocking modal** (`FirstCycleTrialEndedModal`) — rest of UI is not tappable until See Rhythma Plus or Continue with free.
 - Calendar sync stays free and is **not** tied to this messaging.
 - Settings Plus toggles appear during the trial (`plusFeaturesUnlocked`).
-- `FirstCycleTrialCard.tsx` renders the three Today notice states.
+- `FirstCycleTrialCard.tsx` renders started/ending Today cards; ended uses the modal.
 
 ### Subscriptions (StoreKit)
 

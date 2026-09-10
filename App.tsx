@@ -24,7 +24,7 @@ import {
   isFirstCycleTrialEndingSoon,
 } from './src/firstCycleTrial';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { FirstCycleTrialCard } from './src/FirstCycleTrialCard';
+import { FirstCycleTrialCard, FirstCycleTrialEndedModal } from './src/FirstCycleTrialCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
 import { loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
@@ -463,19 +463,6 @@ export default function App() {
                       settings: { ...data.settings, firstCycleTrialEndingSeen: true },
                     })
                   }
-                />
-              ) : null}
-
-              {trialEndedNotice ? (
-                <FirstCycleTrialCard
-                  kind="ended"
-                  theme={theme}
-                  language={language}
-                  onPrimary={() => {
-                    setTrialEndedNotice(false);
-                    setTab('settings');
-                  }}
-                  onSecondary={() => setTrialEndedNotice(false)}
                 />
               ) : null}
 
@@ -941,6 +928,16 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <FirstCycleTrialEndedModal
+        visible={trialEndedNotice}
+        theme={theme}
+        language={language}
+        onSeePlus={() => {
+          setTrialEndedNotice(false);
+          setTab('settings');
+        }}
+        onContinueFree={() => setTrialEndedNotice(false)}
+      />
       <SourcesSheet
         visible={sourcesTopic != null}
         topic={sourcesTopic ?? 'all'}
@@ -978,8 +975,9 @@ export default function App() {
         onCancel={() => setPeriodPrompt(null)}
         onConfirm={() => {
           if (!periodPrompt) return;
-          onToggleDay(periodPrompt.iso);
+          const iso = periodPrompt.iso;
           setPeriodPrompt(null);
+          onToggleDay(iso);
         }}
       />
     </SafeAreaProvider>
