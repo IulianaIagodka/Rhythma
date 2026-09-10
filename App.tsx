@@ -26,16 +26,14 @@ import {
 import { PlusFreeCard } from './src/PlusFreeCard';
 import { FirstCycleTrialCard } from './src/FirstCycleTrialCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
-import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
+import { loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
 import {
-  cycleDayOnDate,
   cycleStatus,
   daysUntilNextPeriod,
   isPredictedCycleDate,
   markForDate,
   marksForYear,
-  phaseOnDate,
   periodPromptForDate,
   togglePeriodStart,
   type DayMark,
@@ -70,7 +68,6 @@ export default function App() {
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [data, setData] = useState<StoredData | null>(null);
   const [items, setItems] = useState<CalendarItem[]>([]);
-  const [yearItems, setYearItems] = useState<CalendarItem[]>([]);
   const [selectedDay, setSelectedDay] = useState(today);
   const [calendarError, setCalendarError] = useState<string | null>(null);
   const [calendarPermissionDenied, setCalendarPermissionDenied] = useState(false);
@@ -106,7 +103,6 @@ export default function App() {
   const refreshCalendar = useCallback(async (enabled: boolean) => {
     if (!enabled) {
       setItems([]);
-      setYearItems([]);
       setCalendarError(null);
       setCalendarPermissionDenied(false);
       return;
@@ -115,16 +111,6 @@ export default function App() {
     setItems(result.items);
     setCalendarError(result.error);
     setCalendarPermissionDenied(result.permissionDenied);
-  }, [language]);
-
-  const refreshYearEvents = useCallback(async (enabled: boolean, targetYear: number) => {
-    if (!enabled) {
-      setYearItems([]);
-      return;
-    }
-    const result = await loadCalendarItems(`${targetYear}-01-01`, `${targetYear}-12-31`, language);
-    setYearItems(result.items);
-    if (result.permissionDenied) setCalendarPermissionDenied(true);
   }, [language]);
 
   useEffect(() => {
@@ -138,10 +124,7 @@ export default function App() {
     if (tab === 'today' && enabled) {
       refreshCalendar(true);
     }
-    if (tab === 'year' && enabled) {
-      refreshYearEvents(true, year);
-    }
-  }, [tab, year, data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar, refreshYearEvents]);
+  }, [tab, data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar]);
 
   // Re-read the phone calendar when returning to the app (new events often appear then).
   useEffect(() => {
@@ -151,18 +134,10 @@ export default function App() {
     const sub = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
         refreshCalendar(true);
-        if (tab === 'year') refreshYearEvents(true, year);
       }
     });
     return () => sub.remove();
-  }, [
-    data?.settings.accessTier,
-    data?.settings.calendarSync,
-    refreshCalendar,
-    refreshYearEvents,
-    tab,
-    year,
-  ]);
+  }, [data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar]);
 
   const onSyncCalendar = useCallback(async () => {
     const canSync = hasFeatureAccess(data?.settings.accessTier ?? 'free', 'calendarSync');
@@ -175,7 +150,6 @@ export default function App() {
       // Clear first so the agenda visibly refreshes even if EventKit returns the same set.
       setItems([]);
       await refreshCalendar(true);
-      await refreshYearEvents(true, year);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } finally {
       const elapsed = Date.now() - started;
@@ -183,14 +157,7 @@ export default function App() {
       if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
       setCalendarSyncing(false);
     }
-  }, [
-    calendarSyncing,
-    data?.settings.accessTier,
-    data?.settings.calendarSync,
-    refreshCalendar,
-    refreshYearEvents,
-    year,
-  ]);
+  }, [calendarSyncing, data?.settings.accessTier, data?.settings.calendarSync, refreshCalendar]);
 
   const onToggleDay = useCallback(
     (iso: string) => {
@@ -293,19 +260,6 @@ export default function App() {
     : selectedItems.length
       ? theme.teal
       : theme.muted;
-  const promptItems = periodPrompt
-    ? yearItems.filter((item) => item.day === periodPrompt.iso)
-    : [];
-  const promptCycleDay = periodPrompt
-    ? cycleDayOnDate(periodPrompt.iso, data.periodStarts, data.settings)
-    : null;
-  const promptPredicted = periodPrompt
-    ? isPredictedCycleDate(periodPrompt.iso, data.periodStarts)
-    : false;
-  const promptOvulatory =
-    periodPrompt != null &&
-    data.settings.showOvulation &&
-    phaseOnDate(periodPrompt.iso, data.periodStarts, data.settings) === 'ovulatory';
   const todayPredicted = isPredictedCycleDate(today, data.periodStarts);
   const visibleCycleInsight = showCycleInsightCard ? cycleInsight(status.phase, language) : null;
   const freePhaseBrief =
@@ -997,7 +951,6 @@ export default function App() {
       <ConfirmDialog
         visible={periodPrompt != null}
         theme={theme}
-        language={language}
         title={t(language, 'periodStartTitle')}
         message={
           periodPrompt
@@ -1008,33 +961,20 @@ export default function App() {
               )
             : ''
         }
-        cycleLine={
-          promptCycleDay != null
+        detail={
+          periodPrompt
             ? t(
                 language,
-                promptPredicted ? 'dayDetailCycleDayPredicted' : 'dayDetailCycleDay',
-                { day: String(promptCycleDay) },
-              )
-            : t(language, 'dayDetailNoCycle')
-        }
-        ovulationLine={
-          promptOvulatory
-            ? t(
-                language,
-                promptPredicted ? 'dayDetailOvulationPredicted' : 'dayDetailOvulation',
+                periodPrompt.kind === 'remove'
+                  ? 'confirmRemovePeriodDetail'
+                  : 'confirmAddPeriodDetail',
               )
             : undefined
-        }
-        eventsLabel={t(language, 'dayDetailEvents')}
-        events={calendarEnabled ? promptItems : []}
-        emptyEventsLabel={
-          calendarEnabled ? t(language, 'dayDetailNoEvents') : t(language, 'dayDetailEnableSync')
         }
         cancelLabel={t(language, 'confirmCancel')}
         confirmLabel={
           periodPrompt?.kind === 'remove' ? t(language, 'confirmRemove') : t(language, 'confirmAdd')
         }
-        destructive={periodPrompt?.kind === 'remove'}
         onCancel={() => setPeriodPrompt(null)}
         onConfirm={() => {
           if (!periodPrompt) return;

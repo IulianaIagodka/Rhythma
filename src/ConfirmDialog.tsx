@@ -1,45 +1,31 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { CalendarItem } from './calendar';
-import { formatEventTime } from './calendarItems';
-import type { Language } from './dates';
 import { radius, type Theme } from './theme';
 
 type ConfirmDialogProps = {
   visible: boolean;
   theme: Theme;
-  language: Language;
   title: string;
   message: string;
+  detail?: string;
   cancelLabel: string;
   confirmLabel: string;
-  destructive?: boolean;
-  cycleLine?: string;
-  ovulationLine?: string;
-  eventsLabel?: string;
-  events?: CalendarItem[];
-  emptyEventsLabel?: string;
   onCancel: () => void;
   onConfirm: () => void;
 };
 
+/** Lightweight confirm sheet — title, message, optional detail, Cancel / primary. */
 export function ConfirmDialog({
   visible,
   theme,
-  language,
   title,
   message,
+  detail,
   cancelLabel,
   confirmLabel,
-  cycleLine,
-  ovulationLine,
-  eventsLabel,
-  events,
-  emptyEventsLabel,
   onCancel,
   onConfirm,
 }: ConfirmDialogProps) {
-  const showEvents = eventsLabel != null;
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.overlay}>
@@ -47,28 +33,7 @@ export function ConfirmDialog({
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <Text style={[styles.title, { color: theme.ink }]}>{title}</Text>
           <Text style={[styles.message, { color: theme.muted }]}>{message}</Text>
-          {cycleLine ? (
-            <Text style={[styles.cycleLine, { color: theme.accent }]}>{cycleLine}</Text>
-          ) : null}
-          {ovulationLine ? (
-            <Text style={[styles.ovulationLine, { color: theme.teal }]}>{ovulationLine}</Text>
-          ) : null}
-          {showEvents ? (
-            <View style={styles.eventsBlock}>
-              <Text style={[styles.sectionLabel, { color: theme.muted }]}>{eventsLabel}</Text>
-              {events?.length ? (
-                <View style={styles.eventList}>
-                  {events.map((item) => (
-                    <Text key={item.id} style={[styles.eventItem, { color: theme.ink }]}>
-                      {`${formatEventTime(item, language)} · ${item.title}`}
-                    </Text>
-                  ))}
-                </View>
-              ) : (
-                <Text style={[styles.empty, { color: theme.muted }]}>{emptyEventsLabel}</Text>
-              )}
-            </View>
-          ) : null}
+          {detail ? <Text style={[styles.detail, { color: theme.muted }]}>{detail}</Text> : null}
           <View style={styles.actions}>
             <Pressable
               onPress={onCancel}
@@ -122,34 +87,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  cycleLine: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  ovulationLine: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  eventsBlock: {
-    gap: 6,
-    marginTop: 2,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-  },
-  eventList: {
-    gap: 6,
-  },
-  eventItem: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  empty: {
-    fontSize: 15,
-    lineHeight: 22,
+  detail: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   actions: {
     flexDirection: 'row',
