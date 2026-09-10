@@ -135,10 +135,10 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 
 | Field | Where | When to change |
 | --- | --- | --- |
-| **Version** (`expo.version` / CFBundleShortVersionString, e.g. `1.0.8`) | `app.json` + `package.json` | **Only** for a real App Store release that needs a new marketing version (e.g. ASC rejects reusing the previous string, or the user explicitly asks). |
-| **Build number** (CFBundleVersion, e.g. `88`) | EAS remote `autoIncrement` | Every EAS iOS build — automatic. Do **not** bump marketing version just to ship another TestFlight. |
+| **Version** (`expo.version` / CFBundleShortVersionString, e.g. `1.0.8`) | `app.json` + `package.json` | **Only after an App Store release** — bump for the *next* cycle once the current version is live on the store (or if the user explicitly asks). Never for TestFlight-only / UI polish builds. |
+| **Build number** (CFBundleVersion, e.g. `88`) | EAS remote `autoIncrement` | Every EAS iOS build — automatic. |
 
-**Do not bump `1.0.x` on every TestFlight/UI polish build.** That habit (after build 78) cluttered ASC with 1.0.1…1.0.8. Keep the current version and let build number rise unless the user asks otherwise.
+**Rule:** TestFlight and pre-release iteration → same marketing version, rising build number only. **Bump `1.0.x` only after release** (start of the next release train), not before each build. The post–build-78 habit of 1.0.1…1.0.8 per ship was wrong.
 
 ### Build / submit (typical QA)
 
@@ -236,7 +236,7 @@ Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedbac
 2. After behavior changes: add/update `src/*.test.ts`, run `npm test` and `npx tsc --noEmit`.
 3. Do **not** auto-start EAS builds unless the user asks (“білд”, “build”, “TestFlight”, etc.).
 4. For TestFlight QA builds use profile **`testflight`**, not `production`.
-5. **Do not bump marketing `version` on every build** — only build number via EAS `autoIncrement`, unless ASC requires a new version string or the user explicitly asks.
+5. **Bump marketing `version` only after an App Store release** (for the next cycle). Until then keep the same version; only EAS `autoIncrement` build number rises. Do not bump version for TestFlight/UI builds unless the user explicitly asks.
 6. Cloud agents: use branch prefix `cursor/…-a260`; open/update PRs via the ManagePullRequest tool (not `gh pr create`).
 7. Keep medical/methodology claims aligned with `sources.ts` and existing disclaimers.
 8. Ukrainian user messages are normal; UI copy lives in both `en` and `uk` in `i18n.ts`.
@@ -245,7 +245,7 @@ Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedbac
 
 ## Current release snapshot (update when stale)
 
-- App marketing version: **1.0.8** (leave it unless a real ASC release needs a bump).
+- App marketing version: **1.0.8** — keep until this version is released on the App Store; bump only afterward (or if the user asks).
 - Default git branch for new work unless told otherwise: **`main`**.
 
 When this file drifts from the code, **trust the code and `eas.json`**, then update this briefing.
