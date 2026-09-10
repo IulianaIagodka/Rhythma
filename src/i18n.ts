@@ -43,7 +43,7 @@ export const copy = {
     firstCycleTrialEndingBody:
       'Plus-фічі відкриті до наступних місячних. Зберегти їх далі — з Rhythma Plus.',
     firstCycleTrialMaybeLater: 'Можливо пізніше',
-    firstCycleTrialEndedTitle: 'Безкоштовний цикл завершено',
+    firstCycleTrialEndedTitle: 'Безкоштовний Plus-цикл завершено',
     firstCycleTrialEndedBody:
       'Трекінг циклу лишається безкоштовним. Крива енергії, підказки циклу та розкладу — тепер у Plus.',
     firstCycleTrialSeeRhythmaPlus: 'До Rhythma Plus',
@@ -236,7 +236,7 @@ export const copy = {
     firstCycleTrialEndingBody:
       'Your Plus features stay open until your next period. Keep them after that with Rhythma Plus.',
     firstCycleTrialMaybeLater: 'Maybe later',
-    firstCycleTrialEndedTitle: 'Your free cycle has ended',
+    firstCycleTrialEndedTitle: 'Your free Plus cycle has ended',
     firstCycleTrialEndedBody:
       'Your cycle tracking stays free. Energy curve, Cycle insights and Schedule insights are now available with Plus.',
     firstCycleTrialSeeRhythmaPlus: 'See Rhythma Plus',

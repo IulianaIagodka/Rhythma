@@ -30,23 +30,30 @@ function endingTitle(language: Language, daysLeft: number | null | undefined): s
   }
 }
 
+/** Mostly dark card with a light magenta wash — calmer than accentSoft. */
+function calmTrialBackground(theme: Theme): string {
+  return theme.background === '#0A0A0A' ? '#161218' : '#F7F0F4';
+}
+
 function TrialShell({
   theme,
   badge,
+  calm,
   children,
 }: {
   theme: Theme;
   badge?: string;
+  calm?: boolean;
   children: ReactNode;
 }) {
   return (
     <View
       style={[
         styles.card,
+        calm ? styles.cardCalm : null,
         {
-          backgroundColor: theme.accentSoft,
+          backgroundColor: calm ? calmTrialBackground(theme) : theme.accentSoft,
           borderColor: theme.accent,
-          shadowColor: theme.accent,
         },
       ]}
     >
@@ -57,6 +64,52 @@ function TrialShell({
       ) : null}
       {children}
     </View>
+  );
+}
+
+function PrimaryButton({
+  theme,
+  label,
+  onPress,
+}: {
+  theme: Theme;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
+      accessibilityRole="button"
+    >
+      <Text style={styles.primaryBtnText}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function GhostButton({
+  theme,
+  label,
+  onPress,
+}: {
+  theme: Theme;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.ghostBtn,
+        {
+          borderColor: theme.border,
+          backgroundColor: theme.background === '#0A0A0A' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+        },
+      ]}
+      accessibilityRole="button"
+    >
+      <Text style={[styles.ghostBtnText, { color: theme.ink }]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -80,18 +133,18 @@ export function FirstCycleTrialCard({
         <Text style={[styles.secondary, { color: theme.muted }]}>
           {t(language, 'firstCycleTrialStartedSecondary')}
         </Text>
-        <Pressable
-          onPress={onPrimary}
-          style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
-          accessibilityRole="button"
-        >
-          <Text style={styles.primaryBtnText}>{t(language, 'firstCycleTrialContinueFree')}</Text>
-        </Pressable>
-        <Pressable onPress={onSecondary} hitSlop={8} accessibilityRole="button">
-          <Text style={[styles.secondaryLink, { color: theme.muted }]}>
-            {t(language, 'firstCycleTrialSeePlus')}
-          </Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <PrimaryButton
+            theme={theme}
+            label={t(language, 'firstCycleTrialContinueFree')}
+            onPress={onPrimary}
+          />
+          <GhostButton
+            theme={theme}
+            label={t(language, 'firstCycleTrialSeePlus')}
+            onPress={onSecondary}
+          />
+        </View>
       </TrialShell>
     );
   }
@@ -105,42 +158,42 @@ export function FirstCycleTrialCard({
         <Text style={[styles.body, { color: theme.ink }]}>
           {t(language, 'firstCycleTrialEndingBody')}
         </Text>
-        <Pressable
-          onPress={onPrimary}
-          style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
-          accessibilityRole="button"
-        >
-          <Text style={styles.primaryBtnText}>{t(language, 'firstCycleTrialSeePlus')}</Text>
-        </Pressable>
-        <Pressable onPress={onSecondary} hitSlop={8} accessibilityRole="button">
-          <Text style={[styles.secondaryLink, { color: theme.muted }]}>
-            {t(language, 'firstCycleTrialMaybeLater')}
-          </Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <PrimaryButton
+            theme={theme}
+            label={t(language, 'firstCycleTrialSeePlus')}
+            onPress={onPrimary}
+          />
+          <GhostButton
+            theme={theme}
+            label={t(language, 'firstCycleTrialMaybeLater')}
+            onPress={onSecondary}
+          />
+        </View>
       </TrialShell>
     );
   }
 
   return (
-    <TrialShell theme={theme}>
+    <TrialShell theme={theme} calm>
       <Text style={[styles.title, { color: theme.ink }]}>
         {t(language, 'firstCycleTrialEndedTitle')}
       </Text>
-      <Text style={[styles.body, { color: theme.ink }]}>
+      <Text style={[styles.body, { color: theme.muted }]}>
         {t(language, 'firstCycleTrialEndedBody')}
       </Text>
-      <Pressable
-        onPress={onPrimary}
-        style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
-        accessibilityRole="button"
-      >
-        <Text style={styles.primaryBtnText}>{t(language, 'firstCycleTrialSeeRhythmaPlus')}</Text>
-      </Pressable>
-      <Pressable onPress={onSecondary} hitSlop={8} accessibilityRole="button">
-        <Text style={[styles.secondaryLink, { color: theme.muted }]}>
-          {t(language, 'firstCycleTrialContinueWithFree')}
-        </Text>
-      </Pressable>
+      <View style={styles.actions}>
+        <PrimaryButton
+          theme={theme}
+          label={t(language, 'firstCycleTrialSeeRhythmaPlus')}
+          onPress={onPrimary}
+        />
+        <GhostButton
+          theme={theme}
+          label={t(language, 'firstCycleTrialContinueWithFree')}
+          onPress={onSecondary}
+        />
+      </View>
     </TrialShell>
   );
 }
@@ -151,10 +204,9 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 10,
     borderWidth: 1,
-    shadowOpacity: 0.22,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+  },
+  cardCalm: {
+    // No outer glow — border alone keeps the card distinct.
   },
   badge: {
     alignSelf: 'flex-start',
@@ -184,12 +236,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
+  actions: {
+    gap: 8,
+    marginTop: 4,
+  },
   primaryBtn: {
     borderRadius: radius.control,
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
     paddingVertical: 12,
   },
   primaryBtnText: {
@@ -197,11 +252,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  secondaryLink: {
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    paddingVertical: 2,
+  ghostBtn: {
+    borderRadius: radius.control,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderWidth: 1,
+  },
+  ghostBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
