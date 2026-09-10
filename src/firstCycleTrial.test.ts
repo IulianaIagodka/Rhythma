@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import {
   FIRST_CYCLE_ENDING_SOON_DAYS,
+  firstCycleTrialEndingTitleKind,
   firstCycleTrialJustEnded,
   isFirstCycleTrialActive,
   isFirstCycleTrialEndingSoon,
@@ -33,5 +34,12 @@ describe('firstCycleTrial', () => {
     assert.equal(firstCycleTrialJustEnded(['2026-08-17'], ['2026-08-17', '2026-09-14']), true);
     assert.equal(firstCycleTrialJustEnded([], ['2026-08-17']), false);
     assert.equal(firstCycleTrialJustEnded(['2026-08-17', '2026-09-14'], ['2026-08-17']), false);
+  });
+
+  it('picks ending-title variants from days left', () => {
+    assert.equal(firstCycleTrialEndingTitleKind(null), 'soon');
+    assert.equal(firstCycleTrialEndingTitleKind(0), 'today');
+    assert.equal(firstCycleTrialEndingTitleKind(1), 'one');
+    assert.equal(firstCycleTrialEndingTitleKind(2), 'days');
   });
 });

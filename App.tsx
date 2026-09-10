@@ -24,6 +24,7 @@ import {
   isFirstCycleTrialEndingSoon,
 } from './src/firstCycleTrial';
 import { PlusFreeCard } from './src/PlusFreeCard';
+import { FirstCycleTrialCard } from './src/FirstCycleTrialCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
 import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
@@ -469,90 +470,59 @@ export default function App() {
               </View>
 
               {showTrialStartedNotice ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                    {t(language, 'firstCycleTrialStartedTitle')}
-                  </Text>
-                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                    {t(language, 'firstCycleTrialStartedBody')}
-                  </Text>
-                  <Pressable
-                    onPress={() =>
-                      persist({
-                        ...data,
-                        settings: { ...data.settings, firstCycleTrialStartedSeen: true },
-                      })
-                    }
-                    style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent }]}
-                  >
-                    <Text style={styles.ctaText}>{t(language, 'firstCycleTrialGotIt')}</Text>
-                  </Pressable>
-                </View>
+                <FirstCycleTrialCard
+                  kind="started"
+                  theme={theme}
+                  language={language}
+                  onPrimary={() =>
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+                    })
+                  }
+                  onSecondary={() => {
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+                    });
+                    setTab('settings');
+                  }}
+                />
               ) : null}
 
               {showTrialEndingNotice ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                    {t(language, 'firstCycleTrialEndingTitle')}
-                  </Text>
-                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                    {t(language, 'firstCycleTrialEndingBody')}
-                  </Text>
-                  <View style={styles.trialActions}>
-                    <Pressable
-                      onPress={() =>
-                        persist({
-                          ...data,
-                          settings: { ...data.settings, firstCycleTrialEndingSeen: true },
-                        })
-                      }
-                      hitSlop={8}
-                    >
-                      <Text style={[styles.textLink, { color: theme.muted }]}>
-                        {t(language, 'firstCycleTrialGotIt')}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        persist({
-                          ...data,
-                          settings: { ...data.settings, firstCycleTrialEndingSeen: true },
-                        });
-                        setTab('settings');
-                      }}
-                      style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent, flex: 1 }]}
-                    >
-                      <Text style={styles.ctaText}>{t(language, 'firstCycleTrialSeePlus')}</Text>
-                    </Pressable>
-                  </View>
-                </View>
+                <FirstCycleTrialCard
+                  kind="ending"
+                  theme={theme}
+                  language={language}
+                  daysLeft={daysLeft}
+                  onPrimary={() => {
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                    });
+                    setTab('settings');
+                  }}
+                  onSecondary={() =>
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                    })
+                  }
+                />
               ) : null}
 
               {trialEndedNotice ? (
-                <View style={[styles.card, { backgroundColor: theme.card }]}>
-                  <Text style={[styles.sectionLabel, { color: theme.accent }]}>
-                    {t(language, 'firstCycleTrialEndedTitle')}
-                  </Text>
-                  <Text style={[styles.secondaryLine, { color: theme.muted }]}>
-                    {t(language, 'firstCycleTrialEndedBody')}
-                  </Text>
-                  <View style={styles.trialActions}>
-                    <Pressable onPress={() => setTrialEndedNotice(false)} hitSlop={8}>
-                      <Text style={[styles.textLink, { color: theme.muted }]}>
-                        {t(language, 'firstCycleTrialGotIt')}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        setTrialEndedNotice(false);
-                        setTab('settings');
-                      }}
-                      style={[styles.cta, styles.ctaCompact, { backgroundColor: theme.accent, flex: 1 }]}
-                    >
-                      <Text style={styles.ctaText}>{t(language, 'firstCycleTrialSeePlus')}</Text>
-                    </Pressable>
-                  </View>
-                </View>
+                <FirstCycleTrialCard
+                  kind="ended"
+                  theme={theme}
+                  language={language}
+                  onPrimary={() => {
+                    setTrialEndedNotice(false);
+                    setTab('settings');
+                  }}
+                  onSecondary={() => setTrialEndedNotice(false)}
+                />
               ) : null}
 
               <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
@@ -1393,12 +1363,6 @@ const styles = StyleSheet.create({
   ctaCompact: {
     minHeight: 40,
     paddingVertical: 10,
-  },
-  trialActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginTop: 2,
   },
   ctaText: {
     color: '#FFFFFF',

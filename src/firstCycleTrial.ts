@@ -24,3 +24,13 @@ export function firstCycleTrialJustEnded(
 ): boolean {
   return sortedUnique(previousStarts).length === 1 && sortedUnique(nextStarts).length >= 2;
 }
+
+/** Ending-soon title variant for the Today trial card. */
+export function firstCycleTrialEndingTitleKind(
+  daysLeft: number | null | undefined,
+): 'today' | 'one' | 'days' | 'soon' {
+  if (daysLeft == null) return 'soon';
+  if (daysLeft <= 0) return 'today';
+  if (daysLeft === 1) return 'one';
+  return 'days';
+}
