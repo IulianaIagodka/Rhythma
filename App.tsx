@@ -19,7 +19,7 @@ import Constants from 'expo-constants';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import { PlusFreeCard } from './src/PlusFreeCard';
-import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, phaseBriefDescription, phaseStatusLabel } from './src/activity';
+import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, isWeekPlanningDay, phaseBriefDescription, phaseStatusLabel, weekPlanInsight } from './src/activity';
 import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
 import {
@@ -243,11 +243,16 @@ export default function App() {
   const tier = effectiveAccessTier(storedTier);
   const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
+  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
   const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
   const showScheduleInsightCard = hasEventLoadAdvice && data.settings.showScheduleInsight;
+  const showWeekPlanCard =
+    hasPhasePlanningLists &&
+    data.settings.showPhaseLists &&
+    isWeekPlanningDay(today);
   const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
   const scheduleInsightToggle = scheduleInsightToggleState(
     data.settings.calendarSync,
@@ -286,6 +291,10 @@ export default function App() {
   const visibleScheduleAdvice =
     showScheduleInsightCard && calendarEnabled
       ? adviseLoad(status.phase, calendarItems, language)
+      : null;
+  const visibleWeekPlan =
+    showWeekPlanCard && status.phase
+      ? weekPlanInsight(status.phase, calendarItems, language)
       : null;
   const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
@@ -558,6 +567,41 @@ export default function App() {
                         {visibleCycleInsight.note}
                       </Text>
                     ) : null}
+                    {visibleCycleInsight.cognitiveTip ? (
+                      <Text style={[styles.secondaryLine, { color: theme.ink }]}>
+                        {visibleCycleInsight.cognitiveTip}
+                      </Text>
+                    ) : null}
+                    {visibleCycleInsight.socialTip ? (
+                      <Text style={[styles.secondaryLine, { color: theme.ink }]}>
+                        {visibleCycleInsight.socialTip}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              ) : null}
+
+              {visibleWeekPlan ? (
+                <View style={[styles.card, { backgroundColor: theme.card }]}>
+                  <View style={styles.cardBlock}>
+                    <View style={styles.insightHeader}>
+                      <Text style={[styles.sectionLabel, { color: theme.accent, flex: 1 }]}>
+                        {t(language, 'weekPlan')}
+                      </Text>
+                      <SourcesInfoButton
+                        theme={theme}
+                        language={language}
+                        onPress={() => setSourcesTopic('hormones')}
+                      />
+                    </View>
+                    <Text style={[styles.sectionLabel, { color: theme.ink }]}>
+                      {visibleWeekPlan.title}
+                    </Text>
+                    {visibleWeekPlan.note ? (
+                      <Text style={[styles.secondaryLine, { color: theme.muted }]}>
+                        {visibleWeekPlan.note}
+                      </Text>
+                    ) : null}
                   </View>
                 </View>
               ) : null}
@@ -768,6 +812,23 @@ export default function App() {
                       readyRef={switchesReady}
                       onValueChange={(showScheduleInsight) =>
                         persist({ ...data, settings: { ...data.settings, showScheduleInsight } })
+                      }
+                    />
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                        {t(language, 'weekPlan')}
+                      </Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                        {t(language, 'weekPlanDesc')}
+                      </Text>
+                    </View>
+                    <BrightSwitch
+                      value={data.settings.showPhaseLists}
+                      readyRef={switchesReady}
+                      onValueChange={(showPhaseLists) =>
+                        persist({ ...data, settings: { ...data.settings, showPhaseLists } })
                       }
                     />
                   </View>

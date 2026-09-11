@@ -94,6 +94,11 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 
 **Free Today extras when Cycle insight is off:** short `phaseBriefDescription` on the cycle card (one ⓘ only, top-right).
 
+**Plus Today extras (next-version insights):**
+- Cycle insight also shows **cognitive** and **social** phase tips (wellness tone, not medical).
+- **Week plan** card on Sunday/Monday (`showPhaseLists` + `phasePlanningLists`) from `planningForPhase` + calendar outlook.
+- Calendar titles classify into workouts **and** `focus` / `meeting` / `social` (not only sport vs event).
+
 ### Subscriptions (StoreKit)
 
 | Plan | Product ID | Listed price (docs) |

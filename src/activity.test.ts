@@ -7,11 +7,13 @@ import {
   capacityForPhase,
   cycleInsight,
   dayAlignmentForPhase,
+  isWeekPlanningDay,
   phaseBriefDescription,
   phaseStatusLabel,
   planningForPhase,
+  weekPlanInsight,
 } from './activity';
-import { classifyActivity, classifyTitle, type CalendarItem } from './calendarItems';
+import { classifyActivity, classifyTitle, isPhysicalActivity, type CalendarItem } from './calendarItems';
 
 function item(
   id: string,
@@ -24,7 +26,7 @@ function item(
     title,
     day,
     activity,
-    kind: activity === 'event' ? 'event' : 'workout',
+    kind: isPhysicalActivity(activity) ? 'workout' : 'event',
     allDay: false,
     startMs: Date.parse(`${day}T09:00:00`),
     endMs: Date.parse(`${day}T10:00:00`),
@@ -46,7 +48,9 @@ describe('classifyActivity', () => {
     assert.equal(classifyActivity('Масаж спини'), 'massage');
     assert.equal(classifyActivity('Плавання'), 'swim');
     assert.equal(classifyActivity('HIIT'), 'intense');
-    assert.equal(classifyActivity('Meeting'), 'event');
+    assert.equal(classifyActivity('Meeting'), 'meeting');
+    assert.equal(classifyActivity('Deep work'), 'focus');
+    assert.equal(classifyActivity('Dinner with friends'), 'social');
   });
 
   it('recognizes martial arts and combat sports as intense load', () => {
@@ -57,17 +61,20 @@ describe('classifyActivity', () => {
     assert.equal(classifyActivity('MMA sparring'), 'intense');
   });
 
-  it('keeps birthdays and social titles as plain events', () => {
-    assert.equal(classifyActivity('Др аніта'), 'event');
-    assert.equal(classifyActivity("Anita's birthday"), 'event');
+  it('keeps unknown titles as plain events and birthdays as social', () => {
+    assert.equal(classifyActivity('Bank appointment'), 'event');
+    assert.equal(classifyActivity("Anita's birthday"), 'social');
   });
 });
 
 describe('activityLoad', () => {
-  it('weights intense workouts higher and ignores social events', () => {
+  it('weights intense workouts higher and ignores meetings and social events', () => {
     assert.equal(activityLoad('intense'), 2);
     assert.equal(activityLoad('yoga'), 1);
     assert.equal(activityLoad('event'), 0);
+    assert.equal(activityLoad('meeting'), 0);
+    assert.equal(activityLoad('focus'), 0);
+    assert.equal(activityLoad('social'), 0);
   });
 });
 
@@ -190,32 +197,60 @@ describe('adviseLoad', () => {
 });
 
 describe('cycleInsight', () => {
-  it('uses phase and hormone copy only, without calendar advice', () => {
+  it('uses phase and hormone copy plus cognitive and social tips', () => {
     const insight = cycleInsight('menstrual', 'en');
     assert.equal(insight.title, 'Menstrual phase');
     assert.match(insight.note, /estrogen|progesterone/i);
+    assert.match(insight.cognitiveTip ?? '', /Cognitive:/i);
+    assert.match(insight.socialTip ?? '', /Social:/i);
     assert.doesNotMatch(insight.note, /calendar|workout|plan|Fits well/i);
     assert.equal(insight.events, 0);
     assert.equal(insight.busiestDay, null);
   });
 
-  it('keeps Ukrainian phase-only wording', () => {
+  it('keeps Ukrainian phase wording with cognitive and social tips', () => {
     const insight = cycleInsight('ovulatory', 'uk');
     assert.equal(insight.title, 'Овуляторна фаза');
     assert.match(insight.note, /естроген/i);
+    assert.match(insight.cognitiveTip ?? '', /Когнітивно:/);
+    assert.match(insight.socialTip ?? '', /Соціально:/);
     assert.doesNotMatch(insight.note, /календар|Підходить|тренуван/i);
     assert.equal(insight.fit, 'low');
   });
 
-  it('uses Variant A empty-cycle wording', () => {
+  it('uses Variant A empty-cycle wording without tips', () => {
     const en = cycleInsight(null, 'en');
     assert.equal(en.title, 'No period logged yet');
     assert.match(en.note, /record the first day/i);
-    assert.doesNotMatch(en.note, /log your/i);
+    assert.equal(en.cognitiveTip, null);
+    assert.equal(en.socialTip, null);
 
     const uk = cycleInsight(null, 'uk');
     assert.equal(uk.title, 'Ще немає запису місячних');
     assert.match(uk.note, /запишіть перший день/i);
+  });
+});
+
+describe('weekPlanInsight', () => {
+  it('is offered on Sunday and Monday only', () => {
+    assert.equal(isWeekPlanningDay('2026-08-23'), true); // Sunday
+    assert.equal(isWeekPlanningDay('2026-08-24'), true); // Monday
+    assert.equal(isWeekPlanningDay('2026-08-25'), false); // Tuesday
+  });
+
+  it('combines phase planning with a calm calendar outlook', () => {
+    const plan = weekPlanInsight(
+      'luteal',
+      [
+        item('1', 'Meeting', '2026-08-24', 'meeting'),
+        item('2', 'Deep work', '2026-08-24', 'focus'),
+        item('3', 'Sync', '2026-08-25', 'meeting'),
+      ],
+      'en',
+    );
+    assert.equal(plan.title, "This week's plan");
+    assert.match(plan.note, /Lean on|Go easier|buffer|meeting/i);
+    assert.match(plan.cognitiveTip ?? '', /Cognitive:/i);
   });
 });
 
