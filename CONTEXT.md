@@ -94,6 +94,22 @@ Stored as `settings.accessTier`: `'free' | 'pro'`.
 
 **Free Today extras when Cycle insight is off:** short `phaseBriefDescription` on the cycle card (one ⓘ only, top-right).
 
+**Plus Today extras (next-version insights):**
+- Cycle insight also shows **cognitive** and **social** phase tips (wellness tone, not medical).
+- **Week plan** card on Sunday/Monday (`showPhaseLists` + `phasePlanningLists`) from `planningForPhase` + calendar outlook.
+- Calendar titles classify into workouts **and** `focus` / `meeting` / `social` (not only sport vs event).
+
+### First-cycle Plus trial
+
+While the user has **exactly one** logged period start (and is on Free, no preview unlock), Plus features unlock until the **next** logged period start:
+
+- Notices: trial **started** (blocking modal on first period log) → ending soon (`daysUntilNextPeriod <= 3`, Today card) → **ended** (blocking modal on 2nd cycle log).
+- Today trial card uses a magenta-tinted accent surface (not a gray card) with clear FREE NOW → UNTIL NEXT PERIOD → PLUS AFTERWARDS hierarchy.
+- Started/ended notices are **blocking modals** — rest of UI is not tappable until an explicit choice.
+- Calendar sync stays free and is **not** tied to this messaging.
+- Settings Plus toggles appear during the trial (`plusFeaturesUnlocked`).
+- `FirstCycleTrialCard.tsx` — ending card + started/ended modals.
+
 ### Subscriptions (StoreKit)
 
 | Plan | Product ID | Listed price (docs) |

@@ -1,12 +1,17 @@
 import type { ActivityKind, CalendarItem } from './calendarItems';
+import { isPhysicalActivity } from './calendarItems';
 import type { PhaseId } from './cycle';
-import { weekdayName, type Language } from './dates';
+import { parseISODate, weekdayName, type Language } from './dates';
 
 export type Fit = 'low' | 'ok' | 'high';
 
 export type LoadAdvice = {
   title: string;
   note: string;
+  /** Optional cognitive planning tip (cycle insight). */
+  cognitiveTip: string | null;
+  /** Optional social energy tip (cycle insight). */
+  socialTip: string | null;
   fit: Fit;
   busiestDay: string | null;
   busiestDayISO: string | null;
@@ -22,15 +27,25 @@ export type Capacity = {
 
 export type ActivityFit = 'support' | 'harder' | 'neutral';
 
-/** Physical schedule load units — social/calendar events do not count. */
+/** Physical schedule load units — meetings / focus / social do not add workout load. */
 export function activityLoad(activity: ActivityKind): number {
   if (activity === 'intense') return 2;
-  if (activity === 'event') return 0;
-  return 1;
+  if (isPhysicalActivity(activity)) return 1;
+  return 0;
 }
 
 export function activityFitForPhase(phase: PhaseId | null, activity: ActivityKind): ActivityFit {
   if (activity === 'event') return 'neutral';
+  if (activity === 'focus' || activity === 'meeting') {
+    if (phase === 'menstrual' || phase === 'luteal') return 'harder';
+    if (phase === 'follicular' || phase === 'ovulatory') return 'support';
+    return 'neutral';
+  }
+  if (activity === 'social') {
+    if (phase === 'ovulatory' || phase === 'follicular') return 'support';
+    if (phase === 'menstrual' || phase === 'luteal') return 'harder';
+    return 'neutral';
+  }
   if (phase === 'menstrual' || phase === 'luteal') {
     return activity === 'intense' ? 'harder' : 'support';
   }
@@ -251,6 +266,98 @@ function socialInsightSentence(
   return `${titles.join(' and ')} are easy social plans`;
 }
 
+
+function cognitiveInsightSentence(
+  phase: PhaseId | null,
+  items: CalendarItem[],
+  lang: Language,
+): string {
+  if (!items.length) return '';
+  const titles = items.map((item) => quotedEventTitle(item.title, lang));
+  const joined =
+    titles.length === 1
+      ? titles[0]
+      : titles.length === 2
+        ? lang === 'uk'
+          ? `${titles[0]} і ${titles[1]}`
+          : `${titles[0]} and ${titles[1]}`
+        : lang === 'uk'
+          ? `${titles[0]} і ще ${titles.length - 1}`
+          : `${titles[0]} and ${titles.length - 1} more`;
+
+  if (lang === 'uk') {
+    if (phase === 'menstrual' || phase === 'luteal') {
+      return `${joined} — щільний розумовий день у спокійнішій фазі; залиште буфер або перенесіть частину`;
+    }
+    if (phase === 'follicular' || phase === 'ovulatory') {
+      return `${joined} — добре лягає на фазу з сильнішим фокусом`;
+    }
+    return `${joined} — розумове навантаження в календарі`;
+  }
+
+  if (phase === 'menstrual' || phase === 'luteal') {
+    return `${joined} — a heavy thinking day in a quieter phase; leave buffer or move some of it`;
+  }
+  if (phase === 'follicular' || phase === 'ovulatory') {
+    return `${joined} fits a stronger-focus phase`;
+  }
+  return `${joined} is cognitive load on the calendar`;
+}
+
+/** How to use your head this phase — wellness tone, not medical claims. */
+export function cognitiveTipForPhase(phase: PhaseId | null, lang: Language): string | null {
+  if (!phase) return null;
+  if (lang === 'uk') {
+    if (phase === 'menstrual') {
+      return 'Когнітивно: менше складних рішень — рутина, дрібні задачі й чіткі пріоритети.';
+    }
+    if (phase === 'follicular') {
+      return 'Когнітивно: добрий час для нових ідей, навчання й стартів.';
+    }
+    if (phase === 'ovulatory') {
+      return 'Когнітивно: зручно для презентацій, переговорів і важливих розмов.';
+    }
+    return 'Когнітивно: доводьте почате, менше нових зобовʼязань і context-switching.';
+  }
+  if (phase === 'menstrual') {
+    return 'Cognitive: fewer hard decisions — stick to routine, small tasks, and clear priorities.';
+  }
+  if (phase === 'follicular') {
+    return 'Cognitive: a good window for new ideas, learning, and starts.';
+  }
+  if (phase === 'ovulatory') {
+    return 'Cognitive: well suited to presentations, negotiations, and key conversations.';
+  }
+  return 'Cognitive: finish what you started, with fewer new commitments and less context-switching.';
+}
+
+/** Social energy tip by phase — optional, not a diagnosis. */
+export function socialTipForPhase(phase: PhaseId | null, lang: Language): string | null {
+  if (!phase) return null;
+  if (lang === 'uk') {
+    if (phase === 'menstrual') {
+      return 'Соціально: тихіші плани й менше великих зустрічей можуть відчуватися легше.';
+    }
+    if (phase === 'follicular') {
+      return 'Соціально: енергія на людей зазвичай зростає — зручно планувати спільні старти.';
+    }
+    if (phase === 'ovulatory') {
+      return 'Соціально: часто пік для зустрічей, нетворкінгу й відкритих розмов.';
+    }
+    return 'Соціально: оберіть менше, але тепліші контакти; залиште вечори без перевантаження.';
+  }
+  if (phase === 'menstrual') {
+    return 'Social: quieter plans and fewer big gatherings may feel easier.';
+  }
+  if (phase === 'follicular') {
+    return 'Social: people energy usually rises — a nice time to plan shared starts.';
+  }
+  if (phase === 'ovulatory') {
+    return 'Social: often a peak for meetups, networking, and open conversations.';
+  }
+  return 'Social: choose fewer, warmer contacts and keep evenings from getting overloaded.';
+}
+
 function emptyWeekInsight(phase: PhaseId | null, lang: Language): string {
   if (lang === 'uk') {
     if (phase === 'menstrual') {
@@ -321,12 +428,20 @@ function humanScheduleNote(
   const dayItems = busiestDayISO
     ? items.filter((item) => item.day === busiestDayISO)
     : items;
-  const workouts = dayItems.filter((item) => item.activity !== 'event');
-  const social = dayItems.filter((item) => item.activity === 'event');
+  const workouts = dayItems.filter((item) => isPhysicalActivity(item.activity));
+  const cognitive = dayItems.filter(
+    (item) => item.activity === 'focus' || item.activity === 'meeting',
+  );
+  const social = dayItems.filter(
+    (item) => item.activity === 'social' || item.activity === 'event',
+  );
   const parts: string[] = [];
 
   for (const workout of workouts) {
     parts.push(workoutInsightSentence(phase, workout, lang));
+  }
+  if (cognitive.length) {
+    parts.push(cognitiveInsightSentence(phase, cognitive, lang));
   }
   if (social.length) {
     parts.push(socialInsightSentence(social, workouts.length > 0, lang));
@@ -365,6 +480,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
     return {
       title: emptyTitle,
       note: scheduleNote,
+      cognitiveTip: null,
+      socialTip: null,
       fit: phase === 'ovulatory' ? 'low' : 'ok',
       busiestDay: null,
       busiestDayISO: null,
@@ -380,6 +497,8 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   return {
     title: busiestDay ? reviewBusiestDayNote(busiestDay, lang) : emptyTitle,
     note: scheduleNote,
+    cognitiveTip: null,
+    socialTip: null,
     fit,
     busiestDay,
     busiestDayISO,
@@ -387,7 +506,7 @@ export function adviseLoad(phase: PhaseId | null, items: CalendarItem[], lang: L
   };
 }
 
-/** Phase and hormone insight — no calendar or activity recommendations. */
+/** Phase and hormone insight — plus cognitive / social planning tips. */
 export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice {
   const capacity = capacityForPhase(phase, lang);
   const title =
@@ -399,6 +518,8 @@ export function cycleInsight(phase: PhaseId | null, lang: Language): LoadAdvice 
   return {
     title,
     note: joinAdviceParts([capacity.hint]),
+    cognitiveTip: cognitiveTipForPhase(phase, lang),
+    socialTip: socialTipForPhase(phase, lang),
     fit: phase === 'ovulatory' ? 'low' : 'ok',
     busiestDay: null,
     busiestDayISO: null,
@@ -453,20 +574,20 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
     }
     if (phase === 'follicular') {
       return {
-        best: ['Нові старти', 'Тренування з прогресією', 'Брейншторми'],
+        best: ['Нові старти', 'Глибока робота', 'Брейншторми', 'Спільні плани'],
         avoid: ['Відкладати старти', 'Надмірний простій'],
       };
     }
     if (phase === 'ovulatory') {
       return {
-        best: ['Ключові розмови', 'Соціальні плани', 'Інтенсивні сесії'],
+        best: ['Ключові розмови', 'Презентації', 'Соціальні плани', 'Інтенсивні сесії'],
         avoid: ['Ізоляція', 'Дрібні задачі'],
       };
     }
     if (phase === 'luteal') {
       return {
-        best: ['Закривати почате', 'Простіший графік', 'Більше буфера'],
-        avoid: ['Великі зобовʼязання', 'Пік навантаження'],
+        best: ['Закривати почате', 'Простіший графік', 'Більше буфера', 'Тихі вечори'],
+        avoid: ['Великі зобовʼязання', 'Пік навантаження', 'Щільні мітинги'],
       };
     }
     return { best: [], avoid: [] };
@@ -496,6 +617,71 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
     };
   }
   return { best: [], avoid: [] };
+}
+
+
+/** Sunday or Monday — soft weekly planning surface. */
+export function isWeekPlanningDay(iso: string): boolean {
+  const day = parseISODate(iso).getDay(); // 0 Sun … 1 Mon
+  return day === 0 || day === 1;
+}
+
+/** Weekly planning card: phase best/avoid + light calendar outlook. */
+export function weekPlanInsight(
+  phase: PhaseId | null,
+  items: CalendarItem[],
+  lang: Language,
+): LoadAdvice {
+  const plan = planningForPhase(phase, lang);
+  const title = lang === 'uk' ? 'План на тиждень' : "This week's plan";
+  const focusCount = items.filter((item) => item.activity === 'focus' || item.activity === 'meeting').length;
+  const socialCount = items.filter((item) => item.activity === 'social').length;
+  const intenseCount = items.filter((item) => item.activity === 'intense').length;
+
+  const favor =
+    plan.best.length > 0
+      ? lang === 'uk'
+        ? `Цього тижня варто спертися на: ${plan.best.join(', ').toLowerCase()}.`
+        : `Lean on this week: ${plan.best.join(', ').toLowerCase()}.`
+      : null;
+  const ease =
+    plan.avoid.length > 0
+      ? lang === 'uk'
+        ? `Краще менше: ${plan.avoid.join(', ').toLowerCase()}.`
+        : `Go easier on: ${plan.avoid.join(', ').toLowerCase()}.`
+      : null;
+
+  let calendarOutlook: string | null = null;
+  if (lang === 'uk') {
+    if (focusCount >= 3 && (phase === 'menstrual' || phase === 'luteal')) {
+      calendarOutlook = 'У календарі багато зустрічей/фокусу — розкладіть буфери між ними.';
+    } else if (socialCount >= 2 && (phase === 'menstrual' || phase === 'luteal')) {
+      calendarOutlook = 'Кілька соціальних планів у спокійнішій фазі — залиште відновлення.';
+    } else if (intenseCount >= 2 && (phase === 'menstrual' || phase === 'luteal')) {
+      calendarOutlook = 'Кілька інтенсивних тренувань — не ставте їх без паузи.';
+    } else if (!items.length) {
+      calendarOutlook = 'Календар ще вільний — можна свідомо закласти 1–2 пріоритети тижня.';
+    }
+  } else if (focusCount >= 3 && (phase === 'menstrual' || phase === 'luteal')) {
+    calendarOutlook = 'Lots of meetings/focus blocks — leave buffers between them.';
+  } else if (socialCount >= 2 && (phase === 'menstrual' || phase === 'luteal')) {
+    calendarOutlook = 'A few social plans in a quieter phase — protect recovery.';
+  } else if (intenseCount >= 2 && (phase === 'menstrual' || phase === 'luteal')) {
+    calendarOutlook = 'A few hard workouts — don’t stack them without recovery.';
+  } else if (!items.length) {
+    calendarOutlook = 'The calendar is still open — intentionally set 1–2 week priorities.';
+  }
+
+  return {
+    title,
+    note: joinAdviceParts([favor, ease, calendarOutlook].filter(Boolean) as string[]),
+    cognitiveTip: cognitiveTipForPhase(phase, lang),
+    socialTip: socialTipForPhase(phase, lang),
+    fit: 'ok',
+    busiestDay: null,
+    busiestDayISO: null,
+    events: items.length,
+  };
 }
 
 function reviewBusiestDayNote(dayName: string, lang: Language): string {

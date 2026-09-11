@@ -1,4 +1,5 @@
 import { isTestFlightRuntime } from './testflight';
+import { isFirstCycleTrialActive } from './firstCycleTrial';
 
 export type AccessTier = 'free' | 'pro';
 
@@ -61,8 +62,17 @@ export function effectiveAccessTier(stored: AccessTier): AccessTier {
   return isPreviewUnlockEnabled() ? 'pro' : stored;
 }
 
-export function hasFeatureAccess(tier: AccessTier, feature: ProFeatureKey): boolean {
+/**
+ * Plus features unlock when stored/preview tier is pro, or during the first-cycle trial
+ * (exactly one logged period start). Calendar sync stays free either way.
+ */
+export function hasFeatureAccess(
+  tier: AccessTier,
+  feature: ProFeatureKey,
+  periodStarts: string[] = [],
+): boolean {
   const requiredTier = FEATURE_ACCESS[feature].tier;
   if (requiredTier === 'free') return true;
-  return effectiveAccessTier(tier) === 'pro';
+  if (effectiveAccessTier(tier) === 'pro') return true;
+  return isFirstCycleTrialActive(periodStarts);
 }

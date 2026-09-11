@@ -29,6 +29,25 @@ export const copy = {
     cycleInsight: 'Підказка циклу',
     connectCalendar: 'Підключити календар',
     connectCalendarHint: 'Увімкніть синхронізацію — побачите, як плани пасують до циклу',
+    firstCycleTrialBadge: 'БЕЗКОШТОВНИЙ ПЕРШИЙ ЦИКЛ',
+    firstCycleTrialStartedTitle: 'Перший цикл — від нас',
+    firstCycleTrialStartedBody: 'Plus-фічі відкриті до наступних місячних.',
+    firstCycleTrialStartedSecondary:
+      'Після цього крива енергії, підказки циклу та розкладу — у Rhythma Plus.',
+    firstCycleTrialContinueFree: 'Продовжити безкоштовно',
+    firstCycleTrialSeePlus: 'До Plus',
+    firstCycleTrialEndingTitleDays: 'Ще {days} дн. безкоштовного циклу',
+    firstCycleTrialEndingTitleOne: 'Ще 1 день безкоштовного циклу',
+    firstCycleTrialEndingTitleToday: 'Останній день безкоштовного циклу',
+    firstCycleTrialEndingTitleSoon: 'Безкоштовний цикл добігає кінця',
+    firstCycleTrialEndingBody:
+      'Plus-фічі відкриті до наступних місячних. Зберегти їх далі — з Rhythma Plus.',
+    firstCycleTrialMaybeLater: 'Можливо пізніше',
+    firstCycleTrialEndedTitle: 'Безкоштовний Plus-цикл завершено',
+    firstCycleTrialEndedBody:
+      'Трекінг циклу лишається безкоштовним. Крива енергії, підказки циклу та розкладу — тепер у Plus.',
+    firstCycleTrialSeeRhythmaPlus: 'До Rhythma Plus',
+    firstCycleTrialContinueWithFree: 'Залишитись на Free',
     showCalendarEvents: 'Події календаря',
     showCalendarEventsDesc: 'Показувати події на календарі року',
     dayDetailEvents: 'Події',
@@ -59,8 +78,10 @@ export const copy = {
     calendarSyncLocked: 'Доступно в Plus',
     eventAdviceLocked: 'Доступно в Plus',
     eventAdviceDesc: 'Поради, чи тиждень пасує до фази',
-    cycleInsightDesc: 'Коротка інформація про фазу й гормони',
-    scheduleInsightDesc: 'Рекомендації щодо планів і активностей',
+    cycleInsightDesc: 'Фаза, гормони, когнітивні й соціальні підказки',
+    scheduleInsightDesc: 'Рекомендації щодо планів, зустрічей і активностей',
+    weekPlan: 'План на тиждень',
+    weekPlanDesc: 'Неділя/понеділок: на що спертися цього тижня',
     proCalendarSync: 'Синхронізація календаря',
     proEventAdvice: 'Підказка розкладу',
     periodForecast: 'Прогноз місячних',
@@ -145,6 +166,8 @@ export const copy = {
     periodStartTitle: 'Початок місячних',
     confirmAddPeriod: 'Додати початок місячних на {date}?',
     confirmRemovePeriod: 'Прибрати запис початку місячних на {date}?',
+    confirmAddPeriodDetail: 'Це почне новий цикл.',
+    confirmRemovePeriodDetail: 'Запис початку цього циклу буде видалено.',
     confirmAdd: 'Додати',
     confirmRemove: 'Прибрати',
     confirmCancel: 'Скасувати',
@@ -201,6 +224,25 @@ export const copy = {
     cycleInsight: 'Cycle insight',
     connectCalendar: 'Connect calendar',
     connectCalendarHint: 'Turn on sync to see how your plans align with your cycle',
+    firstCycleTrialBadge: 'FREE FIRST CYCLE',
+    firstCycleTrialStartedTitle: 'Your first cycle is on us',
+    firstCycleTrialStartedBody: 'You have Plus features until your next period.',
+    firstCycleTrialStartedSecondary:
+      'After that, Energy curve, Cycle insights and Schedule insights are available with Rhythma Plus.',
+    firstCycleTrialContinueFree: 'Continue free',
+    firstCycleTrialSeePlus: 'See Plus',
+    firstCycleTrialEndingTitleDays: '{days} days left of your free cycle',
+    firstCycleTrialEndingTitleOne: '1 day left of your free cycle',
+    firstCycleTrialEndingTitleToday: 'Last day of your free cycle',
+    firstCycleTrialEndingTitleSoon: 'Your free cycle is ending soon',
+    firstCycleTrialEndingBody:
+      'Your Plus features stay open until your next period. Keep them after that with Rhythma Plus.',
+    firstCycleTrialMaybeLater: 'Maybe later',
+    firstCycleTrialEndedTitle: 'Your free Plus cycle has ended',
+    firstCycleTrialEndedBody:
+      'Your cycle tracking stays free. Energy curve, Cycle insights and Schedule insights are now available with Plus.',
+    firstCycleTrialSeeRhythmaPlus: 'See Rhythma Plus',
+    firstCycleTrialContinueWithFree: 'Continue with free',
     showCalendarEvents: 'Calendar events',
     showCalendarEventsDesc: 'Show events on the year calendar',
     dayDetailEvents: 'Events',
@@ -231,8 +273,10 @@ export const copy = {
     calendarSyncLocked: 'Available in Plus',
     eventAdviceLocked: 'Available in Plus',
     eventAdviceDesc: 'Advice on whether this week fits the current phase',
-    cycleInsightDesc: 'Short phase and hormone context',
-    scheduleInsightDesc: 'Recommendations for plans and activities',
+    cycleInsightDesc: 'Phase, hormones, cognitive and social tips',
+    scheduleInsightDesc: 'Guidance for plans, meetings, and activities',
+    weekPlan: 'This week’s plan',
+    weekPlanDesc: 'Sunday/Monday: what to lean on this week',
     proCalendarSync: 'Calendar sync',
     proEventAdvice: 'Schedule insight',
     periodForecast: 'Period forecast',
@@ -317,6 +361,8 @@ export const copy = {
     periodStartTitle: 'Period start',
     confirmAddPeriod: 'Add the start of your period on {date}?',
     confirmRemovePeriod: 'Remove the period start on {date}?',
+    confirmAddPeriodDetail: 'This will start a new cycle.',
+    confirmRemovePeriodDetail: 'This will remove this period start.',
     confirmAdd: 'Add',
     confirmRemove: 'Remove',
     confirmCancel: 'Cancel',
@@ -355,7 +401,16 @@ export const copy = {
   },
 } as const;
 
-export function t(lang: Language, key: keyof typeof copy.uk, vars?: Record<string, string | number>): string {
+type AssertCopyKeysEqual = (
+  | Exclude<keyof typeof copy.en, keyof typeof copy.uk>
+  | Exclude<keyof typeof copy.uk, keyof typeof copy.en>
+) extends never
+  ? true
+  : never;
+const _copyKeysMatch: AssertCopyKeysEqual = true;
+void _copyKeysMatch;
+
+export function t(lang: Language, key: keyof typeof copy.en, vars?: Record<string, string | number>): string {
   let text = String(copy[lang][key] ?? copy.en[key]);
   if (!vars) return text;
   for (const [k, v] of Object.entries(vars)) {

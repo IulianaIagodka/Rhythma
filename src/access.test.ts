@@ -106,4 +106,11 @@ describe('access', () => {
       else process.env.EXPO_PUBLIC_UNLOCK_PRO = previous;
     }
   });
+
+  it('unlocks Plus features during the first-cycle trial (one period start)', () => {
+    assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17']), true);
+    assert.equal(hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17']), true);
+    assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17', '2026-09-14']), false);
+    assert.equal(hasFeatureAccess('free', 'cycleRhythm', []), false);
+  });
 });

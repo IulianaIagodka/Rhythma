@@ -1,6 +1,15 @@
 import { toISODate, type Language } from './dates';
 
-export type ActivityKind = 'yoga' | 'massage' | 'swim' | 'gentle' | 'intense' | 'event';
+export type ActivityKind =
+  | 'yoga'
+  | 'massage'
+  | 'swim'
+  | 'gentle'
+  | 'intense'
+  | 'focus'
+  | 'meeting'
+  | 'social'
+  | 'event';
 
 export type CalendarItem = {
   id: string;
@@ -13,6 +22,17 @@ export type CalendarItem = {
   startMs: number;
   endMs: number | null;
 };
+
+/** Physical movement kinds — used for workout load scoring. */
+export function isPhysicalActivity(activity: ActivityKind): boolean {
+  return (
+    activity === 'yoga' ||
+    activity === 'massage' ||
+    activity === 'swim' ||
+    activity === 'gentle' ||
+    activity === 'intense'
+  );
+}
 
 export type CalendarEventLike = {
   id?: string | null;
@@ -99,6 +119,75 @@ const MATCHERS: Array<{ activity: ActivityKind; words: string[] }> = [
       'скелелаз',
     ],
   },
+  {
+    activity: 'focus',
+    words: [
+      'deep work',
+      'focus',
+      'фокус',
+      'writing',
+      'написан',
+      'coding',
+      'study',
+      'навчан',
+      'homework',
+      'research',
+      'дослідж',
+      'design sprint',
+      'strategy',
+      'стратег',
+    ],
+  },
+  {
+    activity: 'meeting',
+    words: [
+      'meeting',
+      'мітинг',
+      'митинг',
+      'call',
+      'дзвінок',
+      'zoom',
+      'teams',
+      'standup',
+      'стендап',
+      '1:1',
+      '1-1',
+      'interview',
+      'інтерв',
+      'demo',
+      'презентац',
+      'presentation',
+      'workshop',
+      'воркшоп',
+    ],
+  },
+  {
+    activity: 'social',
+    words: [
+      'birthday',
+      'день народж',
+      'party',
+      'dinner',
+      'вечеря',
+      'lunch',
+      'обід',
+      'brunch',
+      'coffee',
+      'кава',
+      'drinks',
+      'date',
+      'побачен',
+      'friends',
+      'друз',
+      'hangout',
+      'concert',
+      'концерт',
+      'wedding',
+      'весілл',
+      'celebration',
+      'свят',
+    ],
+  },
 ];
 
 export function classifyActivity(title: string): ActivityKind {
@@ -110,7 +199,7 @@ export function classifyActivity(title: string): ActivityKind {
 }
 
 export function classifyTitle(title: string): 'workout' | 'event' {
-  return classifyActivity(title) === 'event' ? 'event' : 'workout';
+  return isPhysicalActivity(classifyActivity(title)) ? 'workout' : 'event';
 }
 
 function parseCalendarDate(value: Date | string): Date {
@@ -191,7 +280,7 @@ export function itemsFromCalendarEvents(
     if (!isValidDate(start)) return;
     const title = event.title?.trim() || (lang === 'uk' ? 'Подія' : 'Event');
     const activity = classifyActivity(title);
-    const kind = activity === 'event' ? 'event' : 'workout';
+    const kind = isPhysicalActivity(activity) ? 'workout' : 'event';
     const eventId = event.id?.trim() || `event-${index}`;
     const allDay = Boolean(event.allDay);
     const end = event.endDate != null ? parseCalendarDate(event.endDate) : null;
