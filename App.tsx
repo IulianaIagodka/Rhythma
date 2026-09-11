@@ -18,7 +18,14 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
+import {
+  firstCycleTrialJustEnded,
+  firstCycleTrialJustStarted,
+  isFirstCycleTrialActive,
+  isFirstCycleTrialEndingSoon,
+} from './src/firstCycleTrial';
 import { PlusFreeCard } from './src/PlusFreeCard';
+import { FirstCycleTrialCard, FirstCycleTrialEndedModal, FirstCycleTrialStartedModal } from './src/FirstCycleTrialCard';
 import { activityFitForPhase, activityFitLabel, adviseLoad, cycleInsight, isWeekPlanningDay, phaseBriefDescription, phaseStatusLabel, weekPlanInsight } from './src/activity';
 import { loadCalendarItems, loadCurrentWeekItems, type CalendarItem } from './src/calendar';
 import { formatEventTime } from './src/calendarItems';
@@ -71,6 +78,7 @@ export default function App() {
   const [calendarSyncing, setCalendarSyncing] = useState(false);
   const [periodPrompt, setPeriodPrompt] = useState<{ iso: string; kind: 'add' | 'remove' } | null>(null);
   const [sourcesTopic, setSourcesTopic] = useState<SourceTopic | 'all' | null>(null);
+  const [trialEndedNotice, setTrialEndedNotice] = useState(false);
   const switchesReady = useRef(false);
 
   useEffect(() => {
@@ -189,10 +197,24 @@ export default function App() {
     (iso: string) => {
       if (!data) return;
       Haptics.selectionAsync().catch(() => {});
+      const nextStarts = togglePeriodStart(data.periodStarts, iso);
+      const freeUnlocked =
+        data.settings.accessTier === 'free' && previewUnlockSource() === 'off';
+      const trialStarted = freeUnlocked && firstCycleTrialJustStarted(data.periodStarts, nextStarts);
+      const trialEnded = freeUnlocked && firstCycleTrialJustEnded(data.periodStarts, nextStarts);
+      const nextSettings = trialStarted
+        ? {
+            ...data.settings,
+            firstCycleTrialStartedSeen: false,
+            firstCycleTrialEndingSeen: false,
+          }
+        : data.settings;
       persist({
         ...data,
-        periodStarts: togglePeriodStart(data.periodStarts, iso),
+        periodStarts: nextStarts,
+        settings: nextSettings,
       });
+      if (trialEnded) setTrialEndedNotice(true);
     },
     [data, persist],
   );
@@ -241,10 +263,11 @@ export default function App() {
   const daysLeft = daysUntilNextPeriod(today, status.nextPeriod);
   const storedTier = data.settings.accessTier;
   const tier = effectiveAccessTier(storedTier);
-  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync');
-  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice');
-  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists');
-  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm');
+  const firstCycleTrialActive = isFirstCycleTrialActive(data.periodStarts);
+  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync', data.periodStarts);
+  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice', data.periodStarts);
+  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists', data.periodStarts);
+  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm', data.periodStarts);
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
@@ -253,6 +276,21 @@ export default function App() {
     hasPhasePlanningLists &&
     data.settings.showPhaseLists &&
     isWeekPlanningDay(today);
+  const unlockSource = previewUnlockSource();
+  const showTrialStartedNotice =
+    !trialEndedNotice &&
+    firstCycleTrialActive &&
+    storedTier === 'free' &&
+    unlockSource === 'off' &&
+    !data.settings.firstCycleTrialStartedSeen;
+  const showTrialEndingNotice =
+    !showTrialStartedNotice &&
+    !trialEndedNotice &&
+    isFirstCycleTrialEndingSoon(data.periodStarts, daysLeft) &&
+    storedTier === 'free' &&
+    unlockSource === 'off' &&
+    !data.settings.firstCycleTrialEndingSeen;
+  const plusFeaturesUnlocked = storedTier === 'pro' || unlockSource !== 'off' || firstCycleTrialActive;
   const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
   const scheduleInsightToggle = scheduleInsightToggleState(
     data.settings.calendarSync,
@@ -296,7 +334,6 @@ export default function App() {
     showWeekPlanCard && status.phase
       ? weekPlanInsight(status.phase, calendarItems, language)
       : null;
-  const unlockSource = previewUnlockSource();
   const planSwitcher = canSwitchPlan();
 
 
@@ -451,6 +488,27 @@ export default function App() {
                   </View>
                 ) : null}
               </View>
+
+              {showTrialEndingNotice ? (
+                <FirstCycleTrialCard
+                  theme={theme}
+                  language={language}
+                  daysLeft={daysLeft}
+                  onPrimary={() => {
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                    });
+                    setTab('settings');
+                  }}
+                  onSecondary={() =>
+                    persist({
+                      ...data,
+                      settings: { ...data.settings, firstCycleTrialEndingSeen: true },
+                    })
+                  }
+                />
+              ) : null}
 
               <View style={[styles.card, styles.periodCard, { backgroundColor: theme.card }]}>
                 {(status.cycleDay != null && (daysLeft != null || freePhaseBrief)) ? (
@@ -776,8 +834,8 @@ export default function App() {
                 />
               </View>
 
-              {/* Plus feature rows — only shown when unlocked */}
-              {storedTier === 'pro' || unlockSource !== 'off' ? (
+              {/* Plus feature rows — Plus sub, preview unlock, or first-cycle trial */}
+              {plusFeaturesUnlocked ? (
                 <>
                   <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                     <View style={styles.settingText}>
@@ -966,6 +1024,34 @@ export default function App() {
           </View>
         </SafeAreaView>
       </SafeAreaView>
+      <FirstCycleTrialStartedModal
+        visible={showTrialStartedNotice}
+        theme={theme}
+        language={language}
+        onContinueFree={() =>
+          persist({
+            ...data,
+            settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+          })
+        }
+        onSeePlus={() => {
+          persist({
+            ...data,
+            settings: { ...data.settings, firstCycleTrialStartedSeen: true },
+          });
+          setTab('settings');
+        }}
+      />
+      <FirstCycleTrialEndedModal
+        visible={trialEndedNotice}
+        theme={theme}
+        language={language}
+        onSeePlus={() => {
+          setTrialEndedNotice(false);
+          setTab('settings');
+        }}
+        onContinueFree={() => setTrialEndedNotice(false)}
+      />
       <SourcesSheet
         visible={sourcesTopic != null}
         topic={sourcesTopic ?? 'all'}

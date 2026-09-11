@@ -23,6 +23,10 @@ export type Settings = {
   themeMode: 'light' | 'dark';
   calendarSync: boolean;
   accessTier: AccessTier;
+  /** User dismissed the “trial started” notice on Today. */
+  firstCycleTrialStartedSeen: boolean;
+  /** User dismissed the “trial ending soon” notice on Today. */
+  firstCycleTrialEndingSeen: boolean;
 };
 
 export type StoredData = {
@@ -60,6 +64,8 @@ export function defaultSettings(): Settings {
     themeMode: 'dark',
     calendarSync: true,
     accessTier: 'free',
+    firstCycleTrialStartedSeen: false,
+    firstCycleTrialEndingSeen: false,
   };
 }
 
