@@ -23,6 +23,8 @@ type PlusFreeCardProps = {
   theme: Theme;
   language: Language;
   onUnlock: () => void;
+  pricingCohort?: 'founder' | 'standard';
+  showPaywall?: boolean;
 };
 
 const FEATURE_KEYS = ['paywallFeatureRecommendations', 'paywallFeaturePhaseTips', 'paywallFeatureEnergyCurve'] as const;
@@ -117,7 +119,7 @@ function PlusAccentShell({
   );
 }
 
-function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
+function PlusComingSoonCard({ theme, language, pricingCohort, showPaywall }: PlusFreeCardProps) {
   return (
     <PlusAccentShell
       theme={theme}
@@ -131,11 +133,17 @@ function PlusComingSoonCard({ theme, language }: PlusFreeCardProps) {
           accessibilityRole="text"
         >
           <Text style={[styles.comingSoonPillText, { color: theme.accent }]}>
-            {t(language, 'paywallComingSoon')}
+            {t(language, showPaywall ? priceHintKey(pricingCohort) : 'paywallComingSoon')}
           </Text>
         </View>
       }
-    />
+    >
+      {showPaywall ? (
+        <Text style={[styles.paywallCardSub, { color: theme.muted }]}>
+          {t(language, 'paywallFreeCycleHint')}
+        </Text>
+      ) : null}
+    </PlusAccentShell>
   );
 }
 
@@ -223,6 +231,11 @@ export function PlusFreeCard(props: PlusFreeCardProps) {
   if (isIapPlusEnabled()) return <PlusPurchaseCard {...props} />;
   return <PlusComingSoonCard {...props} />;
 }
+
+function priceHintKey(cohort: 'founder' | 'standard' | undefined): 'paywallFounderYearlyHint' | 'paywallStandardYearlyHint' {
+  return cohort === 'founder' ? 'paywallFounderYearlyHint' : 'paywallStandardYearlyHint';
+}
+
 
 const styles = StyleSheet.create({
   paywallInline: {

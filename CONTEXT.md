@@ -110,6 +110,20 @@ While the user has **exactly one** logged period start (and is on Free, no previ
 - Settings Plus toggles appear during the trial (`plusFeaturesUnlocked`).
 - `FirstCycleTrialCard.tsx` — ending card + started/ended modals.
 
+
+### Monetization (paid launch)
+
+Gate: **`secondCycle && monetizationEnabled` → paywall** (`EXPO_PUBLIC_MONETIZATION=1`).
+
+While monetization is **off** (no FOP yet), Plus stays unlocked for wider testing.
+
+| Cohort | Path | Yearly |
+| --- | --- | --- |
+| First ~50 (`EXPO_PUBLIC_EARLY_ACCESS=1` at install) | Early Access → announcement → 1 final free cycle → **Founder** | **29 zł** |
+| Everyone after | Install → 1 free cycle → Plus | **42 zł** |
+
+Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleLimit`. Logic in `src/monetization.ts`.
+
 ### Subscriptions (StoreKit)
 
 | Plan | Product ID | Listed price (docs) |

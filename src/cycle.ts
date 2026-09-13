@@ -27,6 +27,12 @@ export type Settings = {
   firstCycleTrialStartedSeen: boolean;
   /** User dismissed the “trial ending soon” notice on Today. */
   firstCycleTrialEndingSeen: boolean;
+  /** Founder (Early Access) vs standard yearly pricing. */
+  pricingCohort: 'founder' | 'standard';
+  /** Founder saw the paid-launch announcement. */
+  earlyAccessAnnouncementSeen: boolean;
+  /** Free while periodStarts.length <= this after announcement; null until dismissed. */
+  earlyAccessFreeCycleLimit: number | null;
 };
 
 export type StoredData = {
@@ -66,6 +72,9 @@ export function defaultSettings(): Settings {
     accessTier: 'free',
     firstCycleTrialStartedSeen: false,
     firstCycleTrialEndingSeen: false,
+    pricingCohort: 'standard',
+    earlyAccessAnnouncementSeen: false,
+    earlyAccessFreeCycleLimit: null,
   };
 }
 

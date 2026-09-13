@@ -19,6 +19,14 @@ import Constants from 'expo-constants';
 
 import { canSwitchPlan, effectiveAccessTier, hasFeatureAccess, previewUnlockSource, type AccessTier } from './src/access';
 import {
+  earlyAccessAnnouncementDismissPatch,
+  isInFreePlusCycle,
+  isMonetizationEnabled,
+  shouldShowEarlyAccessAnnouncement,
+  shouldShowPaywall,
+  yearlyPricePln,
+} from './src/monetization';
+import {
   firstCycleTrialJustEnded,
   firstCycleTrialJustStarted,
   isFirstCycleTrialActive,
@@ -214,7 +222,7 @@ export default function App() {
         periodStarts: nextStarts,
         settings: nextSettings,
       });
-      if (trialEnded) setTrialEndedNotice(true);
+      if (trialEnded && isMonetizationEnabled()) setTrialEndedNotice(true);
     },
     [data, persist],
   );
@@ -264,10 +272,25 @@ export default function App() {
   const storedTier = data.settings.accessTier;
   const tier = effectiveAccessTier(storedTier);
   const firstCycleTrialActive = isFirstCycleTrialActive(data.periodStarts);
-  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync', data.periodStarts);
-  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice', data.periodStarts);
-  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists', data.periodStarts);
-  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm', data.periodStarts);
+  const unlockSource = previewUnlockSource();
+  const monetizationSettings = {
+    pricingCohort: data.settings.pricingCohort,
+    earlyAccessAnnouncementSeen: data.settings.earlyAccessAnnouncementSeen,
+    earlyAccessFreeCycleLimit: data.settings.earlyAccessFreeCycleLimit,
+  };
+  const monetizationOn = isMonetizationEnabled();
+  const freePlusCycle = isInFreePlusCycle(data.periodStarts, monetizationSettings);
+  const showPaywall = shouldShowPaywall(data.periodStarts, storedTier, monetizationSettings, unlockSource);
+  const showEarlyAccessAnnouncement = shouldShowEarlyAccessAnnouncement(
+    storedTier,
+    monetizationSettings,
+    unlockSource,
+  );
+  const yearlyPriceLabel = `${yearlyPricePln(data.settings.pricingCohort)} zł`;
+  const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync', data.periodStarts, monetizationSettings);
+  const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice', data.periodStarts, monetizationSettings);
+  const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists', data.periodStarts, monetizationSettings);
+  const hasCycleRhythm = hasFeatureAccess(storedTier, 'cycleRhythm', data.periodStarts, monetizationSettings);
   const showCycleRhythm = hasCycleRhythm && data.settings.showCycleRhythm;
   const calendarEnabled = hasCalendarSync && data.settings.calendarSync;
   const showCycleInsightCard = hasEventLoadAdvice && data.settings.showCycleInsight;
@@ -276,21 +299,23 @@ export default function App() {
     hasPhasePlanningLists &&
     data.settings.showPhaseLists &&
     isWeekPlanningDay(today);
-  const unlockSource = previewUnlockSource();
   const showTrialStartedNotice =
+    monetizationOn &&
     !trialEndedNotice &&
     firstCycleTrialActive &&
     storedTier === 'free' &&
     unlockSource === 'off' &&
     !data.settings.firstCycleTrialStartedSeen;
   const showTrialEndingNotice =
+    monetizationOn &&
     !showTrialStartedNotice &&
     !trialEndedNotice &&
     isFirstCycleTrialEndingSoon(data.periodStarts, daysLeft) &&
     storedTier === 'free' &&
     unlockSource === 'off' &&
     !data.settings.firstCycleTrialEndingSeen;
-  const plusFeaturesUnlocked = storedTier === 'pro' || unlockSource !== 'off' || firstCycleTrialActive;
+  const plusFeaturesUnlocked =
+    storedTier === 'pro' || unlockSource !== 'off' || freePlusCycle;
   const cycleInsightToggle = cycleInsightToggleState(data.settings.showCycleInsight);
   const scheduleInsightToggle = scheduleInsightToggleState(
     data.settings.calendarSync,
@@ -782,6 +807,8 @@ export default function App() {
                 <PlusFreeCard
                   theme={theme}
                   language={language}
+                  pricingCohort={data.settings.pricingCohort}
+                  showPaywall={showPaywall}
                   onUnlock={() => {
                     persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });
                     if (data.settings.calendarSync) refreshCalendar(true);
@@ -1051,6 +1078,33 @@ export default function App() {
           setTab('settings');
         }}
         onContinueFree={() => setTrialEndedNotice(false)}
+      />
+      <ConfirmDialog
+        visible={showEarlyAccessAnnouncement}
+        theme={theme}
+        language={language}
+        title={t(language, 'earlyAccessAnnouncementTitle')}
+        message={t(language, 'earlyAccessAnnouncementBody')}
+        confirmLabel={t(language, 'earlyAccessAnnouncementCta')}
+        cancelLabel={t(language, 'earlyAccessAnnouncementCta')}
+        onConfirm={() =>
+          persist({
+            ...data,
+            settings: {
+              ...data.settings,
+              ...earlyAccessAnnouncementDismissPatch(data.periodStarts),
+            },
+          })
+        }
+        onCancel={() =>
+          persist({
+            ...data,
+            settings: {
+              ...data.settings,
+              ...earlyAccessAnnouncementDismissPatch(data.periodStarts),
+            },
+          })
+        }
       />
       <SourcesSheet
         visible={sourcesTopic != null}

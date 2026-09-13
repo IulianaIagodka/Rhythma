@@ -1,5 +1,6 @@
 import { isTestFlightRuntime } from './testflight';
 import { isFirstCycleTrialActive } from './firstCycleTrial';
+import { isInFreePlusCycle, isMonetizationEnabled, type MonetizationSettings } from './monetization';
 
 export type AccessTier = 'free' | 'pro';
 
@@ -63,16 +64,22 @@ export function effectiveAccessTier(stored: AccessTier): AccessTier {
 }
 
 /**
- * Plus features unlock when stored/preview tier is pro, or during the first-cycle trial
- * (exactly one logged period start). Calendar sync stays free either way.
+ * Plus unlocks when tier is pro, monetization is off (pre-FOP testing),
+ * or the user is still inside a free cycle. Calendar sync stays free.
  */
 export function hasFeatureAccess(
   tier: AccessTier,
   feature: ProFeatureKey,
   periodStarts: string[] = [],
+  monetization: Pick<
+    MonetizationSettings,
+    'pricingCohort' | 'earlyAccessAnnouncementSeen' | 'earlyAccessFreeCycleLimit'
+  > | null = null,
 ): boolean {
   const requiredTier = FEATURE_ACCESS[feature].tier;
   if (requiredTier === 'free') return true;
   if (effectiveAccessTier(tier) === 'pro') return true;
-  return isFirstCycleTrialActive(periodStarts);
+  if (!isMonetizationEnabled()) return true;
+  if (monetization) return isInFreePlusCycle(periodStarts, monetization);
+  return periodStarts.length <= 1 || isFirstCycleTrialActive(periodStarts);
 }
