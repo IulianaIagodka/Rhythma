@@ -45,6 +45,7 @@ describe('defaultSettings', () => {
     assert.equal(settings.pricingCohort, 'standard');
     assert.equal(settings.earlyAccessAnnouncementSeen, false);
     assert.equal(settings.earlyAccessFreeCycleLimit, null);
+    assert.equal(settings.qaMonetizationEnabled, false);
   });
 });
 

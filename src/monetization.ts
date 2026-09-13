@@ -31,14 +31,28 @@ export function defaultMonetizationSettings(): MonetizationSettings {
   };
 }
 
+/** QA override from Settings (TestFlight / plan-switch builds). `null` = follow env. */
+let qaMonetizationOverride: boolean | null = null;
+
+/** Used by App when `canSwitchPlan()` so QA can flip monetization without a rebuild. */
+export function setQaMonetizationOverride(enabled: boolean | null): void {
+  qaMonetizationOverride = enabled;
+}
+
+export function getQaMonetizationOverride(): boolean | null {
+  return qaMonetizationOverride;
+}
+
 /** Master switch. Off until FOP / paid launch — Plus stays open for testing. */
 export function isMonetizationEnabled(): boolean {
+  if (qaMonetizationOverride != null) return qaMonetizationOverride;
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_MONETIZATION === '1';
 }
 
 /**
  * While this is on, new installs are stamped as Founder (first-50 window).
  * Turn off after ~50 users so later installs get standard pricing.
+ * QA can also force Founder via Settings without this env.
  */
 export function isEarlyAccessEnrollmentOpen(): boolean {
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_EARLY_ACCESS === '1';
