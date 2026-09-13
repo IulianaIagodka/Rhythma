@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Rhythma — Year</title>
+  <link rel="stylesheet" href="mock.css" />
+</head>
+<body>
+  <div class="phone">
+    <div class="status">
+      <span>9:41</span>
+      <span class="right">■■■ 5G ████</span>
+    </div>
+    <div class="header">
+      <div class="brand">Rhythma</div>
+      <div class="hero">Cycle calendar</div>
+    </div>
+    <div class="content" style="padding-top: 18px;">
+      <div class="year-nav">
+        <span class="chev">‹</span>
+        <span>2026</span>
+        <span class="chev">›</span>
+      </div>
+      <div class="months">
+        <div>
+          <div class="month-name">August</div>
+          <div class="month-grid" id="aug"></div>
+        </div>
+        <div>
+          <div class="month-name">September</div>
+          <div class="month-grid" id="sep"></div>
+        </div>
+        <div>
+          <div class="month-name">October</div>
+          <div class="month-grid" id="oct"></div>
+        </div>
+        <div>
+          <div class="month-name">November</div>
+          <div class="month-grid" id="nov"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab"><div class="sq"></div>Today</div>
+      <div class="tab active"><div class="grid"><i></i><i></i><i></i><i></i></div>Year</div>
+      <div class="tab"><div class="menu"><i></i><i></i><i></i></div>More</div>
+    </div>
+  </div>
+  <script>
+    function renderMonth(id, startWeekday, days, marks) {
+      const el = document.getElementById(id);
+      for (let i = 0; i < startWeekday; i++) {
+        const d = document.createElement('div');
+        d.className = 'mday empty';
+        el.appendChild(d);
+      }
+      for (let day = 1; day <= days; day++) {
+        const d = document.createElement('div');
+        d.className = 'mday';
+        const m = marks[day];
+        if (m) d.classList.add(m);
+        d.textContent = String(day);
+        el.appendChild(d);
+      }
+    }
+    // Monday-first: Aug 2026 starts Saturday = 5
+    renderMonth('aug', 5, 31, {
+      17:'period',18:'period',19:'period',20:'period',21:'period',
+      29:'ovul',30:'ovul',31:'ovul'
+    });
+    // Sep 2026 starts Tuesday = 1
+    renderMonth('sep', 1, 30, {
+      14:'forecast',15:'forecast',16:'forecast',17:'forecast',18:'forecast',
+      26:'ovul',27:'ovul',28:'ovul'
+    });
+    // Oct 2026 starts Thursday = 3
+    renderMonth('oct', 3, 31, {
+      12:'forecast',13:'forecast',14:'forecast',15:'forecast',16:'forecast',
+      24:'ovul',25:'ovul',26:'ovul'
+    });
+    // Nov 2026 starts Sunday = 6
+    renderMonth('nov', 6, 30, {
+      9:'forecast',10:'forecast',11:'forecast',12:'forecast',13:'forecast',
+      21:'ovul',22:'ovul',23:'ovul'
+    });
+  </script>
+</body>
+</html>
