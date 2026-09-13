@@ -33,6 +33,11 @@ export type Settings = {
   earlyAccessAnnouncementSeen: boolean;
   /** Free while periodStarts.length <= this after announcement; null until dismissed. */
   earlyAccessFreeCycleLimit: number | null;
+  /**
+   * QA only (TestFlight / plan-switch builds): force monetization on/off.
+   * Ignored in production builds without plan switch.
+   */
+  qaMonetizationEnabled: boolean;
 };
 
 export type StoredData = {
@@ -75,6 +80,7 @@ export function defaultSettings(): Settings {
     pricingCohort: 'standard',
     earlyAccessAnnouncementSeen: false,
     earlyAccessFreeCycleLimit: null,
+    qaMonetizationEnabled: false,
   };
 }
 

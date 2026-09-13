@@ -122,7 +122,9 @@ While monetization is **off** (no FOP yet), Plus stays unlocked for wider testin
 | First ~50 (`EXPO_PUBLIC_EARLY_ACCESS=1` at install) | Early Access → announcement → 1 final free cycle → **Founder** | **29.99 zł** |
 | Everyone after | Install → 1 free cycle → Plus | **49.99 zł** |
 
-Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleLimit`. Logic in `src/monetization.ts`.
+Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleLimit`, `qaMonetizationEnabled`. Logic in `src/monetization.ts`.
+
+**QA (TestFlight / plan switch):** Settings toggles — Monetization on/off, Founder/Standard cohort, Reset Early Access notice. No rebuild needed.
 
 ### Subscriptions (StoreKit)
 

@@ -22,6 +22,7 @@ import {
   earlyAccessAnnouncementDismissPatch,
   isInFreePlusCycle,
   isMonetizationEnabled,
+  setQaMonetizationOverride,
   shouldShowEarlyAccessAnnouncement,
   shouldShowPaywall,
   yearlyPricePln,
@@ -256,6 +257,15 @@ export default function App() {
     if (!data) return new Map<string, DayMark>();
     return marksForYear(year, data.periodStarts, data.settings);
   }, [data, year]);
+
+
+  useEffect(() => {
+    if (!data) {
+      setQaMonetizationOverride(null);
+      return;
+    }
+    setQaMonetizationOverride(canSwitchPlan() ? data.settings.qaMonetizationEnabled : null);
+  }, [data, data?.settings.qaMonetizationEnabled]);
 
   if (!data || !status) {
     return (
@@ -816,6 +826,69 @@ export default function App() {
                 />
               )}
 
+
+              {planSwitcher ? (
+                <>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'qaMonetizationToggle')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'qaMonetizationHint')}</Text>
+                    </View>
+                    <BrightSwitch
+                      value={data.settings.qaMonetizationEnabled}
+                      readyRef={switchesReady}
+                      onValueChange={(qaMonetizationEnabled) => {
+                        setQaMonetizationOverride(qaMonetizationEnabled);
+                        persist({ ...data, settings: { ...data.settings, qaMonetizationEnabled } });
+                      }}
+                    />
+                  </View>
+                  <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'qaCohortTitle')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'qaCohortHint')}</Text>
+                    </View>
+                    <CohortSwitch
+                      value={data.settings.pricingCohort}
+                      appearance={data.settings.themeMode}
+                      language={language}
+                      onChange={(pricingCohort) => {
+                        persist({
+                          ...data,
+                          settings: {
+                            ...data.settings,
+                            pricingCohort,
+                            earlyAccessAnnouncementSeen: false,
+                            earlyAccessFreeCycleLimit: null,
+                          },
+                        });
+                      }}
+                    />
+                  </View>
+                  <Pressable
+                    onPress={() => {
+                      void Haptics.selectionAsync();
+                      persist({
+                        ...data,
+                        settings: {
+                          ...data.settings,
+                          earlyAccessAnnouncementSeen: false,
+                          earlyAccessFreeCycleLimit: null,
+                        },
+                      });
+                    }}
+                    style={[styles.settingRow, { backgroundColor: theme.card }]}
+                    accessibilityRole="button"
+                  >
+                    <View style={styles.settingText}>
+                      <Text style={[styles.settingTitle, { color: theme.ink }]}>{t(language, 'qaResetEarlyAccess')}</Text>
+                      <Text style={[styles.settingMeta, { color: theme.muted }]}>{t(language, 'qaResetEarlyAccessHint')}</Text>
+                    </View>
+                    <Text style={[styles.insightChevron, { color: theme.teal }]}>↺</Text>
+                  </Pressable>
+                </>
+              ) : null}
+
               {/* Calendar sync — free for everyone */}
               <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
                 <View style={styles.settingText}>
@@ -1162,6 +1235,35 @@ export default function App() {
         }}
       />
     </SafeAreaProvider>
+  );
+}
+
+
+function CohortSwitch({
+  value,
+  appearance,
+  language,
+  onChange,
+}: {
+  value: 'founder' | 'standard';
+  appearance: 'light' | 'dark';
+  language: Language;
+  onChange: (cohort: 'founder' | 'standard') => void;
+}) {
+  return (
+    <SegmentedControl
+      values={[t(language, 'qaCohortFounder'), t(language, 'qaCohortStandard')]}
+      selectedIndex={value === 'founder' ? 0 : 1}
+      onChange={(event) => {
+        const next: 'founder' | 'standard' =
+          event.nativeEvent.selectedSegmentIndex === 0 ? 'founder' : 'standard';
+        if (next === value) return;
+        void Haptics.selectionAsync();
+        onChange(next);
+      }}
+      appearance={appearance}
+      style={styles.nativeSegment}
+    />
   );
 }
 

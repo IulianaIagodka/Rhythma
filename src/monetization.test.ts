@@ -10,6 +10,7 @@ import {
   isInFreePlusCycle,
   isMonetizationEnabled,
   isSecondCycle,
+  setQaMonetizationOverride,
   shouldShowEarlyAccessAnnouncement,
   shouldShowPaywall,
   yearlyPricePln,
@@ -118,4 +119,18 @@ describe('monetization', () => {
       );
     });
   });
+
+  it('lets QA override monetization without env', () => {
+    withEnv({ EXPO_PUBLIC_MONETIZATION: undefined }, () => {
+      setQaMonetizationOverride(true);
+      try {
+        assert.equal(isMonetizationEnabled(), true);
+        assert.equal(shouldShowPaywall(['2026-01-01', '2026-02-01'], 'free', standard), true);
+      } finally {
+        setQaMonetizationOverride(null);
+      }
+      assert.equal(isMonetizationEnabled(), false);
+    });
+  });
+
 });
