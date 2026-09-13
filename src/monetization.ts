@@ -4,10 +4,10 @@ import { sortedUnique } from './cycle';
 export const EARLY_ACCESS_CAP = 50;
 
 /** Founder yearly list price (PLN) for Early Access cohort. */
-export const FOUNDER_YEARLY_PLN = 29;
+export const FOUNDER_YEARLY_PLN = 29.99;
 
 /** Standard yearly list price (PLN) after Early Access. */
-export const STANDARD_YEARLY_PLN = 42;
+export const STANDARD_YEARLY_PLN = 49.99;
 
 export type PricingCohort = 'founder' | 'standard';
 

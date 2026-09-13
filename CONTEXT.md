@@ -119,8 +119,8 @@ While monetization is **off** (no FOP yet), Plus stays unlocked for wider testin
 
 | Cohort | Path | Yearly |
 | --- | --- | --- |
-| First ~50 (`EXPO_PUBLIC_EARLY_ACCESS=1` at install) | Early Access → announcement → 1 final free cycle → **Founder** | **29 zł** |
-| Everyone after | Install → 1 free cycle → Plus | **42 zł** |
+| First ~50 (`EXPO_PUBLIC_EARLY_ACCESS=1` at install) | Early Access → announcement → 1 final free cycle → **Founder** | **29.99 zł** |
+| Everyone after | Install → 1 free cycle → Plus | **49.99 zł** |
 
 Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleLimit`. Logic in `src/monetization.ts`.
 

@@ -27,5 +27,5 @@ export function isPlusSku(sku: string): boolean {
   return plusPlanForSku(sku) != null;
 }
 
-/** Future App Store product for Founder yearly (29 zł) — create in ASC before monetization launch. */
+/** Future App Store product for Founder yearly (29.99 zł) — create in ASC before monetization launch. */
 export const PLUS_SKU_FOUNDER_YEARLY = 'app.rhythma.cycle.plus.founder.yearly';

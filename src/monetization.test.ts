@@ -54,10 +54,10 @@ const standard: MonetizationSettings = {
 describe('monetization', () => {
   it('documents Early Access cap and PLN yearly prices', () => {
     assert.equal(EARLY_ACCESS_CAP, 50);
-    assert.equal(FOUNDER_YEARLY_PLN, 29);
-    assert.equal(STANDARD_YEARLY_PLN, 42);
-    assert.equal(yearlyPricePln('founder'), 29);
-    assert.equal(yearlyPricePln('standard'), 42);
+    assert.equal(FOUNDER_YEARLY_PLN, 29.99);
+    assert.equal(STANDARD_YEARLY_PLN, 49.99);
+    assert.equal(yearlyPricePln('founder'), 29.99);
+    assert.equal(yearlyPricePln('standard'), 49.99);
   });
 
   it('keeps monetization off by default so Plus can be tested before FOP', () => {
