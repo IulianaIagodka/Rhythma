@@ -42,6 +42,9 @@ describe('defaultSettings', () => {
     assert.equal(settings.themeMode, 'dark');
     assert.equal(settings.firstCycleTrialStartedSeen, false);
     assert.equal(settings.firstCycleTrialEndingSeen, false);
+    assert.equal(settings.pricingCohort, 'standard');
+    assert.equal(settings.earlyAccessAnnouncementSeen, false);
+    assert.equal(settings.earlyAccessFreeCycleLimit, null);
   });
 });
 

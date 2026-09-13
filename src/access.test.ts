@@ -17,20 +17,28 @@ describe('access', () => {
     assert.equal(defaultSettings().accessTier, 'free');
   });
 
-  it('keeps event advice and phase lists behind pro; calendar sync is free', () => {
-    assert.equal(previewUnlockSource(), 'off');
-    assert.equal(isPreviewUnlockEnabled(), false);
-    assert.equal(canSwitchPlan(), false);
-    assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
-    assert.equal(hasFeatureAccess('free', 'eventLoadAdvice'), false);
-    assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
-    assert.equal(hasFeatureAccess('free', 'phasePlanningLists'), false);
-    assert.equal(hasFeatureAccess('free', 'cycleRhythm'), false);
-    assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
-    assert.equal(hasFeatureAccess('pro', 'eventLoadAdvice'), true);
-    assert.equal(hasFeatureAccess('pro', 'phaseTitle'), true);
-    assert.equal(hasFeatureAccess('pro', 'phasePlanningLists'), true);
-    assert.equal(hasFeatureAccess('pro', 'cycleRhythm'), true);
+  it('keeps event advice and phase lists behind pro after the free cycle; calendar sync is free', () => {
+    const previous = process.env.EXPO_PUBLIC_MONETIZATION;
+    process.env.EXPO_PUBLIC_MONETIZATION = '1';
+    try {
+      assert.equal(previewUnlockSource(), 'off');
+      assert.equal(isPreviewUnlockEnabled(), false);
+      assert.equal(canSwitchPlan(), false);
+      assert.equal(hasFeatureAccess('free', 'calendarSync'), true);
+      // Second cycle (standard path) → Plus locked without purchase.
+      assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17', '2026-09-14']), false);
+      assert.equal(hasFeatureAccess('free', 'phaseTitle'), true);
+      assert.equal(hasFeatureAccess('free', 'phasePlanningLists', ['2026-08-17', '2026-09-14']), false);
+      assert.equal(hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17', '2026-09-14']), false);
+      assert.equal(hasFeatureAccess('pro', 'calendarSync'), true);
+      assert.equal(hasFeatureAccess('pro', 'eventLoadAdvice'), true);
+      assert.equal(hasFeatureAccess('pro', 'phaseTitle'), true);
+      assert.equal(hasFeatureAccess('pro', 'phasePlanningLists'), true);
+      assert.equal(hasFeatureAccess('pro', 'cycleRhythm'), true);
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_MONETIZATION;
+      else process.env.EXPO_PUBLIC_MONETIZATION = previous;
+    }
   });
 
   it('lets a preview build keep Free until Plus is selected', () => {
@@ -108,9 +116,28 @@ describe('access', () => {
   });
 
   it('unlocks Plus features during the first-cycle trial (one period start)', () => {
-    assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17']), true);
-    assert.equal(hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17']), true);
-    assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17', '2026-09-14']), false);
-    assert.equal(hasFeatureAccess('free', 'cycleRhythm', []), false);
+    const previous = process.env.EXPO_PUBLIC_MONETIZATION;
+    process.env.EXPO_PUBLIC_MONETIZATION = '1';
+    try {
+      assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17']), true);
+      assert.equal(hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17']), true);
+      assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17', '2026-09-14']), false);
+      assert.equal(hasFeatureAccess('free', 'cycleRhythm', []), true); // install → first cycle still free
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_MONETIZATION;
+      else process.env.EXPO_PUBLIC_MONETIZATION = previous;
+    }
+  });
+
+  it('keeps Plus unlocked for testing while monetization is off', () => {
+    const previous = process.env.EXPO_PUBLIC_MONETIZATION;
+    delete process.env.EXPO_PUBLIC_MONETIZATION;
+    try {
+      assert.equal(hasFeatureAccess('free', 'eventLoadAdvice', []), true);
+      assert.equal(hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17', '2026-09-14']), true);
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_MONETIZATION;
+      else process.env.EXPO_PUBLIC_MONETIZATION = previous;
+    }
   });
 });

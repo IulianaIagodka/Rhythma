@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { defaultSettings, sortedUnique, type Settings, type StoredData } from './cycle';
+import { assignPricingCohortAtInstall } from './monetization';
 
 const STORAGE_KEY = 'rhythma.v1';
 
@@ -22,7 +23,11 @@ function migrateSettings(raw: Partial<Settings> & { showEventAdvice?: boolean })
 export async function loadData(): Promise<StoredData> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
-    if (!raw) return { periodStarts: [], settings: defaultSettings() };
+    if (!raw) {
+      const settings = defaultSettings();
+      settings.pricingCohort = assignPricingCohortAtInstall();
+      return { periodStarts: [], settings };
+    }
     const parsed = JSON.parse(raw) as Partial<StoredData>;
     const starts = Array.isArray(parsed.periodStarts)
       ? parsed.periodStarts.filter((value): value is string => typeof value === 'string')
