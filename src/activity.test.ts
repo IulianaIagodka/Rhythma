@@ -170,6 +170,10 @@ describe('adviseLoad', () => {
     assert.equal(advice.title, 'Що пасує цього тижня');
     assert.match(advice.note, /вільний|ключов|тренуван/i);
     assert.doesNotMatch(advice.note, /естроген|прогестерон|Підходить:/i);
+
+    const luteal = adviseLoad('luteal', [], 'uk');
+    assert.match(luteal.note, /закрийте відкрите/i);
+    assert.doesNotMatch(luteal.note, /відките/);
   });
 
   it('titles the insight around the busiest day', () => {
