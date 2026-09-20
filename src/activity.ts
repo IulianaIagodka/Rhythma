@@ -58,7 +58,7 @@ export function activityFitLabel(
   lang: Language,
 ): string | null {
   const fit = activityFitForPhase(phase, activity);
-  if (fit === 'support') return lang === 'uk' ? 'Ок зараз' : 'Okay now';
+  if (fit === 'support') return lang === 'uk' ? 'Добре зараз' : 'Fits now';
   if (fit === 'harder') return lang === 'uk' ? 'Краще перенести' : 'Consider moving';
   return null;
 }
@@ -94,7 +94,7 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
   if (lang === 'uk') {
     if (phase === 'menstrual') {
       return {
-        label: 'Rest & release',
+        label: 'Відновлення',
         load: 'low',
         hint: 'Естроген і прогестерон на мінімумі — енергія часто спадає',
         calendarHint: 'Краще відновлення й легкий рух; менше жорстких тренувань і щільних днів',
@@ -102,7 +102,7 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
     }
     if (phase === 'follicular') {
       return {
-        label: 'Renew & rise',
+        label: 'Зростання',
         load: 'medium',
         hint: 'Естроген зростає — енергія, фокус і мотивація зазвичай підсилюються',
         calendarHint: 'Добрий час для нових планів, прогресивних тренувань і стартів',
@@ -110,15 +110,15 @@ export function capacityForPhase(phase: PhaseId | null, lang: Language): Capacit
     }
     if (phase === 'ovulatory') {
       return {
-        label: 'Peak & powerful',
+        label: 'Пік',
         load: 'high',
         hint: 'Естроген на піку навколо овуляції — часто найбільше енергії',
-        calendarHint: 'Ставте ключові розмови, соціальні плани й інтенсивні сесії',
+        calendarHint: 'Ставте ключові розмови, соціальні плани й інтенсивні тренування',
       };
     }
     if (phase === 'luteal') {
       return {
-        label: 'Turn inward',
+        label: 'Спокій',
         load: 'medium',
         hint: 'Після овуляції росте прогестерон — енергія може спадати',
         calendarHint: 'Закривайте почате, спрощуйте графік і залишайте буфер',
@@ -192,10 +192,10 @@ function workoutInsightSentence(
       return `${title} — легший варіант, добре зараз`;
     }
     if (phase === 'luteal' && item.activity === 'intense') {
-      return `${title} може відчуватися важче в лютеїновій фазі — не форсіть`;
+      return `${title} може відчуватися важче в лютеїновій фазі — краще не тисніть`;
     }
     if (phase === 'follicular' && item.activity === 'intense') {
-      return `${title} добре лягає на фолікулярну фазу — енергія зростає, тренування доречні`;
+      return `${title} добре пасує до фолікулярної фази — енергія зростає, тренування доречні`;
     }
     if (phase === 'ovulatory' && item.activity === 'intense') {
       return `${title} — хороший момент для інтенсивного навантаження`;
@@ -206,7 +206,7 @@ function workoutInsightSentence(
     if (item.activity === 'yoga' || item.activity === 'massage' || item.activity === 'swim') {
       return `${title} — м’який рух, добре зараз`;
     }
-    return `${title} — ок для цієї фази`;
+    return `${title} — підходить для цієї фази`;
   }
 
   if (phase === 'menstrual' && item.activity === 'intense') {
@@ -290,7 +290,7 @@ function cognitiveInsightSentence(
       return `${joined} — щільний розумовий день у спокійнішій фазі; залиште буфер або перенесіть частину`;
     }
     if (phase === 'follicular' || phase === 'ovulatory') {
-      return `${joined} — добре лягає на фазу з сильнішим фокусом`;
+      return `${joined} — добре пасує до фази з сильнішим фокусом`;
     }
     return `${joined} — розумове навантаження в календарі`;
   }
@@ -309,7 +309,7 @@ export function cognitiveTipForPhase(phase: PhaseId | null, lang: Language): str
   if (!phase) return null;
   if (lang === 'uk') {
     if (phase === 'menstrual') {
-      return 'Когнітивно: менше складних рішень — рутина, дрібні задачі й чіткі пріоритети.';
+      return 'Когнітивно: менше складних рішень — рутина, дрібні справи й чіткі пріоритети.';
     }
     if (phase === 'follicular') {
       return 'Когнітивно: добрий час для нових ідей, навчання й стартів.';
@@ -317,7 +317,7 @@ export function cognitiveTipForPhase(phase: PhaseId | null, lang: Language): str
     if (phase === 'ovulatory') {
       return 'Когнітивно: зручно для презентацій, переговорів і важливих розмов.';
     }
-    return 'Когнітивно: доводьте почате, менше нових зобовʼязань і context-switching.';
+    return 'Когнітивно: доводьте почате, менше нових зобовʼязань і перемикання між справами.';
   }
   if (phase === 'menstrual') {
     return 'Cognitive: fewer hard decisions — stick to routine, small tasks, and clear priorities.';
@@ -328,7 +328,7 @@ export function cognitiveTipForPhase(phase: PhaseId | null, lang: Language): str
   if (phase === 'ovulatory') {
     return 'Cognitive: well suited to presentations, negotiations, and key conversations.';
   }
-  return 'Cognitive: finish what you started, with fewer new commitments and less context-switching.';
+  return 'Cognitive: finish what you started, with fewer new commitments and less task-switching.';
 }
 
 /** Social energy tip by phase — optional, not a diagnosis. */
@@ -342,7 +342,7 @@ export function socialTipForPhase(phase: PhaseId | null, lang: Language): string
       return 'Соціально: енергія на людей зазвичай зростає — зручно планувати спільні старти.';
     }
     if (phase === 'ovulatory') {
-      return 'Соціально: часто пік для зустрічей, нетворкінгу й відкритих розмов.';
+      return 'Соціально: часто пік для зустрічей, нових знайомств і відкритих розмов.';
     }
     return 'Соціально: оберіть менше, але тепліші контакти; залиште вечори без перевантаження.';
   }
@@ -370,7 +370,7 @@ function emptyWeekInsight(phase: PhaseId | null, lang: Language): string {
       return 'Тиждень майже вільний — зараз добрий час для ключових справ чи інтенсивного тренування';
     }
     if (phase === 'luteal') {
-      return 'Мало подій — закрийте відките й не набивайте дні зайвим';
+      return 'Мало подій — закрийте відкрите й не набивайте дні зайвим';
     }
     return capacityForPhase(phase, lang).calendarHint;
   }
@@ -574,20 +574,20 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
     }
     if (phase === 'follicular') {
       return {
-        best: ['Нові старти', 'Глибока робота', 'Брейншторми', 'Спільні плани'],
+        best: ['Нові старти', 'Глибока робота', 'Генерація ідей', 'Спільні плани'],
         avoid: ['Відкладати старти', 'Надмірний простій'],
       };
     }
     if (phase === 'ovulatory') {
       return {
-        best: ['Ключові розмови', 'Презентації', 'Соціальні плани', 'Інтенсивні сесії'],
-        avoid: ['Ізоляція', 'Дрібні задачі'],
+        best: ['Ключові розмови', 'Презентації', 'Соціальні плани', 'Інтенсивні тренування'],
+        avoid: ['Ізоляція', 'Дрібні справи'],
       };
     }
     if (phase === 'luteal') {
       return {
         best: ['Закривати почате', 'Простіший графік', 'Більше буфера', 'Тихі вечори'],
-        avoid: ['Великі зобовʼязання', 'Пік навантаження', 'Щільні мітинги'],
+        avoid: ['Великі зобовʼязання', 'Пік навантаження', 'Щільні зустрічі'],
       };
     }
     return { best: [], avoid: [] };
@@ -600,20 +600,20 @@ export function planningForPhase(phase: PhaseId | null, lang: Language): PhasePl
   }
   if (phase === 'follicular') {
     return {
-      best: ['New starts', 'Progressive training', 'Brainstorms'],
+      best: ['New starts', 'Deep work', 'Brainstorms', 'Shared plans'],
       avoid: ['Delayed starts', 'Idle time'],
     };
   }
   if (phase === 'ovulatory') {
     return {
-      best: ['Key conversations', 'Social plans', 'Intense sessions'],
+      best: ['Key conversations', 'Presentations', 'Social plans', 'Intense sessions'],
       avoid: ['Isolation', 'Busywork'],
     };
   }
   if (phase === 'luteal') {
     return {
-      best: ['Close loops', 'Simpler schedule', 'Extra buffer'],
-      avoid: ['Big commitments', 'Peak load'],
+      best: ['Close loops', 'Simpler schedule', 'Extra buffer', 'Quiet evenings'],
+      avoid: ['Big commitments', 'Peak load', 'Packed meetings'],
     };
   }
   return { best: [], avoid: [] };
@@ -641,7 +641,7 @@ export function weekPlanInsight(
   const favor =
     plan.best.length > 0
       ? lang === 'uk'
-        ? `Цього тижня варто спертися на: ${plan.best.join(', ').toLowerCase()}.`
+        ? `Цього тижня варто спиратися на: ${plan.best.join(', ').toLowerCase()}.`
         : `Lean on this week: ${plan.best.join(', ').toLowerCase()}.`
       : null;
   const ease =
