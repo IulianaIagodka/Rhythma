@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { isIapPlusEnabled } from './access';
 import { t, type Language } from './i18n';
 import type { PlusPlanId } from './iapPlus';
+import { EULA_URL, PRIVACY_POLICY_URL } from './legal';
 import { radius } from './theme';
 import { useIAPPlus } from './useIAPPlus';
 
@@ -223,6 +224,25 @@ function PlusPurchaseCard({ theme, language, onUnlock }: PlusFreeCardProps) {
           {iap.status === 'restoring' ? t(language, 'restoringPlus') : t(language, 'restorePurchase')}
         </Text>
       </Pressable>
+      <View style={styles.legalLinksRow}>
+        <Pressable
+          onPress={() => Linking.openURL(PRIVACY_POLICY_URL).catch(() => {})}
+          hitSlop={8}
+          accessibilityRole="link"
+          accessibilityLabel={t(language, 'privacyPolicyA11y')}
+        >
+          <Text style={[styles.legalLink, { color: theme.muted }]}>{t(language, 'privacyPolicy')}</Text>
+        </Pressable>
+        <Text style={[styles.legalSep, { color: theme.muted }]}>·</Text>
+        <Pressable
+          onPress={() => Linking.openURL(EULA_URL).catch(() => {})}
+          hitSlop={8}
+          accessibilityRole="link"
+          accessibilityLabel={t(language, 'termsOfUseA11y')}
+        >
+          <Text style={[styles.legalLink, { color: theme.muted }]}>{t(language, 'termsOfUse')}</Text>
+        </Pressable>
+      </View>
     </PlusAccentShell>
   );
 }
@@ -340,5 +360,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     textDecorationLine: 'underline',
+  },
+  legalLinksRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legalLink: {
+    fontSize: 12,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
+  legalSep: {
+    fontSize: 12,
   },
 });

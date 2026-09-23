@@ -69,6 +69,7 @@ assets/
 | `calendar.ts`, `calendarSync.ts`, `calendarItems.ts` | EventKit read path, event flattening, title → activity |
 | `settingsControls.ts` | Toggle rules, Sync button visibility, Connect calendar CTA |
 | `feedback.ts` | Mailto builder for Settings → Send feedback |
+| `legal.ts` | Privacy Policy + Apple Standard EULA URLs; version label for Settings |
 | `i18n.ts` | `en` / `uk` strings |
 | `sources.ts`, `SourcesSheet.tsx` | Methodology + citations (ASC 1.4.1) |
 | `CycleRhythm.tsx` | Compact energy sparkline + expanded Energy & hormones modal |
@@ -223,6 +224,7 @@ Runtime TestFlight detection is **unreliable** on modern iOS. A **production**-p
 ### Feedback
 
 - Settings → Send feedback → `mailto:iuliana.iagodka@gmail.com` with version / build / iOS prefilled (`src/feedback.ts`).
+- Settings → **Version** row shows marketing version + build and opens Privacy / EULA URLs (`src/legal.ts`). Same links sit under the Plus paywall (Guideline 3.1.2).
 
 ---
 
@@ -242,7 +244,7 @@ npm start                # expo start
 3. Docs/copy/metadata-only changes need no new tests but must still pass the suite.
 4. Note what was tested in the merge/PR summary.
 
-Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedback`, `iapPlus`, `settingsControls`, `sources`, `WeekStrip`, `yearCalendarLayout`.
+Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedback`, `firstCycleTrial`, `iapPlus`, `legal`, `monetization`, `settingsControls`, `sources`, `WeekStrip`, `yearCalendarLayout`.
 
 ---
 

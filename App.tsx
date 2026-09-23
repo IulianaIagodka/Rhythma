@@ -52,6 +52,7 @@ import {
 } from './src/cycle';
 import { appleCalendarShowInterval, formatDay, formatSelectedDayTitle, todayISO } from './src/dates';
 import { buildFeedbackMailto } from './src/feedback';
+import { EULA_URL, formatAppVersionLabel, PRIVACY_POLICY_URL } from './src/legal';
 import { loadData, saveData } from './src/storage';
 import { radius, themeFor, type Theme } from './src/theme';
 import { ConfirmDialog } from './src/ConfirmDialog';
@@ -1090,6 +1091,48 @@ export default function App() {
                   }
                 />
               </View>
+              <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+                <View style={styles.settingText}>
+                  <Text style={[styles.settingTitle, { color: theme.ink }]}>
+                    {t(language, 'appVersionTitle')}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {formatAppVersionLabel(
+                      language,
+                      Constants.expoConfig?.version ?? null,
+                      Constants.nativeBuildVersion ??
+                        (Constants.expoConfig?.ios as { buildNumber?: string } | undefined)?.buildNumber ??
+                        null,
+                    )}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.muted }]}>
+                    {t(language, 'legalLinksHint')}
+                  </Text>
+                  <View style={styles.legalLinksRow}>
+                    <Pressable
+                      onPress={() => Linking.openURL(PRIVACY_POLICY_URL).catch(() => {})}
+                      hitSlop={8}
+                      accessibilityRole="link"
+                      accessibilityLabel={t(language, 'privacyPolicyA11y')}
+                    >
+                      <Text style={[styles.settingLink, { color: theme.teal }]}>
+                        {t(language, 'privacyPolicy')}
+                      </Text>
+                    </Pressable>
+                    <Text style={[styles.legalLinksSep, { color: theme.muted }]}>·</Text>
+                    <Pressable
+                      onPress={() => Linking.openURL(EULA_URL).catch(() => {})}
+                      hitSlop={8}
+                      accessibilityRole="link"
+                      accessibilityLabel={t(language, 'termsOfUseA11y')}
+                    >
+                      <Text style={[styles.settingLink, { color: theme.teal }]}>
+                        {t(language, 'termsOfUse')}
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
             </>
           ) : null}
         </ScrollView>
@@ -1652,7 +1695,18 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontSize: 16, fontWeight: '600' },
   settingMeta: { fontSize: 13, marginTop: 4 },
-  settingLink: { fontSize: 12, marginTop: 6 },
+  settingLink: { fontSize: 12, marginTop: 6, fontWeight: '500' },
+  legalLinksRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
+  legalLinksSep: {
+    fontSize: 12,
+    marginTop: 6,
+  },
   planPill: {
     minWidth: 56,
     paddingHorizontal: 12,
