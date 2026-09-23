@@ -43,16 +43,16 @@ export function getQaMonetizationOverride(): boolean | null {
   return qaMonetizationOverride;
 }
 
-/** Master switch. Off until FOP / paid launch — Plus stays open for testing. */
+/** Master switch. Production sets `EXPO_PUBLIC_MONETIZATION=1`. Off = Plus stays open for testing. */
 export function isMonetizationEnabled(): boolean {
   if (qaMonetizationOverride != null) return qaMonetizationOverride;
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_MONETIZATION === '1';
 }
 
 /**
- * While this is on, new installs are stamped as Founder (first-50 window).
- * Turn off after ~50 users so later installs get standard pricing.
- * QA can also force Founder via Settings without this env.
+ * Optional Early Access enrollment (not used for the standard paid launch).
+ * While on, new installs are stamped Founder. Leave unset for standard-only pricing.
+ * QA can still force Founder via Settings on plan-switch builds.
  */
 export function isEarlyAccessEnrollmentOpen(): boolean {
   return typeof process !== 'undefined' && process.env.EXPO_PUBLIC_EARLY_ACCESS === '1';

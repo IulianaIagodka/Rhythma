@@ -14,7 +14,8 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_IAP_PLUS": "1"
+        "EXPO_PUBLIC_IAP_PLUS": "1",
+        "EXPO_PUBLIC_MONETIZATION": "1"
       }
     },
     "testflight": {

@@ -25,7 +25,6 @@ import {
   setQaMonetizationOverride,
   shouldShowEarlyAccessAnnouncement,
   shouldShowPaywall,
-  yearlyPricePln,
 } from './src/monetization';
 import {
   firstCycleTrialJustEnded,
@@ -296,7 +295,6 @@ export default function App() {
     monetizationSettings,
     unlockSource,
   );
-  const yearlyPriceLabel = `${yearlyPricePln(data.settings.pricingCohort)} zł`;
   const hasCalendarSync = hasFeatureAccess(storedTier, 'calendarSync', data.periodStarts, monetizationSettings);
   const hasEventLoadAdvice = hasFeatureAccess(storedTier, 'eventLoadAdvice', data.periodStarts, monetizationSettings);
   const hasPhasePlanningLists = hasFeatureAccess(storedTier, 'phasePlanningLists', data.periodStarts, monetizationSettings);
@@ -817,7 +815,6 @@ export default function App() {
                 <PlusFreeCard
                   theme={theme}
                   language={language}
-                  pricingCohort={data.settings.pricingCohort}
                   showPaywall={showPaywall}
                   onUnlock={() => {
                     persist({ ...data, settings: { ...data.settings, accessTier: 'pro' } });

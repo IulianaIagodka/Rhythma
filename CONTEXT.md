@@ -113,38 +113,45 @@ While the user has **exactly one** logged period start (and is on Free, no previ
 
 ### Monetization (paid launch)
 
-Gate: **`secondCycle && monetizationEnabled` → paywall** (`EXPO_PUBLIC_MONETIZATION=1`).
+Gate: **`secondCycle && monetizationEnabled` → paywall**.
 
-While monetization is **off** (no FOP yet), Plus stays unlocked for wider testing.
+**Shipping path (standard only, no Founder price):**
 
-| Cohort | Path | Yearly |
-| --- | --- | --- |
-| First ~50 (`EXPO_PUBLIC_EARLY_ACCESS=1` at install) | Early Access → announcement → 1 final free cycle → **Founder** | **29.99 zł** |
-| Everyone after | Install → 1 free cycle → Plus | **49.99 zł** |
+| Step | Behavior |
+| --- | --- |
+| Install | Cohort defaults to **standard** (`EXPO_PUBLIC_EARLY_ACCESS` unset) |
+| First logged cycle | Plus features free |
+| Second period start | Paywall — monthly / yearly via StoreKit |
+| Purchase / Restore | `accessTier: 'pro'` |
 
-Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleLimit`, `qaMonetizationEnabled`. Logic in `src/monetization.ts`.
+`production` in `eas.json` sets `EXPO_PUBLIC_IAP_PLUS=1` and `EXPO_PUBLIC_MONETIZATION=1`.
 
-**QA (TestFlight / plan switch):** Settings toggles — Monetization on/off, Founder/Standard cohort, Reset Early Access notice. No rebuild needed.
+Early Access / Founder code paths remain in `monetization.ts` for optional QA (`EXPO_PUBLIC_EARLY_ACCESS` or TestFlight cohort toggle) but are **not** part of this launch — do not ship a separate Founder SKU.
+
+**QA (TestFlight / plan switch):** Settings toggles — Monetization on/off, cohort, Reset Early Access notice. No rebuild needed.
 
 ### Subscriptions (StoreKit)
 
-| Plan | Product ID | Listed price (docs) |
+| Plan | Product ID | ASC docs (USD base) |
 | --- | --- | --- |
 | Monthly | `app.rhythma.cycle.plus.monthly` | $2.99 |
 | Yearly | `app.rhythma.cycle.plus.yearly` | $14.99 |
 
 - Type: auto-renewable **`subs`** (not Non-Consumable).
 - **Never reuse** retired Non-Consumable id `app.rhythma.cycle.plus` (burned in ASC).
-- Purchase UI only when `EXPO_PUBLIC_IAP_PLUS=1`.
+- Purchase UI when `EXPO_PUBLIC_IAP_PLUS=1`; lock when monetization is on and free cycle is over.
 - Restore via StoreKit; unlocks set `accessTier: 'pro'`. No app login — Apple ID owns the sub.
+- Privacy + EULA: `docs/privacy.md` · Apple Standard EULA link for ASC.
 
 ### Env flags
 
 | Flag | Effect |
 | --- | --- |
 | `EXPO_PUBLIC_IAP_PLUS=1` | Paywall / subscribe UI + `expo-iap` plugin |
-| `EXPO_PUBLIC_PLAN_SWITCH=1` | Free / Plus QA switch in Settings |
+| `EXPO_PUBLIC_MONETIZATION=1` | Paid gate (second cycle → paywall); **on in production** |
+| `EXPO_PUBLIC_PLAN_SWITCH=1` | Free / Plus QA switch + monetization QA toggles |
 | `EXPO_PUBLIC_UNLOCK_PRO=1` | Force Plus (development profile) |
+| `EXPO_PUBLIC_EARLY_ACCESS=1` | Optional: stamp Founder at install (**off for this launch**) |
 | `__DEV__` | Also enables plan switch |
 
 `canSwitchPlan()` = plan-switch env **or** `__DEV__` **or** `isTestFlightRuntime()`.
@@ -155,11 +162,11 @@ Settings: `pricingCohort`, `earlyAccessAnnouncementSeen`, `earlyAccessFreeCycleL
 
 | Profile | Use for | Env |
 | --- | --- | --- |
-| `production` | App Store | `EXPO_PUBLIC_IAP_PLUS=1` — **no** plan switch |
-| `testflight` | **QA / TestFlight** | production + `EXPO_PUBLIC_PLAN_SWITCH=1` |
+| `production` | App Store | `IAP_PLUS=1` + `MONETIZATION=1` — **no** plan switch |
+| `testflight` | **QA / TestFlight** | production + `PLAN_SWITCH=1` |
 | `preview` / `internal` | Internal QA | plan switch |
-| `development` | Dev client | `EXPO_PUBLIC_UNLOCK_PRO=1` |
-| `plus` | Alias of production (IAP already on) |
+| `development` | Dev client | `UNLOCK_PRO=1` |
+| `plus` | Alias of production |
 
 `cli.appVersionSource` is **remote**; `production` has `autoIncrement` for iOS **build number** only.
 
@@ -278,6 +285,7 @@ Existing tests: `access`, `activity`, `calendar`, `chartPath`, `cycle`, `feedbac
 ## Current release snapshot (update when stale)
 
 - App marketing version: **1.0.8** — keep until this version is released on the App Store; bump only afterward (or if the user asks).
+- **Paid launch:** `production` has `IAP_PLUS` + `MONETIZATION` on; standard pricing only (no Founder SKU); first cycle free.
 - Default git branch for new work unless told otherwise: **`main`**.
 
 When this file drifts from the code, **trust the code and `eas.json`**, then update this briefing.

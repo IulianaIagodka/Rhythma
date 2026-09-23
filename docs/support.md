@@ -33,13 +33,16 @@ Or use **Settings → Send feedback** in the app — it opens Mail with version 
 
 ## Rhythma Plus
 
-Monthly or yearly subscription in Settings unlocks:
+The first logged cycle includes Plus features free. After that, a monthly or yearly subscription in Settings unlocks:
 
 - **Cycle insight** — short phase and hormone context
 - **Schedule insight** — what fits your plans and activities when Calendar sync is on
 - **Energy curve** — tap the sparkline for energy with estrogen and progesterone
 
-Use **Restore purchase** on a new device if you already subscribed. Cancel anytime in iPhone Settings → Apple ID → Subscriptions.
+Payment is handled by Apple (Apple ID). Use **Restore purchase** on a new device if you already subscribed. Cancel anytime in iPhone Settings → Apple ID → Subscriptions.
+
+Privacy and subscription details: [Privacy](privacy.md) · [HTML](privacy.html)  
+Terms of Use (EULA): [Apple Standard EULA](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/)
 
 ---
 
@@ -92,6 +95,8 @@ Cycle data lives only on this iPhone. Deleting the app deletes that data. There 
 Your cycle data stays on this iPhone. Rhythma does not create an account and does not upload cycle data to a server.
 
 Calendar access is used only when you turn on Calendar sync. Rhythma reads events to show them next to your cycle. It does not send calendar data off the device.
+
+Plus subscriptions are billed by Apple. Rhythma does not collect payment card details. See the privacy policy for purchase details and the Apple Standard EULA link.
 
 **Why does iOS ask for Full Access?** iOS calls this “Full Access” because it does not provide a read-only Calendar permission. Rhythma only reads events to show them in the app. It does not create, edit, or delete your calendar events.
 
@@ -157,13 +162,16 @@ Rhythma — приватний трекер циклу для iPhone. Можна
 
 ## Rhythma Plus
 
-Щомісячна або річна підписка в Налаштуваннях відкриває:
+Перший записаний цикл включає функції Plus безкоштовно. Далі щомісячна або річна підписка в Налаштуваннях відкриває:
 
 - **Підказка циклу** — коротка інформація про фазу й гормони
 - **Підказка розкладу** — що пасує до планів і активностей, коли синхронізація календаря увімкнена
 - **Крива енергії** — натисніть міні-графік, щоб відкрити енергію з естрогеном і прогестероном
 
-На новому пристрої скористайтесь **Відновити покупку**, якщо Plus уже оформлено. Скасування: Налаштування iPhone → Apple ID → Підписки.
+Оплата через Apple (Apple ID). На новому пристрої скористайтесь **Відновити покупку**, якщо Plus уже оформлено. Скасування: Налаштування iPhone → Apple ID → Підписки.
+
+Приватність і підписка: [Privacy](privacy.md) · [HTML](privacy.html)  
+Умови використання (EULA): [стандартна EULA Apple](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/)
 
 ## Як користуватись
 
@@ -210,6 +218,8 @@ Rhythma бере мову з iPhone (англійська або українс�
 Дані циклу залишаються на цьому iPhone. Rhythma не створює акаунт і не надсилає цикл на сервер.
 
 Доступ до календаря потрібен лише якщо увімкнути Синхронізацію календаря. Rhythma читає події, щоб показати їх поруч із циклом. Календарні дані з пристрою не відправляються.
+
+Підписка Plus оплачується через Apple. Rhythma не збирає дані картки. Деталі покупок і посилання на стандартну EULA Apple — у політиці приватності.
 
 **Чому iOS просить «Повний доступ»?** iOS називає це «Повний доступ», бо немає дозволу лише на читання Календаря. Rhythma лише читає події, щоб показати їх у додатку. Вона не створює, не редагує й не видаляє ваші події календаря.
 
