@@ -113,6 +113,7 @@ In the app:
 - **Settings** → **Sources & Methodology** (how estimates work + research links, no purchase required)
 - Small ⓘ on period / ovulation / energy estimates opens the relevant methodology section
 - **Settings** → **Send feedback** opens an email to support with app version details prefilled
+- **Settings** → **Version** shows the app version/build and links to Privacy Policy and Terms of Use (EULA)
 
 Rhythma is not a medical device and does not provide medical advice. External links open in Safari.
 
@@ -234,6 +235,7 @@ Rhythma пояснює, як формуються оцінки, і дає пос
 - **Налаштування** → **Джерела та методологія**
 - Маленький ⓘ біля оцінок (прогноз, овуляція, енергія) відкриває відповідний розділ
 - **Налаштування** → **Надіслати відгук** відкриває лист на пошту підтримки з версією додатку
+- **Налаштування** → **Версія** показує версію/білд і посилання на політику приватності та умови використання (EULA)
 
 Rhythma не є медичним виробом і не надає медичних порад. Зовнішні посилання відкриваються в Safari.
 
