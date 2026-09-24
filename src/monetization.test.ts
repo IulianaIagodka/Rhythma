@@ -133,4 +133,35 @@ describe('monetization', () => {
     });
   });
 
+  it('shipping path: no Early Access announcement for standard cohort', () => {
+    withEnv({ EXPO_PUBLIC_MONETIZATION: '1' }, () => {
+      assert.equal(shouldShowEarlyAccessAnnouncement('free', standard), false);
+      assert.equal(shouldShowEarlyAccessAnnouncement('pro', standard), false);
+    });
+  });
+
+  it('hides the paywall while a preview unlock is active', () => {
+    withEnv({ EXPO_PUBLIC_MONETIZATION: '1' }, () => {
+      assert.equal(
+        shouldShowPaywall(['2026-01-01', '2026-02-01'], 'free', standard, 'plus'),
+        false,
+      );
+      assert.equal(
+        shouldShowPaywall(['2026-01-01', '2026-02-01'], 'free', standard, 'dev'),
+        false,
+      );
+    });
+  });
+
+  it('dedupes period starts when deciding second cycle and free-cycle window', () => {
+    withEnv({ EXPO_PUBLIC_MONETIZATION: '1' }, () => {
+      assert.equal(isSecondCycle(['2026-01-01', '2026-01-01']), false);
+      assert.equal(isInFreePlusCycle(['2026-01-01', '2026-01-01'], standard), true);
+      assert.equal(
+        shouldShowPaywall(['2026-01-01', '2026-01-01', '2026-02-01'], 'free', standard),
+        true,
+      );
+    });
+  });
+
 });
