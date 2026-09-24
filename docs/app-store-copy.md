@@ -23,13 +23,16 @@ With Rhythma, you can:
 • Switch between light and dark themes
 • Use the app in English or Ukrainian
 
-Rhythma Plus (monthly or yearly auto-renewable subscription) unlocks Cycle insight, Schedule insight, and the Energy curve for phase-aware planning. The first logged cycle includes Plus features free; subscribe afterward to keep them. Payment is charged to your Apple ID. Cancel anytime in Apple ID settings. Privacy Policy: https://iulianaiagodka.github.io/Rhythma/privacy.html — Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Rhythma Plus (monthly or yearly auto-renewable subscription) unlocks Cycle insight, Schedule insight, and the Energy curve for phase-aware planning. The first logged cycle includes Plus features free; subscribe afterward to keep them. Payment is charged to your Apple ID. Cancel anytime in Apple ID settings.
 
 Your calendar shows what you have planned. Rhythma adds the context of how you may feel.
 
 Cycle and ovulation predictions are estimates for informational and wellness purposes only. Rhythma is not a medical device and should not be used for diagnosis or contraception.
 
-In-app **Sources & Methodology** (no purchase required) explains how estimates work and cites PubMed, NCBI Bookshelf, and ACOG. Open from **Settings → Sources & Methodology**, or via ⓘ on period / ovulation / energy estimates.
+In-app Sources & Methodology (no purchase required) explains how estimates work and cites PubMed, NCBI Bookshelf, and ACOG. Open from Settings → Sources & Methodology, or via ⓘ on period / ovulation / energy estimates.
+
+Privacy Policy: https://iulianaiagodka.github.io/Rhythma/privacy.html
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 ---
 
@@ -91,6 +94,9 @@ Connect your iPhone calendar to see events alongside your cycle.
 #### RHYTHMA PLUS
 First cycle free. Then unlock Cycle insight, Schedule insight, and Energy curve with a monthly or yearly subscription. Restore anytime. Cancel in Apple ID settings.
 
+Privacy Policy: https://iulianaiagodka.github.io/Rhythma/privacy.html
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
 #### LIGHT OR DARK THEME
 Personalise your appearance. Available in English and Ukrainian.
 
@@ -132,6 +138,8 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 - Support URL: `https://iulianaiagodka.github.io/Rhythma/`
 - Privacy Policy URL: `https://iulianaiagodka.github.io/Rhythma/privacy.html`
 - Terms of Use (EULA): `https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+  - With **Apple’s Standard License Agreement**, Apple still requires this **functional link in the App Description** (visible on the product page). Put it on its own line near Privacy Policy.
+  - Custom EULA would instead be uploaded under App Information → License Agreement.
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - iPhone only (iPad support is off).
 - Copyright: © 2026 Iuliana Iagodka
