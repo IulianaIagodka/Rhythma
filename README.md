@@ -64,4 +64,12 @@ Cycle data is stored locally with AsyncStorage. Calendar sync is used only when 
 
 Bundle ID: `app.rhythma.cycle`  
 App Store Connect: `6802549751`  
+App Store: https://apps.apple.com/app/id6802549751  
 iPhone only (iPad is off for now)
+
+There is no committed `ios/` tree or `Info.plist` — Expo/EAS generates them at build time from `app.json` / `app.config.js` (calendar usage strings, bundle id, etc.).
+
+## License
+
+Source code: see [`LICENSE`](LICENSE) (proprietary, © 2026 Iuliana Iagodka).  
+App Store end-user terms: Apple’s Standard EULA (configured in App Store Connect).
