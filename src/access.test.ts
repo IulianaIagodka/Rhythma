@@ -140,4 +140,32 @@ describe('access', () => {
       else process.env.EXPO_PUBLIC_MONETIZATION = previous;
     }
   });
+
+  it('unlocks Plus for the free cycle when monetization settings are passed', () => {
+    const previous = process.env.EXPO_PUBLIC_MONETIZATION;
+    process.env.EXPO_PUBLIC_MONETIZATION = '1';
+    const standard = {
+      pricingCohort: 'standard' as const,
+      earlyAccessAnnouncementSeen: false,
+      earlyAccessFreeCycleLimit: null,
+    };
+    try {
+      assert.equal(
+        hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17'], standard),
+        true,
+      );
+      assert.equal(
+        hasFeatureAccess('free', 'eventLoadAdvice', ['2026-08-17', '2026-09-14'], standard),
+        false,
+      );
+      assert.equal(
+        hasFeatureAccess('free', 'cycleRhythm', ['2026-08-17', '2026-09-14'], standard),
+        false,
+      );
+      assert.equal(hasFeatureAccess('free', 'calendarSync', ['2026-08-17', '2026-09-14'], standard), true);
+    } finally {
+      if (previous == null) delete process.env.EXPO_PUBLIC_MONETIZATION;
+      else process.env.EXPO_PUBLIC_MONETIZATION = previous;
+    }
+  });
 });

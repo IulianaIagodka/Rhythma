@@ -55,12 +55,28 @@ iuliana.iagodka@gmail.com
 • Confirm predicted cycle day / predicted ovulation labels on forecast dates
 • Turn on Calendar sync; confirm events appear next to the cycle
 • Switch Light / Dark theme
-• **Paid path:** first cycle keeps Plus free; after a second period start, Plus locks until purchase or Restore (Sandbox)
-• On TestFlight builds: Free / Plus switch and QA monetization toggles in Settings
 • Confirm the app follows English or Ukrainian from the iPhone language
 • Open **Settings → Sources & Methodology** (no Plus purchase required)
 
+**Paid / Plus (production & TestFlight store builds)**
+
+• **Settings → Rhythma Plus** — Monthly / Yearly prices load from StoreKit (not “—” / SKU not found)
+• Product IDs in use: `app.rhythma.cycle.plus.monthly`, `app.rhythma.cycle.plus.yearly`
+• First logged period start: Plus features stay free (Cycle insight, Schedule insight, Energy curve)
+• Second period start: Plus locks; paywall / subscribe UI in Settings
+• Sandbox purchase (monthly or yearly) unlocks Plus; **Restore purchase** works after reinstall
+• Cancel path: iPhone Settings → Apple ID → Subscriptions (Sandbox)
+• App Description on the product page includes functional links:
+  - Privacy Policy: `https://iulianaiagodka.github.io/Rhythma/privacy.html`
+  - Terms of Use (EULA): `https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+• Paid Apps Agreement is **Active** (not Pending User Info)
+
+**TestFlight-only**
+
+• Free / Plus switch and QA monetization toggles in Settings (`testflight` profile)
+
 No sign-in. Reviewers can open the app and use it immediately.
+App Store: https://apps.apple.com/app/id6802549751
 
 ---
 
@@ -129,9 +145,11 @@ period tracker,cycle tracker,period calendar,menstrual cycle,cycle calendar,peri
 
 - Current App Store Connect app ID: `6802549751`
 - Bundle ID: `app.rhythma.cycle`
+- App Store URL: `https://apps.apple.com/app/id6802549751` (PL: `https://apps.apple.com/pl/app/rhythma-cycle-plans/id6802549751`)
 - Support URL: `https://iulianaiagodka.github.io/Rhythma/`
 - Privacy Policy URL: `https://iulianaiagodka.github.io/Rhythma/privacy.html`
 - Terms of Use (EULA): `https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+  - With Apple’s Standard License Agreement, still put this **functional link in the App Description** (product page). Custom EULA would be uploaded under License Agreement instead.
 - No fertility or ovulation focus — the product is about integrating the cycle into daily planning.
 - iPhone only (iPad support is off).
 - Copyright: © 2026 Iuliana Iagodka

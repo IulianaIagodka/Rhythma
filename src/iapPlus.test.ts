@@ -32,4 +32,11 @@ describe('iapPlus', () => {
     assert.equal(isPlusSku(PLUS_SKU_YEARLY), true);
     assert.equal(isPlusSku('app.rhythma.cycle.plus'), false);
   });
+
+  it('ships only monthly and yearly SKUs — no Founder product id', () => {
+    assert.equal(PLUS_SKUS.length, 2);
+    assert.ok(!PLUS_SKUS.some((sku) => sku.includes('founder')));
+    assert.equal(isPlusSku('app.rhythma.cycle.plus.founder.yearly'), false);
+    assert.equal(plusPlanForSku('app.rhythma.cycle.plus.founder.yearly'), null);
+  });
 });
